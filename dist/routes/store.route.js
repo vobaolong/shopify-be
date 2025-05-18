@@ -1,0 +1,41 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const router = express_1.default.Router();
+const store_validator_1 = __importDefault(require("../validators/store.validator"));
+const validateHandler_1 = require("../helpers/validateHandler");
+// Import route constants
+const route_constant_1 = require("../constants/route.constant");
+const auth_controller_1 = require("../controllers/auth.controller");
+const user_controller_1 = require("../controllers/user.controller");
+const upload_controller_1 = require("../controllers/upload.controller");
+const store_controller_1 = require("../controllers/store.controller");
+const product_controller_1 = require("../controllers/product.controller");
+router.get(route_constant_1.ROUTES.STORE.GET_STORE, store_controller_1.getStore);
+router.get(route_constant_1.ROUTES.STORE.PROFILE, auth_controller_1.isAuth, auth_controller_1.isManager, store_controller_1.getStoreProfile);
+router.get(route_constant_1.ROUTES.STORE.LIST_STORES, store_controller_1.getStoreCommissions, store_controller_1.getStores);
+router.get(route_constant_1.ROUTES.STORE.STORES_BY_USER, auth_controller_1.isAuth, store_controller_1.getStoreCommissions, store_controller_1.getStoresByUser);
+router.get(route_constant_1.ROUTES.STORE.STORES_FOR_ADMIN, auth_controller_1.isAuth, auth_controller_1.isAdmin, store_controller_1.getStoreCommissions, store_controller_1.getStoresForAdmin);
+router.post(route_constant_1.ROUTES.STORE.CREATE, auth_controller_1.isAuth, upload_controller_1.uploadSingleImage, store_controller_1.createStore);
+router.put(route_constant_1.ROUTES.STORE.UPDATE, auth_controller_1.isAuth, auth_controller_1.isManager, store_validator_1.default.updateStore(), validateHandler_1.validateHandler, store_controller_1.updateStore);
+router.put(route_constant_1.ROUTES.STORE.ACTIVE, auth_controller_1.isAuth, auth_controller_1.isAdmin, store_validator_1.default.activeStore(), validateHandler_1.validateHandler, store_controller_1.activeStore, product_controller_1.activeAllProduct);
+router.get(route_constant_1.ROUTES.STORE.COMMISSION, store_controller_1.getCommission);
+router.put(route_constant_1.ROUTES.STORE.COMMISSION_UPDATE, auth_controller_1.isAuth, auth_controller_1.isAdmin, store_validator_1.default.updateCommission(), validateHandler_1.validateHandler, store_controller_1.updateCommission);
+router.put(route_constant_1.ROUTES.STORE.OPEN, auth_controller_1.isAuth, auth_controller_1.isManager, store_validator_1.default.openStore(), validateHandler_1.validateHandler, store_controller_1.openStore);
+router.put(route_constant_1.ROUTES.STORE.AVATAR, auth_controller_1.isAuth, auth_controller_1.isManager, upload_controller_1.uploadSingleImage, store_controller_1.updateAvatar);
+router.put(route_constant_1.ROUTES.STORE.COVER, auth_controller_1.isAuth, auth_controller_1.isManager, upload_controller_1.uploadSingleImage, store_controller_1.updateCover);
+router.get(route_constant_1.ROUTES.STORE.FEATURED_IMAGES, store_controller_1.getListFeatureImages);
+router.post(route_constant_1.ROUTES.STORE.ADD_FEATURED_IMAGE, auth_controller_1.isAuth, auth_controller_1.isManager, upload_controller_1.uploadMultipleImagesController, store_controller_1.addFeatureImage);
+router.put(route_constant_1.ROUTES.STORE.UPDATE_FEATURED_IMAGE, auth_controller_1.isAuth, auth_controller_1.isManager, upload_controller_1.uploadMultipleImagesController, store_controller_1.updateFeatureImage);
+router.delete(route_constant_1.ROUTES.STORE.DELETE_FEATURED_IMAGE, auth_controller_1.isAuth, auth_controller_1.isManager, store_controller_1.removeFeaturedImage);
+router.get(route_constant_1.ROUTES.STORE.STAFF, auth_controller_1.isAuth, auth_controller_1.isManager, store_controller_1.getStaffs);
+router.post(route_constant_1.ROUTES.STORE.ADD_STAFF, auth_controller_1.isAuth, auth_controller_1.isOwner, store_controller_1.addStaff);
+router.delete(route_constant_1.ROUTES.STORE.REMOVE_STAFF, auth_controller_1.isAuth, auth_controller_1.isOwner, store_controller_1.removeStaff);
+router.delete(route_constant_1.ROUTES.STORE.CANCEL_STAFF, auth_controller_1.isAuth, auth_controller_1.isManager, store_controller_1.cancelStaff);
+//router params
+router.param('userId', user_controller_1.userById);
+router.param('storeId', store_controller_1.getStoreById);
+exports.default = router;
