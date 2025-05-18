@@ -36,8 +36,8 @@ type FilterType = {
 
 export const getProductById: RequestParamHandler = (
 	req: ProductRequest,
-	res: Response,
-	next: NextFunction,
+	res,
+	next,
 	id: string
 ) => {
 	ProductModel.findById(id)
@@ -203,7 +203,7 @@ export const createProduct: RequestHandler = (
 	product
 		.save()
 		.then((product) => {
-			res.status(200).json({
+			res.status(201).json({
 				success: 'Creating product successfully',
 				product
 			})
@@ -637,8 +637,8 @@ interface CategoryWithNestedId extends Document {
 
 export const getProductCategories: RequestHandler = (
 	req: ProductRequest,
-	res: Response,
-	next: NextFunction
+	res,
+	next
 ) => {
 	ProductModel.distinct('categoryId', { isActive: true, isSelling: true })
 		.exec()
@@ -697,8 +697,8 @@ export const getProductCategories: RequestHandler = (
 
 export const getProductCategoriesByStore: RequestHandler = (
 	req: ProductRequest,
-	res: Response,
-	next: NextFunction
+	res,
+	next
 ) => {
 	ProductModel.distinct('categoryId', {
 		storeId: req.store?._id,

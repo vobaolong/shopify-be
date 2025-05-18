@@ -36,13 +36,13 @@ interface UserFilterType extends FilterType {
 
 export const userById: RequestParamHandler = (
 	req: UserRequest,
-	res: Response,
-	next: NextFunction,
+	res,
+	next,
 	id: string
 ) => {
 	try {
 		User.findById(id)
-			.then((user) => {
+			.then((user: any) => {
 				if (!user) {
 					res.status(404).json({
 						error: 'User not found'
@@ -68,10 +68,11 @@ export const getUser: RequestHandler = (req: UserRequest, res: Response) => {
 		res.status(404).json({
 			error: 'User not found'
 		})
+		return
 	}
 	res.status(200).json({
 		success: 'Get user successfully',
-		user: cleanUser(req.user)
+		user: cleanUser(req.user.toObject ? req.user.toObject() : req.user)
 	})
 }
 
@@ -84,10 +85,11 @@ export const getUserProfile: RequestHandler = (
 			res.status(404).json({
 				error: 'User not found'
 			})
+			return
 		}
 
 		User.findOne({ _id: req.user._id })
-			.then((user) => {
+			.then((user: any) => {
 				if (!user) {
 					res.status(404).json({
 						error: 'User not found'
@@ -96,7 +98,7 @@ export const getUserProfile: RequestHandler = (
 				}
 				res.status(200).json({
 					success: 'Get user profile successfully',
-					user: cleanUserLess(user)
+					user: cleanUserLess(user.toObject ? user.toObject() : user)
 				})
 			})
 			.catch(() => {
@@ -135,6 +137,7 @@ export const updateProfile: RequestHandler = (
 			res.status(400).json({
 				error: 'Can not update Google email address'
 			})
+			return
 		}
 
 		const isEmailActive =
@@ -157,7 +160,7 @@ export const updateProfile: RequestHandler = (
 			},
 			{ new: true }
 		)
-			.then((user) => {
+			.then((user: any) => {
 				if (!user) {
 					res.status(500).json({
 						error: 'User not found'
@@ -166,10 +169,10 @@ export const updateProfile: RequestHandler = (
 				}
 				res.status(200).json({
 					success: 'Update user successfully.',
-					user: cleanUserLess(user)
+					user: cleanUserLess(user.toObject ? user.toObject() : user)
 				})
 			})
-			.catch((error) => {
+			.catch((error: any) => {
 				res.status(400).json({
 					error: errorHandler(error as MongoError)
 				})
@@ -202,7 +205,7 @@ export const updatePassword: RequestHandler = (
 			{ _id: req.user._id },
 			{ $set: { hashed_password: encryptedPassword } }
 		)
-			.then((updatedUser) => {
+			.then((updatedUser: any) => {
 				if (!updatedUser) {
 					res.status(500).json({
 						error: 'User not found'
@@ -212,7 +215,7 @@ export const updatePassword: RequestHandler = (
 					success: 'Update new password successfully'
 				})
 			})
-			.catch((error) => {
+			.catch((error: any) => {
 				res.status(400).json({
 					error: errorHandler(error as MongoError)
 				})
@@ -257,7 +260,7 @@ export const addAddress: RequestHandler = (req: UserRequest, res: Response) => {
 					{ $set: { addresses } },
 					{ new: true }
 				)
-					.then((user) => {
+					.then((user: any) => {
 						if (!user) {
 							res.status(500).json({
 								error: 'User not found'
@@ -267,16 +270,16 @@ export const addAddress: RequestHandler = (req: UserRequest, res: Response) => {
 
 						res.status(200).json({
 							success: 'Add address successfully',
-							user: cleanUserLess(user)
+							user: cleanUserLess(user.toObject ? user.toObject() : user)
 						})
 					})
-					.catch((error) => {
+					.catch((error: any) => {
 						res.status(400).json({
 							error: errorHandler(error as MongoError)
 						})
 					})
 			})
-			.catch((error) => {
+			.catch((error: any) => {
 				res.status(400).json({
 					error: errorHandler(error as MongoError)
 				})
@@ -360,7 +363,7 @@ export const updateAddress: RequestHandler = async (
 
 		res.status(200).json({
 			success: 'Update address successfully',
-			user: cleanUserLess(user)
+			user: cleanUserLess(user.toObject ? user.toObject() : user)
 		})
 	} catch (error) {
 		res.status(400).json({
@@ -410,7 +413,7 @@ export const removeAddress: RequestHandler = async (
 
 		res.status(200).json({
 			success: 'Remove address successfully',
-			user: cleanUserLess(user)
+			user: cleanUserLess(user.toObject ? user.toObject() : user)
 		})
 	} catch (error) {
 		res.status(400).json({
@@ -454,7 +457,7 @@ export const updateAvatar: RequestHandler = async (
 		}
 		res.status(200).json({
 			success: 'Update avatar successfully',
-			user: cleanUserLess(user)
+			user: cleanUserLess(user.toObject ? user.toObject() : user)
 		})
 	} catch (error) {
 		if (req.filepaths && req.filepaths.length > 0) {
@@ -506,7 +509,7 @@ export const updateCover: RequestHandler = async (
 
 		res.status(200).json({
 			success: 'Update cover successfully',
-			user: cleanUserLess(user)
+			user: cleanUserLess(user.toObject ? user.toObject() : user)
 		})
 	} catch (error) {
 		if (req.filepaths && req.filepaths.length > 0) {
@@ -592,7 +595,7 @@ export const listUser: RequestHandler = async (
 			.sort({ [sortBy as string]: order, _id: 1 })
 			.limit(limit)
 			.skip(skip)
-		const cleanedUsers = users.map((user) => cleanUser(user))
+		const cleanedUsers = users.map((user: any) => cleanUser(user))
 		res.status(200).json({
 			success: 'Load list users successfully',
 			filter,
@@ -689,7 +692,7 @@ export const listUserForAdmin: RequestHandler = async (
 			.sort({ [sortBy as string]: order, _id: 1 })
 			.skip(skip)
 			.limit(limit)
-		const cleanedUsers = users.map((user) => cleanUserLess(user))
+		const cleanedUsers = users.map((user: any) => cleanUserLess(user))
 		res.status(200).json({
 			success: 'Load list users successfully',
 			filter,

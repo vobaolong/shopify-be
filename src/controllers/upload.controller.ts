@@ -9,6 +9,7 @@ import {
 	deleteMultipleImages,
 	createTempDirectory
 } from '../helpers/cloudinary'
+import { errorHandler, MongoError } from '../helpers/errorHandler'
 
 interface UploadRequest extends Omit<Request, 'files'> {
 	file?: any
@@ -48,7 +49,7 @@ export const uploadSingleImage: RequestHandler = async (
 	} catch (error) {
 		res.status(500).json({
 			error: 'Error uploading image',
-			message: (error as Error).message
+			message: errorHandler(error as MongoError)
 		})
 		return
 	}
@@ -90,7 +91,7 @@ export const uploadMultipleImagesController: RequestHandler = async (
 	} catch (error) {
 		res.status(500).json({
 			error: 'Error uploading images',
-			message: (error as Error).message
+			message: errorHandler(error as MongoError)
 		})
 		return
 	}
@@ -128,7 +129,7 @@ export const uploadBase64Image: RequestHandler = async (
 	} catch (error) {
 		res.status(500).json({
 			error: 'Error uploading base64 image',
-			message: (error as Error).message
+			message: errorHandler(error as MongoError)
 		})
 		return
 	}
@@ -165,7 +166,7 @@ export const deleteImageController: RequestHandler = async (
 	} catch (error) {
 		res.status(500).json({
 			error: 'Error deleting image',
-			message: (error as Error).message
+			message: errorHandler(error as MongoError)
 		})
 		return
 	}
@@ -194,7 +195,7 @@ export const deleteMultipleImagesController: RequestHandler = async (
 	} catch (error) {
 		res.status(500).json({
 			error: 'Error deleting images',
-			message: (error as Error).message
+			message: errorHandler(error as MongoError)
 		})
 		return
 	}

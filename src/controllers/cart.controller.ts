@@ -11,9 +11,9 @@ import { errorHandler, MongoError } from '../helpers/errorHandler'
 import { CustomRequest, FilterOptions } from '../types/cart.type'
 
 export const getCartById: RequestParamHandler = async (
-	req: Request,
-	res: Response,
-	next: NextFunction,
+	req,
+	res,
+	next,
 	id: string
 ) => {
 	try {
@@ -35,8 +35,8 @@ export const getCartById: RequestParamHandler = async (
 
 export const getCartItemById: RequestParamHandler = async (
 	req: CustomRequest,
-	res: Response,
-	next: NextFunction,
+	res,
+	next,
 	id: string
 ) => {
 	try {
@@ -58,8 +58,8 @@ export const getCartItemById: RequestParamHandler = async (
 
 export const createCart: RequestHandler = async (
 	req: CustomRequest,
-	res: Response,
-	next: NextFunction
+	res,
+	next
 ) => {
 	try {
 		const { storeId } = req.body
@@ -85,15 +85,15 @@ export const createCart: RequestHandler = async (
 		next()
 	} catch (error) {
 		res.status(400).json({
-			error: 'Create cart failed'
+			error: errorHandler(error as MongoError)
 		})
 	}
 }
 
 export const createCartItem: RequestHandler = async (
 	req: CustomRequest,
-	res: Response,
-	next: NextFunction
+	res,
+	next
 ) => {
 	try {
 		const { productId, variantValueIds, count } = req.body
@@ -279,8 +279,8 @@ export const getListCartItem: RequestHandler = async (
 }
 
 export const updateCartItem: RequestHandler = async (
-	req: Request,
-	res: Response
+	req,
+	res
 ) => {
 	try {
 		const { count } = req.body
@@ -317,7 +317,6 @@ export const updateCartItem: RequestHandler = async (
 				populate: { path: 'variantId' }
 			})
 			.exec()
-
 		res.status(200).json({
 			success: 'Update cart item successfully',
 			item,
@@ -331,9 +330,9 @@ export const updateCartItem: RequestHandler = async (
 }
 
 export const removeCartItem: RequestHandler = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+	req,
+	res,
+	next
 ) => {
 	try {
 		await CartItem.deleteOne({ _id: (req as any).cartItem._id }).exec()
@@ -359,8 +358,8 @@ export const removeCartItem: RequestHandler = async (
 }
 
 export const removeCart: RequestHandler = async (
-	req: Request,
-	res: Response
+	req,
+	res
 ) => {
 	try {
 		const cart = await Cart.findOneAndUpdate(
@@ -389,8 +388,8 @@ export const removeCart: RequestHandler = async (
 }
 
 export const countCartItems: RequestHandler = async (
-	req: Request,
-	res: Response
+	req,
+	res
 ) => {
 	try {
 		const result = await CartItem.aggregate([

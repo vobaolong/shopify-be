@@ -11,9 +11,9 @@ import {
 } from 'express'
 
 export const getTransactionById: RequestParamHandler = async (
-	req: Request,
-	res: Response,
-	next: NextFunction,
+	req,
+	res,
+	next,
 	id: string
 ) => {
 	try {
@@ -25,13 +25,13 @@ export const getTransactionById: RequestParamHandler = async (
 		req.transaction = transaction
 		next()
 	} catch (error) {
-		res.status(404).json({ error: 'Transaction not found' })
+		res.status(404).json({ error: errorHandler(error as MongoError) })
 	}
 }
 
 export const readTransaction: RequestHandler = async (
-	req: Request,
-	res: Response
+	req,
+	res
 ) => {
 	try {
 		const transaction = await Transaction.findOne({ _id: req.transaction?._id })
@@ -47,14 +47,14 @@ export const readTransaction: RequestHandler = async (
 			transaction
 		})
 	} catch (error) {
-		res.status(500).json({ error: 'Transaction not found' })
+		res.status(500).json({ error: errorHandler(error as MongoError) })
 	}
 }
 
 export const requestTransaction: RequestHandler = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+	req,
+	res,
+	next
 ) => {
 	const { isUp, code, amount } = req.body
 	if (
@@ -195,6 +195,6 @@ export const getTransactions: RequestHandler = async (req, res) => {
 			transactions
 		})
 	} catch (error) {
-		res.status(500).json({ error: 'Load list transactions failed' })
+		res.status(500).json({ error: errorHandler(error as MongoError) })
 	}
 }

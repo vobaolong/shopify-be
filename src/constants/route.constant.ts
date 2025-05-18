@@ -52,7 +52,6 @@ export const ROUTES = {
 	},
 	// User Favorite Product routes
 	USER_FAVORITE_PRODUCT: {
-		BASE: '/favorite',
 		FAVORITE_COUNT: '/product/favorite-count/:productId',
 		FAVORITE_PRODUCT: '/favorite/product/:productId/:userId',
 		UNFAVORITE_PRODUCT: '/unfavorite/product/:productId/:userId',
@@ -68,13 +67,10 @@ export const ROUTES = {
 
 	// Brand routes
 	BRAND: {
-		BASE: '/brand',
-
 		GET_BY_ID: '/brand/:brandId',
 		ACTIVE: '/brands/active',
 		LIST: '/brands',
 		LIST_FOR_ADMIN: '/admin/:userId/brands',
-
 		CREATE: '/brand/:userId',
 		UPDATE: '/brand/:brandId/:userId',
 		DELETE: '/brand/:brandId/:userId',
@@ -82,12 +78,9 @@ export const ROUTES = {
 	},
 	// Cart routes
 	CART: {
-		BASE: '/cart',
-
 		COUNT: '/user/:userId/cart/count',
 		LIST: '/user/:userId/cart',
 		ITEMS: '/user/:userId/cart/:cartId/items',
-
 		ADD: '/user/:userId/cart',
 		UPDATE: '/user/:userId/cart/item/:cartItemId',
 		REMOVE: '/user/:userId/cart/item/:cartItemId'
@@ -95,16 +88,14 @@ export const ROUTES = {
 	// Category routes
 	CATEGORY: {
 		BASE: '/category',
-
 		GET_BY_ID: '/category/:categoryId',
-		LIST_BY_USER: '/user/:userId/categories',
+		LIST_BY_ADMIN: '/categories',
 		LIST_BY_STORE: '/store/:storeId/categories',
 		ACTIVE: '/categories/active',
-
-		CREATE: '/category/:userId',
-		UPDATE: '/category/:categoryId/:userId',
-		DELETE: '/category/:categoryId/:userId',
-		RESTORE: '/category/:categoryId/:userId/restore'
+		CREATE: '/category/create',
+		UPDATE: '/category/:categoryId',
+		DELETE: '/category/:categoryId',
+		RESTORE: '/category/:categoryId/restore'
 	},
 	// Commission routes
 	COMMISSION: {

@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction, RequestHandler } from 'express'
+import { Request, Response, RequestHandler } from 'express'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
-import { errorHandler } from '../helpers/errorHandler'
+import { errorHandler, MongoError } from '../helpers/errorHandler'
 import { User, RefreshToken } from '../models/index.model'
 import { Role } from '../enums/index.enum'
 import {
@@ -21,22 +21,22 @@ export const signup = async (req: AuthRequest, res: Response) => {
 		const user = new User({ firstName, lastName, email, phone, password })
 		await user.save()
 
-		res.status(200).json({
+		res.status(201).json({
 			success: 'Signing up successfully, you can sign in now',
 			user
 		})
 	} catch (error) {
 		res.status(400).json({
-			error: error instanceof Error ? error.message : error
+			error: errorHandler(error as MongoError)
 		})
 	}
 }
 
 // Hàm đăng nhập tài khoản
 export const signin = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+	req: any,
+	res: any,
+	next: any
 ) => {
 	try {
 		const { email, phone, password } = req.body
@@ -99,7 +99,7 @@ export const createToken: RequestHandler = async (req, res, next) => {
 		const token = new RefreshToken({ jwt: refreshToken })
 		await token.save()
 
-		res.status(200).json({
+		res.status(201).json({
 			success: 'Sign in successfully',
 			accessToken,
 			refreshToken,
@@ -202,8 +202,8 @@ export const refreshToken: RequestHandler = async (
 // Hàm quên mật khẩu
 export const forgotPassword: RequestHandler = async (
 	req: ForgotPasswordRequest,
-	res: Response,
-	next: NextFunction
+	res,
+	next
 ) => {
 	try {
 		const { email, phone } = req.body
@@ -285,8 +285,8 @@ export const changePassword: RequestHandler<{ forgotPasswordCode: string }> = as
 // Hàm đăng nhập bằng Google
 export const authSocial: RequestHandler = async (
 	req: SocialAuthRequest,
-	res: Response,
-	next: NextFunction
+	res,
+	next
 ) => {
 	try {
 		const { googleId } = req.body
@@ -314,8 +314,8 @@ export const authSocial: RequestHandler = async (
 // Hàm cập nhật thông tin tài khoản
 export const authUpdate: RequestHandler = async (
 	req: AuthUpdateRequest,
-	res: Response,
-	next: NextFunction
+	res,
+	next
 ) => {
 	if (req.auth) {
 		next()
@@ -355,9 +355,9 @@ export const authUpdate: RequestHandler = async (
 
 // Hàm kiểm tra mật khẩu
 export const verifyPassword: RequestHandler = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+	req,
+	res,
+	next
 ) => {
 	try {
 		const { currentPassword } = req.body
@@ -391,10 +391,10 @@ export const verifyPassword: RequestHandler = async (
 }
 
 // Hàm kiểm tra quyền đăng nhập
-export const isAuth: RequestHandler = (
+export const isAuth: RequestHandler = async (
 	req: AuthenticatedRequest,
-	res: Response,
-	next: NextFunction
+	res,
+	next
 ) => {
 	const authHeader = req.headers && req.headers.authorization
 	const token = authHeader && authHeader.split(' ')[1]
@@ -408,30 +408,32 @@ export const isAuth: RequestHandler = (
 	jwt.verify(
 		token,
 		process.env.ACCESS_TOKEN_SECRET as string,
-		(error: any, decoded: any) => {
+		async (error: any, decoded: any) => {
 			if (error) {
 				res.status(401).json({
 					error: 'Unauthorized! Please sign in again'
 				})
 				return
 			}
-
-			if (req.user && req.user._id == decoded._id) {
-				next()
-			} else {
-				res.status(403).json({
-					error: 'Access denied'
+			// Lấy user từ database
+			const user = await User.findById(decoded._id)
+			if (!user) {
+				res.status(401).json({
+					error: 'User not found'
 				})
+				return
 			}
+			req.user = user
+			next()
 		}
 	)
 }
 
 // Hàm kiểm tra quyền quản lý cửa hàng
 export const isManager: RequestHandler = (
-	req: Request,
-	res: Response,
-	next: NextFunction
+	req,
+	res,
+	next
 ) => {
 	const user = req.user as { _id: mongoose.Types.ObjectId }
 	const store = req.store as {
@@ -462,9 +464,9 @@ export const isManager: RequestHandler = (
 
 // Hàm kiểm tra quyền chủ cửa hàng
 export const isOwner: RequestHandler = (
-	req: Request,
-	res: Response,
-	next: NextFunction
+	req,
+	res,
+	next
 ) => {
 	const user = req.user as { _id: mongoose.Types.ObjectId }
 	const store = req.store as {
@@ -493,7 +495,7 @@ export const isOwner: RequestHandler = (
 export const isAdmin: RequestHandler = (
 	req: AuthenticatedRequest,
 	res: Response,
-	next: NextFunction
+	next
 ) => {
 	if (req.user.role !== Role.ADMIN) {
 		res.status(403).json({

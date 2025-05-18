@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
 import { validationResult } from 'express-validator'
-import express from 'express'
 
 export const validateHandler = (
 	req: Request,
@@ -13,7 +12,5 @@ export const validateHandler = (
 		res.status(400).json({ error: firstError })
 		return
 	}
-
 	next()
 }
-export const asRouteHandler = (handler: any) => handler as express.RequestHandler

@@ -3,7 +3,7 @@ import express from 'express'
 // Import route constants
 import { ROUTES } from '../constants/route.constant'
 
-//import controllers
+// Controllers
 import {
 	getReports,
 	createReport,
@@ -12,13 +12,16 @@ import {
 
 const router = express.Router()
 
-// GET REPORTS
+// ----------- GET ROUTES -----------
 router.get(ROUTES.REPORT.LIST, getReports)
 
-// CREATE REPORT
+// ----------- POST ROUTES -----------
 router.post(ROUTES.REPORT.CREATE, createReport)
 
-// DELETE REPORT
+// ----------- DELETE ROUTES -----------
 router.delete(ROUTES.REPORT.DELETE, deleteReport)
+
+// ----------- PARAMS -----------
+// (No params for report routes)
 
 export default router

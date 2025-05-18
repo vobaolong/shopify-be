@@ -10,9 +10,9 @@ import {
 import { FilterType } from '../types/controller.types'
 
 export const getBrandById: RequestParamHandler = async (
-	req: Request,
-	res: Response,
-	next: NextFunction,
+	req,
+	res,
+	next,
 	id: string
 ) => {
 	try {
@@ -31,7 +31,7 @@ export const getBrandById: RequestParamHandler = async (
 	}
 }
 
-export const getBrand: RequestHandler = async (req: Request, res: Response) => {
+export const getBrand: RequestHandler = async (req, res) => {
 	try {
 		const brand = await Brand.findOne({ _id: req.brand?._id })
 			.populate({
@@ -61,9 +61,9 @@ export const getBrand: RequestHandler = async (req: Request, res: Response) => {
 }
 
 export const checkBrand: RequestHandler = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+	req,
+	res,
+	next
 ) => {
 	try {
 		const { name, categoryIds } = req.body
@@ -86,8 +86,8 @@ export const checkBrand: RequestHandler = async (
 }
 
 export const createBrand: RequestHandler = async (
-	req: Request,
-	res: Response
+	req,
+	res
 ) => {
 	try {
 		const { name, categoryIds } = req.body
@@ -105,7 +105,7 @@ export const createBrand: RequestHandler = async (
 
 		const savedBrand = await brand.save()
 
-		res.status(200).json({
+		res.status(201).json({
 			success: 'Create brand successfully',
 			brand: savedBrand
 		})
@@ -117,8 +117,8 @@ export const createBrand: RequestHandler = async (
 }
 
 export const updateBrand: RequestHandler = async (
-	req: Request,
-	res: Response
+	req,
+	res
 ) => {
 	try {
 		const { name, categoryIds } = req.body
@@ -149,9 +149,9 @@ export const updateBrand: RequestHandler = async (
 }
 
 export const removeBrand: RequestHandler = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+	req,
+	res,
+	next
 ) => {
 	try {
 		const brand = await Brand.findOneAndUpdate(
@@ -175,9 +175,9 @@ export const removeBrand: RequestHandler = async (
 }
 
 export const restoreBrand: RequestHandler = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+	req,
+	res,
+	next
 ) => {
 	try {
 		const brand = await Brand.findOneAndUpdate(

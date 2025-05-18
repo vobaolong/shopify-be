@@ -40,7 +40,7 @@ export type ControllerFunction = (
 
 export type ParamControllerFunction = (
 	req: Request,
-	res: Response,
-	next: NextFunction,
+	res,
+	next,
 	id: string
 ) => Promise<Response | void> | Response | void

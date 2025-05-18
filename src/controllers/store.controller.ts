@@ -89,6 +89,7 @@ export const getStoreById: RequestParamHandler = async (
 		res.status(404).json({
 			error: 'Store not found'
 		})
+		return
 	}
 }
 
@@ -117,6 +118,7 @@ export const getStore: RequestHandler = async (
 		res.status(404).json({
 			error: 'Store not found'
 		})
+		return
 	}
 }
 
@@ -153,6 +155,7 @@ export const getStoreProfile: RequestHandler = async (
 		res.status(404).json({
 			error: 'Store not found'
 		})
+		return
 	}
 }
 
@@ -471,7 +474,7 @@ export const openStore: RequestHandler = async (
 export const updateAvatar = async (
 	req: StoreRequest,
 	res: Response
-): Promise<Response | void> => {
+): Promise<void> => {
 	try {
 		const oldpath = req.store.avatar
 
@@ -491,10 +494,10 @@ export const updateAvatar = async (
 					fs.unlinkSync('public' + req.filepaths[0])
 				}
 			} catch { }
-
-			return res.status(500).json({
+			res.status(500).json({
 				error: 'Store not found'
 			})
+			return
 		}
 
 		if (oldpath && oldpath !== '/uploads/default.webp') {
@@ -502,14 +505,12 @@ export const updateAvatar = async (
 				fs.unlinkSync('public' + oldpath)
 			} catch { }
 		}
-
 		// Cast to IUser before using cleanUser
 		store.ownerId = safeCleanUser(store.ownerId)
 		store.staffIds.forEach((staff, index) => {
 			store.staffIds[index] = safeCleanUser(staff)
 		})
-
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Update avatar successfully',
 			store
 		})
@@ -520,7 +521,7 @@ export const updateAvatar = async (
 			}
 		} catch { }
 
-		return res.status(500).json({
+		res.status(500).json({
 			error: errorHandler(error as MongoError)
 		})
 	}
@@ -530,7 +531,7 @@ export const updateAvatar = async (
 export const updateCover = async (
 	req: StoreRequest,
 	res: Response
-): Promise<Response | void> => {
+): Promise<void> => {
 	try {
 		const oldpath = req.store.cover
 
@@ -551,15 +552,17 @@ export const updateCover = async (
 				}
 			} catch { }
 
-			return res.status(500).json({
+			res.status(500).json({
 				error: 'Store not found'
 			})
+			return
 		}
 
 		if (oldpath && oldpath !== '/uploads/default.webp') {
 			try {
 				fs.unlinkSync('public' + oldpath)
 			} catch { }
+			return
 		}
 
 		// Cast to IUser before using cleanUser
@@ -568,7 +571,7 @@ export const updateCover = async (
 			store.staffIds[index] = safeCleanUser(staff)
 		})
 
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Update cover successfully',
 			store
 		})
@@ -579,7 +582,7 @@ export const updateCover = async (
 			}
 		} catch { }
 
-		return res.status(500).json({
+		res.status(500).json({
 			error: errorHandler(error as MongoError)
 		})
 	}
@@ -589,9 +592,9 @@ export const updateCover = async (
 export const getListFeatureImages = (
 	req: StoreRequest,
 	res: Response
-): Response => {
+): void => {
 	const featured_images = req.store.featured_images
-	return res.status(200).json({
+	res.status(200).json({
 		success: 'load cover successfully',
 		featured_images
 	})
@@ -601,7 +604,7 @@ export const getListFeatureImages = (
 export const addFeatureImage = async (
 	req: StoreRequest,
 	res: Response
-): Promise<Response | void> => {
+): Promise<void> => {
 	try {
 		const featured_images = req.store.featured_images
 
@@ -613,9 +616,10 @@ export const addFeatureImage = async (
 				}
 			} catch { }
 
-			return res.status(400).json({
+			res.status(400).json({
 				error: 'Limit is 7 images'
 			})
+			return
 		}
 
 		const store = await Store.findOneAndUpdate(
@@ -635,9 +639,10 @@ export const addFeatureImage = async (
 				}
 			} catch { }
 
-			return res.status(500).json({
+			res.status(500).json({
 				error: 'Store not found'
 			})
+			return
 		}
 
 		// Cast to IUser before using cleanUser
@@ -646,7 +651,7 @@ export const addFeatureImage = async (
 			store.staffIds[index] = safeCleanUser(staff)
 		})
 
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Add featured image successfully',
 			store
 		})
@@ -657,7 +662,7 @@ export const addFeatureImage = async (
 			}
 		} catch { }
 
-		return res.status(500).json({
+		res.status(500).json({
 			error: errorHandler(error as MongoError)
 		})
 	}
@@ -667,15 +672,16 @@ export const addFeatureImage = async (
 export const updateFeatureImage = async (
 	req: StoreRequest,
 	res: Response
-): Promise<Response | void> => {
+): Promise<void> => {
 	try {
 		const index = req.query.index ? parseInt(req.query.index) : -1
 		const image = req.filepaths ? req.filepaths[0] : undefined
 
 		if (index === -1 || !image) {
-			return res.status(400).json({
+			res.status(400).json({
 				error: 'Update feature image failed'
 			})
+			return
 		}
 
 		const featured_images = req.store.featured_images
@@ -683,10 +689,10 @@ export const updateFeatureImage = async (
 			try {
 				fs.unlinkSync('public' + image)
 			} catch { }
-
-			return res.status(404).json({
+			res.status(404).json({
 				error: 'Feature image not found'
 			})
+			return
 		}
 
 		const oldpath = featured_images[index]
@@ -707,9 +713,10 @@ export const updateFeatureImage = async (
 				fs.unlinkSync('public' + image)
 			} catch { }
 
-			return res.status(500).json({
+			res.status(500).json({
 				error: 'Store not found'
 			})
+			return
 		}
 
 		if (oldpath && oldpath !== '/uploads/default.webp') {
@@ -724,7 +731,7 @@ export const updateFeatureImage = async (
 			store.staffIds[index] = safeCleanUser(staff)
 		})
 
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Update feature image successfully',
 			store
 		})
@@ -735,7 +742,7 @@ export const updateFeatureImage = async (
 			}
 		} catch { }
 
-		return res.status(400).json({
+		res.status(400).json({
 			error: errorHandler(error as MongoError)
 		})
 	}
@@ -745,20 +752,22 @@ export const updateFeatureImage = async (
 export const removeFeaturedImage = async (
 	req: StoreRequest,
 	res: Response
-): Promise<Response | void> => {
+): Promise<void> => {
 	try {
 		const index = req.query.index ? parseInt(req.query.index) : -1
 		if (index === -1) {
-			return res.status(400).json({
+			res.status(400).json({
 				error: 'Update feature image failed'
 			})
+			return
 		}
 
 		const featured_images = req.store.featured_images
 		if (index >= featured_images.length) {
-			return res.status(404).json({
+			res.status(404).json({
 				error: 'Feature image not found'
 			})
+			return
 		}
 
 		try {
@@ -778,9 +787,10 @@ export const removeFeaturedImage = async (
 			.exec()
 
 		if (!store) {
-			return res.status(500).json({
+			res.status(500).json({
 				error: 'Store not found'
 			})
+			return
 		}
 
 		// Cast to IUser before using cleanUser
@@ -789,12 +799,12 @@ export const removeFeaturedImage = async (
 			store.staffIds[index] = safeCleanUser(staff)
 		})
 
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Remove featured image successfully',
 			store
 		})
 	} catch (error) {
-		return res.status(400).json({
+		res.status(400).json({
 			error: errorHandler(error as MongoError)
 		})
 	}
@@ -804,7 +814,7 @@ export const removeFeaturedImage = async (
 export const getStaffs = async (
 	req: StoreRequest,
 	res: Response
-): Promise<Response | void> => {
+): Promise<void> => {
 	try {
 		const store = await Store.findOne({ _id: req.store._id })
 			.select('staffIds')
@@ -815,9 +825,10 @@ export const getStaffs = async (
 			.exec()
 
 		if (!store) {
-			return res.status(500).json({
+			res.status(500).json({
 				error: 'Store not found'
 			})
+			return
 		}
 
 		// Create a properly typed copy of the populated staff data
@@ -834,16 +845,14 @@ export const getStaffs = async (
 				maskedStaff.phone = '*******' + maskedStaff.phone.slice(-3)
 			if (maskedStaff.id_card)
 				maskedStaff.id_card = maskedStaff.id_card.slice(0, 3) + '******'
-
 			return maskedStaff
 		})
-
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Load list staff successfully',
 			staff: staffWithMaskedInfo
 		})
 	} catch (error) {
-		return res.status(500).json({
+		res.status(500).json({
 			error: 'Load list staff failed'
 		})
 	}
@@ -853,13 +862,13 @@ export const getStaffs = async (
 export const addStaff = async (
 	req: StoreRequest,
 	res: Response
-): Promise<Response | void> => {
+): Promise<void> => {
 	try {
 		const { staff } = req.body as { staff: string[] }
 		const staffIds = req.store.staffIds
 
 		if (staff.length > 6 - staffIds.length) {
-			return res.status(400).json({
+			res.status(400).json({
 				error: 'The limit is 6 staff'
 			})
 		}
@@ -870,7 +879,7 @@ export const addStaff = async (
 		})
 
 		if (count !== staff.length) {
-			return res.status(400).json({
+			res.status(400).json({
 				error: 'User is invalid'
 			})
 		}
@@ -894,9 +903,10 @@ export const addStaff = async (
 			.exec()
 
 		if (!store) {
-			return res.status(500).json({
+			res.status(500).json({
 				error: 'Store not found'
 			})
+			return
 		}
 
 		store.ownerId = safeCleanUser(store.ownerId)
@@ -904,12 +914,12 @@ export const addStaff = async (
 			staff = safeCleanUser(staff)
 		})
 
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Add staff successfully',
 			store
 		})
 	} catch (error) {
-		return res.status(400).json({
+		res.status(400).json({
 			error: errorHandler(error as MongoError)
 		})
 	}
@@ -919,16 +929,17 @@ export const addStaff = async (
 export const cancelStaff = async (
 	req: StoreRequest,
 	res: Response
-): Promise<Response | void> => {
+): Promise<void> => {
 	try {
 		const userId = req.user._id
 		const staffIds = [...req.store.staffIds]
 
 		const index = staffIds.indexOf(userId)
 		if (index === -1) {
-			return res.status(400).json({
+			res.status(400).json({
 				error: 'User is not staff'
 			})
+			return
 		}
 
 		staffIds.splice(index, 1)
@@ -944,16 +955,17 @@ export const cancelStaff = async (
 			.exec()
 
 		if (!store) {
-			return res.status(500).json({
+			res.status(500).json({
 				error: 'Store not found'
 			})
+			return
 		}
 
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Cancel staff successfully'
 		})
 	} catch (error) {
-		return res.status(400).json({
+		res.status(400).json({
 			error: errorHandler(error as MongoError)
 		})
 	}
@@ -963,21 +975,23 @@ export const cancelStaff = async (
 export const removeStaff = async (
 	req: StoreRequest,
 	res: Response
-): Promise<Response | void> => {
+): Promise<void> => {
 	try {
 		const { staff } = req.body as { staff: string }
 		if (!staff) {
-			return res.status(400).json({
+			res.status(400).json({
 				error: 'Staff is required'
 			})
+			return
 		}
 
 		const staffIds = [...req.store.staffIds]
 		const index = staffIds.indexOf(staff)
 		if (index === -1) {
-			return res.status(400).json({
+			res.status(400).json({
 				error: 'User is not staff'
 			})
+			return
 		}
 
 		staffIds.splice(index, 1)
@@ -993,22 +1007,22 @@ export const removeStaff = async (
 			.exec()
 
 		if (!store) {
-			return res.status(500).json({
+			res.status(500).json({
 				error: 'Store not found'
 			})
+			return
 		}
 
 		store.ownerId = safeCleanUser(store.ownerId)
 		store.staffIds.forEach((staff) => {
 			staff = safeCleanUser(staff)
 		})
-
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Remove staff successfully',
 			store
 		})
 	} catch (error) {
-		return res.status(400).json({
+		res.status(400).json({
 			error: errorHandler(error as MongoError)
 		})
 	}
@@ -1025,9 +1039,10 @@ export const getStoreCommissions = (
 		{},
 		(error: Error, commissions: mongoose.Types.ObjectId[]) => {
 			if (error) {
-				return res.status(400).json({
+				res.status(400).json({
 					error: 'Commissions not found'
 				})
+				return
 			}
 
 			req.loadedCommissions = commissions
@@ -1084,9 +1099,10 @@ export const getStores = (req: StoreRequest, res: Response): void => {
 
 	Store.countDocuments(filterArgs, (error: Error, count: number) => {
 		if (error) {
-			return res.status(404).json({
+			res.status(404).json({
 				error: 'Stores not found'
 			})
+			return
 		}
 
 		const size = count
@@ -1098,12 +1114,13 @@ export const getStores = (req: StoreRequest, res: Response): void => {
 		}
 
 		if (count <= 0) {
-			return res.status(200).json({
+			res.status(200).json({
 				success: 'Load list stores successfully',
 				filter,
 				size,
 				stores: []
 			})
+			return
 		}
 
 		Store.find(filterArgs)
@@ -1125,7 +1142,7 @@ export const getStores = (req: StoreRequest, res: Response): void => {
 					store.staffIds = store.staffIds.map((staff) => safeCleanUser(staff))
 				})
 
-				return res.status(200).json({
+				res.status(200).json({
 					success: 'Load list stores successfully',
 					filter,
 					size,
@@ -1133,7 +1150,7 @@ export const getStores = (req: StoreRequest, res: Response): void => {
 				})
 			})
 			.catch(() => {
-				return res.status(500).json({
+				res.status(500).json({
 					error: 'Load list stores failed'
 				})
 			})
@@ -1215,9 +1232,10 @@ export const getStoresByUser = (req: StoreRequest, res: Response): void => {
 
 	Store.countDocuments(filterArgs, (error: Error, count: number) => {
 		if (error) {
-			return res.status(404).json({
+			res.status(404).json({
 				error: 'Stores not found'
 			})
+			return
 		}
 
 		const size = count
@@ -1229,12 +1247,13 @@ export const getStoresByUser = (req: StoreRequest, res: Response): void => {
 		}
 
 		if (count <= 0) {
-			return res.status(200).json({
+			res.status(200).json({
 				success: 'Load list stores successfully',
 				filter,
 				size,
 				stores: []
 			})
+			return
 		}
 
 		Store.find(filterArgs)
@@ -1256,7 +1275,7 @@ export const getStoresByUser = (req: StoreRequest, res: Response): void => {
 					store.staffIds = store.staffIds.map((staff) => safeCleanUser(staff))
 				})
 
-				return res.status(200).json({
+				res.status(200).json({
 					success: 'Load list stores by user successfully',
 					filter,
 					size,
@@ -1264,7 +1283,7 @@ export const getStoresByUser = (req: StoreRequest, res: Response): void => {
 				})
 			})
 			.catch(() => {
-				return res.status(500).json({
+				res.status(500).json({
 					error: 'Load list stores failed'
 				})
 			})
@@ -1327,9 +1346,10 @@ export const getStoresForAdmin = (req: StoreRequest, res: Response): void => {
 
 	Store.countDocuments(filterArgs, (error: Error, count: number) => {
 		if (error) {
-			return res.status(404).json({
+			res.status(404).json({
 				error: 'Stores not found'
 			})
+			return
 		}
 
 		const size = count
@@ -1341,12 +1361,13 @@ export const getStoresForAdmin = (req: StoreRequest, res: Response): void => {
 		}
 
 		if (count <= 0) {
-			return res.status(200).json({
+			res.status(200).json({
 				success: 'Load list stores successfully',
 				filter,
 				size,
 				stores: []
 			})
+			return
 		}
 
 		Store.find(filterArgs)
@@ -1370,7 +1391,7 @@ export const getStoresForAdmin = (req: StoreRequest, res: Response): void => {
 					)
 				})
 
-				return res.status(200).json({
+				res.status(200).json({
 					success: 'Load list stores successfully',
 					filter,
 					size,
@@ -1378,7 +1399,7 @@ export const getStoresForAdmin = (req: StoreRequest, res: Response): void => {
 				})
 			})
 			.catch(() => {
-				return res.status(500).json({
+				res.status(500).json({
 					error: 'Load list stores failed'
 				})
 			})

@@ -3,7 +3,7 @@ import { errorHandler, MongoError } from '../helpers/errorHandler'
 import { Request, Response, NextFunction, RequestHandler } from 'express'
 import { FilterType } from '../types/controller.types'
 
-export const getReviewById: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const getReviewById: RequestHandler = async (req, res, next) => {
 	try {
 		const review = await Review.findById(req.params.id)
 		if (!review) {
@@ -16,12 +16,12 @@ export const getReviewById: RequestHandler = async (req: Request, res: Response,
 		next()
 	} catch (error) {
 		res.status(404).json({
-			error: 'Review not found'
+			error: errorHandler(error as MongoError)
 		})
 	}
 }
 
-export const checkReview: RequestHandler = async (req: Request, res: Response) => {
+export const checkReview: RequestHandler = async (req, res) => {
 	try {
 		const { orderId, productId } = req.body
 		const review = await Review.findOne({
@@ -42,12 +42,12 @@ export const checkReview: RequestHandler = async (req: Request, res: Response) =
 		})
 	} catch (error) {
 		res.status(404).json({
-			error: 'Review not found'
+			error: errorHandler(error as MongoError)
 		})
 	}
 }
 
-export const createReview: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const createReview: RequestHandler = async (req, res, next) => {
 	try {
 		const { content, rating, storeId, productId, orderId } = req.body
 
@@ -69,7 +69,7 @@ export const createReview: RequestHandler = async (req: Request, res: Response, 
 
 		const savedReview = await review.save()
 		if (next) next()
-		res.status(200).json({
+		res.status(201).json({
 			success: 'Review successfully',
 			review: savedReview
 		})
@@ -80,7 +80,7 @@ export const createReview: RequestHandler = async (req: Request, res: Response, 
 	}
 }
 
-export const updateReview: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const updateReview: RequestHandler = async (req, res, next) => {
 	try {
 		const { content, rating } = req.body
 
@@ -116,7 +116,7 @@ export const updateReview: RequestHandler = async (req: Request, res: Response, 
 	}
 }
 
-export const deleteReview: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const deleteReview: RequestHandler = async (req, res, next) => {
 	try {
 		const result = await Review.deleteOne({
 			_id: (req as any).review?._id,
@@ -141,7 +141,7 @@ export const deleteReview: RequestHandler = async (req: Request, res: Response, 
 	}
 }
 
-export const deleteReviewByAdmin: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const deleteReviewByAdmin: RequestHandler = async (req, res, next) => {
 	try {
 		const isAdmin = req.user?.role === 'admin'
 		const deleteCondition = {
@@ -177,7 +177,7 @@ export const deleteReviewByAdmin: RequestHandler = async (req: Request, res: Res
 	}
 }
 
-export const updateRating: RequestHandler = async (req: Request, res: Response) => {
+export const updateRating: RequestHandler = async (req, res) => {
 	try {
 		const { productId, storeId } = req.body
 
@@ -236,7 +236,7 @@ export const updateRating: RequestHandler = async (req: Request, res: Response) 
 	} catch (error) { }
 }
 
-export const getReviews: RequestHandler = async (req: Request, res: Response) => {
+export const getReviews: RequestHandler = async (req, res) => {
 	try {
 		const sortBy = req.query.sortBy?.toString() || 'createdAt'
 		const order =
@@ -307,8 +307,8 @@ export const getReviews: RequestHandler = async (req: Request, res: Response) =>
 			.skip(skip)
 			.limit(limit)
 			.populate('userId', '_id firstName lastName avatar')
-			.populate('productId', '_id name listImages isActive isSelling')
-			.populate('storeId', '_id name avatar isActive isOpen')
+			.populate('productId', '_id name')
+			.populate('storeId', '_id name avatar')
 			.populate('orderId', '_id updatedAt')
 
 		res.status(200).json({
@@ -319,7 +319,7 @@ export const getReviews: RequestHandler = async (req: Request, res: Response) =>
 		})
 	} catch (error) {
 		res.status(500).json({
-			error: 'Load list reviews failed'
+			error: errorHandler(error as MongoError)
 		})
 	}
 }

@@ -4,7 +4,7 @@ const router = express.Router()
 // Import route constants
 import { ROUTES } from '../constants/route.constant'
 
-// Import controllers
+// Middlewares
 import { isAuth } from '../controllers/auth.controller'
 import { userById } from '../controllers/user.controller'
 import {
@@ -20,15 +20,24 @@ import {
 	countCartItems
 } from '../controllers/cart.controller'
 
-// Routes
-router.get(ROUTES.CART.COUNT, isAuth, countCartItems)
-router.get(ROUTES.CART.LIST, isAuth, getListCarts)
-router.get(ROUTES.CART.ITEMS, isAuth, getListCartItem)
-router.post(ROUTES.CART.ADD, isAuth, createCart, createCartItem, removeCart)
-router.put(ROUTES.CART.UPDATE, isAuth, updateCartItem)
-router.delete(ROUTES.CART.REMOVE, isAuth, removeCartItem, removeCart)
+// Middleware groups
+const auth = [isAuth]
 
-// Params
+// ----------- GET ROUTES -----------
+router.get(ROUTES.CART.COUNT, ...auth, countCartItems)
+router.get(ROUTES.CART.LIST, ...auth, getListCarts)
+router.get(ROUTES.CART.ITEMS, ...auth, getListCartItem)
+
+// ----------- POST ROUTES -----------
+router.post(ROUTES.CART.ADD, ...auth, createCart, createCartItem, removeCart)
+
+// ----------- PUT ROUTES -----------
+router.put(ROUTES.CART.UPDATE, ...auth, updateCartItem)
+
+// ----------- DELETE ROUTES -----------
+router.delete(ROUTES.CART.REMOVE, ...auth, removeCartItem, removeCart)
+
+// ----------- PARAMS -----------
 router.param('cartId', getCartById)
 router.param('cartItemId', getCartItemById)
 router.param('userId', userById)

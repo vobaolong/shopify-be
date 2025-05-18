@@ -16,14 +16,27 @@ import {
 	getVariantValues
 } from '../controllers/variantValue.controller'
 
-router.get(ROUTES.VARIANT_VALUE.ACTIVE, getActiveVariantValues)
-router.get(ROUTES.VARIANT_VALUE.LIST, isAuth, isAdmin, getVariantValues)
-router.post(ROUTES.VARIANT_VALUE.CREATE, isAuth, createValue)
-router.put(ROUTES.VARIANT_VALUE.UPDATE, isAuth, isAdmin, updateValue)
-router.delete(ROUTES.VARIANT_VALUE.DELETE, isAuth, isAdmin, removeValue)
-router.get(ROUTES.VARIANT_VALUE.RESTORE, isAuth, isAdmin, restoreValue)
+// Middleware groups
+const adminAuth = [isAuth, isAdmin]
+const auth = [isAuth]
 
-//router params
+// ----------- GET ROUTES -----------
+router.get(ROUTES.VARIANT_VALUE.ACTIVE, getActiveVariantValues)
+router.get(ROUTES.VARIANT_VALUE.LIST, ...adminAuth, getVariantValues)
+
+// ----------- POST ROUTES -----------
+router.post(ROUTES.VARIANT_VALUE.CREATE, ...auth, createValue)
+
+// ----------- PUT ROUTES -----------
+router.put(ROUTES.VARIANT_VALUE.UPDATE, ...adminAuth, updateValue)
+
+// ----------- DELETE ROUTES -----------
+router.delete(ROUTES.VARIANT_VALUE.DELETE, ...adminAuth, removeValue)
+
+// ----------- RESTORE ROUTES -----------
+router.get(ROUTES.VARIANT_VALUE.RESTORE, ...adminAuth, restoreValue)
+
+// ----------- PARAMS -----------
 router.param('variantValueId', getValueById)
 router.param('variantId', getVariantById)
 router.param('userId', userById)

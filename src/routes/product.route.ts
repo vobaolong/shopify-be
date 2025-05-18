@@ -4,15 +4,11 @@ const router = express.Router()
 // Import route constants
 import { ROUTES } from '../constants/route.constant'
 
-//import controllers
+// Middlewares
 import { isAuth, isAdmin, isManager } from '../controllers/auth.controller'
 import { userById } from '../controllers/user.controller'
 import { getStoreById } from '../controllers/store.controller'
 import { checkCategoryChild } from '../controllers/category.controller'
-import {
-	uploadMultipleImagesController,
-	uploadSingleImage
-} from '../controllers/upload.controller'
 import {
 	getProductById,
 	getProduct,
@@ -31,98 +27,53 @@ import {
 	getProductsForAdmin,
 	getProductForSeller
 } from '../controllers/product.controller'
+import { uploadProductSingle, uploadProductMultiple } from '../middlewares/uploadCloudinary'
 
-// GET PRODUCT
+// Middleware groups
+const managerAuth = [isAuth, isManager]
+const adminAuth = [isAuth, isAdmin]
+
+// ----------- PRODUCT ROUTES -----------
+// Get product
 router.get(ROUTES.PRODUCT.GET_PRODUCT, getProduct)
 
-// GET PRODUCT FOR MANAGER
-router.get(
-	ROUTES.PRODUCT.PRODUCT_FOR_MANAGER,
-	isAuth,
-	isManager,
-	getProductForSeller
-)
+// Get product for manager
+router.get(ROUTES.PRODUCT.PRODUCT_FOR_MANAGER, ...managerAuth, getProductForSeller)
 
-// GET ACTIVE PRODUCT LIST
+// Get active product list
 router.get(ROUTES.PRODUCT.ACTIVE, getProductCategories, getProducts)
 
-// GET SELLING PRODUCT LIST BY STORE
-router.get(
-	ROUTES.PRODUCT.PRODUCTS_BY_STORE,
-	getProductCategoriesByStore,
-	getProductsByStore
-)
+// Get selling product list by store
+router.get(ROUTES.PRODUCT.PRODUCTS_BY_STORE, getProductCategoriesByStore, getProductsByStore)
 
-// GET PRODUCT LIST BY STORE FOR MANAGER
-router.get(
-	ROUTES.PRODUCT.PRODUCTS_BY_STORE_FOR_MANAGER,
-	isAuth,
-	isManager,
-	getProductCategoriesByStore,
-	getStoreProductsForSeller
-)
+// Get product list by store for manager
+router.get(ROUTES.PRODUCT.PRODUCTS_BY_STORE_FOR_MANAGER, ...managerAuth, getProductCategoriesByStore, getStoreProductsForSeller)
 
-// GET PRODUCT LIST FOR ADMIN
-router.get(
-	ROUTES.PRODUCT.PRODUCTS_FOR_ADMIN,
-	isAuth,
-	isAdmin,
-	getProductsForAdmin
-)
+// Get product list for admin
+router.get(ROUTES.PRODUCT.PRODUCTS_FOR_ADMIN, ...adminAuth, getProductsForAdmin)
 
-// CREATE PRODUCT
-router.post(
-	ROUTES.PRODUCT.CREATE,
-	isAuth,
-	isManager,
-	uploadSingleImage,
-	checkCategoryChild,
-	createProduct
-)
+// Create product
+router.post(ROUTES.PRODUCT.CREATE, ...managerAuth, uploadProductSingle, checkCategoryChild, createProduct)
 
-// UPDATE PRODUCT
-router.put(
-	ROUTES.PRODUCT.UPDATE,
-	isAuth,
-	isManager,
-	uploadSingleImage,
-	checkCategoryChild,
-	updateProduct
-)
+// Update product
+router.put(ROUTES.PRODUCT.UPDATE, ...managerAuth, uploadProductSingle, checkCategoryChild, updateProduct)
 
-// SELLING PRODUCT
-router.put(ROUTES.PRODUCT.SELLING, isAuth, isManager, sellingProduct)
+// Selling product
+router.put(ROUTES.PRODUCT.SELLING, ...managerAuth, sellingProduct)
 
-// ACTIVE PRODUCT
-router.put(ROUTES.PRODUCT.ACTIVE, isAuth, isAdmin, activeProduct)
+// Active product
+router.put(ROUTES.PRODUCT.ACTIVE, ...adminAuth, activeProduct)
 
-// ADD PRODUCT IMAGE
-router.post(
-	ROUTES.PRODUCT.IMAGES_ADD,
-	isAuth,
-	isManager,
-	uploadMultipleImagesController,
-	addToListImages
-)
+// Add product image
+router.post(ROUTES.PRODUCT.IMAGES_ADD, ...managerAuth, uploadProductMultiple, addToListImages)
 
-// UPDATE PRODUCT IMAGE
-router.put(
-	ROUTES.PRODUCT.IMAGES_UPDATE,
-	isAuth,
-	isManager,
-	uploadMultipleImagesController,
-	updateListImages
-)
+// Update product image
+router.put(ROUTES.PRODUCT.IMAGES_UPDATE, ...managerAuth, uploadProductMultiple, updateListImages)
 
-// REMOVE PRODUCT IMAGE
-router.delete(
-	ROUTES.PRODUCT.IMAGES_REMOVE,
-	isAuth,
-	isManager,
-	removeFromListImages
-)
+// Remove product image
+router.delete(ROUTES.PRODUCT.IMAGES_REMOVE, ...managerAuth, removeFromListImages)
 
-// ROUTER PARAMS
+// ----------- PARAMS -----------
 router.param('productId', getProductById)
 router.param('userId', userById)
 router.param('storeId', getStoreById)

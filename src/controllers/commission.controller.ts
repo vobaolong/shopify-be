@@ -71,8 +71,8 @@ export const getCommissions: RequestHandler = async (
 }
 
 export const getActiveCommissions: RequestHandler = async (
-	req: Request,
-	res: Response
+	req,
+	res
 ) => {
 	try {
 		const commissions = await Commission.find({ isDeleted: false })
@@ -106,7 +106,7 @@ export const createCommission: RequestHandler = async (
 			description
 		})
 		await commission.save()
-		res.status(200).json({
+		res.status(201).json({
 			success: 'Create commission successfully'
 		})
 	} catch (error) {

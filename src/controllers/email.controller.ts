@@ -61,7 +61,7 @@ const createEmailTemplate = (
     <h1 style="color: #2266cc"><img src="https://i.imgur.com/uw3oLis.png" alt="Store Image" style="max-width: 4%; height: auto; margin-right: 10px" />${title}</h1>
     <hr/>
     <b>Xin chào ${name},</b>
-    <p>Cảm ơn bạn đã lựa chọn Zenpii.</p>
+    <p>Cảm ơn bạn đã lựa chọn Buynow.</p>
     ${content}
     ${buttonHtml}
     ${!buttonHtml
@@ -78,7 +78,7 @@ const sendEmail = (to: string, subject: string, html: string): Promise<any> => {
 	const message: EmailMessage = {
 		from: process.env.ADMIN_EMAIL,
 		to,
-		subject: `Zenpii E-commerce - ${subject}`,
+		subject: `Buynow E-commerce - ${subject}`,
 		html
 	}
 	return transport.sendMail(message)

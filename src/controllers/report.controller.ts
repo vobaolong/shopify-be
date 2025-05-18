@@ -7,6 +7,7 @@ import {
 	Review
 } from '../models/index.model'
 import { IReport } from '../models/report.model'
+import { errorHandler, MongoError } from '../helpers/errorHandler'
 
 interface ReportRequest extends Request {
 	query: {
@@ -123,7 +124,7 @@ export const getReports: RequestHandler = async (
 			reports: newReports
 		})
 	} catch (error) {
-		res.status(500).json({ message: 'Server error', error })
+		res.status(500).json({ error: errorHandler(error as MongoError) })
 	}
 }
 
@@ -178,7 +179,7 @@ export const createReport: RequestHandler = async (
 
 		res.status(201).json({ message: 'Report submitted successfully' })
 	} catch (error) {
-		res.status(500).json({ message: 'Server error', error })
+		res.status(500).json({ error: errorHandler(error as MongoError) })
 	}
 }
 
@@ -190,6 +191,6 @@ export const deleteReport: RequestHandler = async (
 		await Report.deleteOne({ _id: req.params.id })
 		res.status(200).json({ message: 'Delete successfully' })
 	} catch (error) {
-		res.status(500).json({ message: 'Server error', error })
+		res.status(500).json({ error: errorHandler(error as MongoError) })
 	}
 }

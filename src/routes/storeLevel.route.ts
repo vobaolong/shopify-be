@@ -4,49 +4,45 @@ const router = express.Router()
 // Import route constants
 import { ROUTES } from '../constants/route.constant'
 
-//import validators
+// Middlewares
 import levelValidator from '../validators/level.validator'
 import { validateHandler } from '../helpers/validateHandler'
-
-//import controllers
 import { isAuth, isAdmin } from '../controllers/auth.controller'
 import { userById } from '../controllers/user.controller'
 import { getStoreById } from '../controllers/store.controller'
 import {
-  storeLevelById,
-  getStoreLevel,
-  getStoreLevels,
-  getActiveStoreLevels,
-  createStoreLevel,
-  updateStoreLevel,
-  removeStoreLevel,
-  restoreStoreLevel
+	storeLevelById,
+	getStoreLevel,
+	getStoreLevels,
+	getActiveStoreLevels,
+	createStoreLevel,
+	updateStoreLevel,
+	removeStoreLevel,
+	restoreStoreLevel
 } from '../controllers/storeLevel.controller'
 
-//routes
+// Middleware groups
+const adminAuth = [isAuth, isAdmin]
+const levelValidatorGroup = [levelValidator.level(), validateHandler]
+
+// ----------- GET ROUTES -----------
 router.get(ROUTES.STORE_LEVEL.GET_LEVEL, getStoreLevel)
 router.get(ROUTES.STORE_LEVEL.ACTIVE_LEVELS, getActiveStoreLevels)
-router.get(ROUTES.STORE_LEVEL.LEVELS, isAuth, isAdmin, getStoreLevels)
-router.post(
-  ROUTES.STORE_LEVEL.CREATE,
-  isAuth,
-  isAdmin,
-  levelValidator.level(),
-  validateHandler,
-  createStoreLevel
-)
-router.put(
-  ROUTES.STORE_LEVEL.UPDATE,
-  isAuth,
-  isAdmin,
-  levelValidator.level(),
-  validateHandler,
-  updateStoreLevel
-)
-router.delete(ROUTES.STORE_LEVEL.DELETE, isAuth, isAdmin, removeStoreLevel)
-router.get(ROUTES.STORE_LEVEL.RESTORE, isAuth, isAdmin, restoreStoreLevel)
+router.get(ROUTES.STORE_LEVEL.LEVELS, ...adminAuth, getStoreLevels)
 
-//router params
+// ----------- POST ROUTES -----------
+router.post(ROUTES.STORE_LEVEL.CREATE, ...adminAuth, ...levelValidatorGroup, createStoreLevel)
+
+// ----------- PUT ROUTES -----------
+router.put(ROUTES.STORE_LEVEL.UPDATE, ...adminAuth, ...levelValidatorGroup, updateStoreLevel)
+
+// ----------- DELETE ROUTES -----------
+router.delete(ROUTES.STORE_LEVEL.DELETE, ...adminAuth, removeStoreLevel)
+
+// ----------- RESTORE ROUTES -----------
+router.get(ROUTES.STORE_LEVEL.RESTORE, ...adminAuth, restoreStoreLevel)
+
+// ----------- PARAMS -----------
 router.param('userId', userById)
 router.param('storeId', getStoreById)
 router.param('storeLevelId', storeLevelById)

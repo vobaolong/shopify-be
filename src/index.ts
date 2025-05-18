@@ -7,29 +7,11 @@ import path from 'path'
 import http from 'http'
 import rateLimit from 'express-rate-limit'
 import dotenv from 'dotenv'
-import authRoutes from './routes/auth.route'
-import userRoutes from './routes/user.route'
-import storeRoutes from './routes/store.route'
-import userLevelRoutes from './routes/userLevel.route'
-import storeLevelRoutes from './routes/storeLevel.route'
-import commissionRoutes from './routes/commission.route'
-import userFollowStoreRoutes from './routes/userFollowStore.route'
-import userFavoriteProductRoutes from './routes/userFavoriteProduct.route'
-import categoryRoutes from './routes/category.route'
-import variantRoutes from './routes/variant.route'
-import brandRoutes from './routes/brand.route'
-import variantValueRoutes from './routes/variantValue.route'
-import productRoutes from './routes/product.route'
-import cartRoutes from './routes/cart.route'
-import orderRoutes from './routes/order.route'
-import transactionRoutes from './routes/transaction.route'
-import reviewRoutes from './routes/review.route'
-import addressRoutes from './routes/address.route'
-import reportRoutes from './routes/report.route'
-import notificationRoutes from './routes/notification.route'
-import uploadRoutes from './routes/upload.route'
+import routes from './routes'
 import { initSocketServer } from './socketServer'
 import { Request, Response, NextFunction } from 'express'
+import swaggerUi from 'swagger-ui-express'
+import swaggerSpec from './swagger'
 
 // Initialize environment variables
 dotenv.config()
@@ -102,27 +84,7 @@ app.use(
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 // Router middleware
-app.use('/api', authRoutes)
-app.use('/api', userRoutes)
-app.use('/api', storeRoutes)
-app.use('/api', userLevelRoutes)
-app.use('/api', storeLevelRoutes)
-app.use('/api', commissionRoutes)
-app.use('/api', userFollowStoreRoutes)
-app.use('/api', userFavoriteProductRoutes)
-app.use('/api', categoryRoutes)
-app.use('/api', variantRoutes)
-app.use('/api', brandRoutes)
-app.use('/api', variantValueRoutes)
-app.use('/api', productRoutes)
-app.use('/api', cartRoutes)
-app.use('/api', orderRoutes)
-app.use('/api', transactionRoutes)
-app.use('/api', reviewRoutes)
-app.use('/api', addressRoutes)
-app.use('/api', reportRoutes)
-app.use('/api', notificationRoutes)
-app.use('/api', uploadRoutes)
+app.use(routes)
 
 // Root route for health check
 app.get('/', (req: Request, res: Response) => {
@@ -133,10 +95,10 @@ app.get('/', (req: Request, res: Response) => {
 	})
 })
 
-// 404 handler
-app.use((req: Request, res: Response) => {
-	res.status(404).json({ error: 'Route not found' })
-})
+
+app.use('/api/v1/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+
+
 
 // Error handler middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
@@ -149,8 +111,13 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 // Create HTTP server
 const server = http.createServer(app)
 
+
+// 404 handler
+app.use((req: Request, res: Response) => {
+	res.status(404).json({ error: 'Route not found' })
+})
 // Start server
-const PORT = process.env.PORT || 8000
+const PORT = process.env.PORT || 5000
 server.listen(PORT, () => {
 	console.log(`✅ Server is running on port ${PORT}`)
 	console.log(`✅ Node.js version: ${process.version}`)

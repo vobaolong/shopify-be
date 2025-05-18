@@ -1,21 +1,14 @@
 import { StoreLevel } from '../models/index.model'
 import { errorHandler, MongoError } from '../helpers/errorHandler'
-import { Request, Response, NextFunction } from 'express'
-import { FilterType, ParamControllerFunction, ControllerFunction } from '../types/controller.types'
+import { Request, Response, NextFunction, RequestParamHandler, RequestHandler } from 'express'
+import { FilterType } from '../types/controller.types'
 
-/**
- * Find store level by ID and attach to request object
- * @param req - Express request object
- * @param res - Express response object
- * @param next - Express next middleware function
- * @param id - Store level ID
- */
-export const storeLevelById: ParamControllerFunction = async (req, res, next, id) => {
+export const storeLevelById: RequestParamHandler = async (req, res, next, id: string) => {
 	try {
 		const storeLevel = await StoreLevel.findById(id).exec()
 
 		if (!storeLevel) {
-			return res.status(404).json({
+			res.status(404).json({
 				error: 'Store level not found'
 			})
 		}
@@ -23,18 +16,13 @@ export const storeLevelById: ParamControllerFunction = async (req, res, next, id
 		req.storeLevel = storeLevel
 		next()
 	} catch (error) {
-		return res.status(404).json({
+		res.status(404).json({
 			error: 'Store level not found'
 		})
 	}
 }
 
-/**
- * Get store level based on store points
- * @param req - Express request object
- * @param res - Express response object
- */
-export const getStoreLevel: ControllerFunction = async (req, res) => {
+export const getStoreLevel: RequestHandler = async (req, res) => {
 	try {
 		const point = Math.max(req.store?.point || 0, 0)
 
@@ -47,12 +35,12 @@ export const getStoreLevel: ControllerFunction = async (req, res) => {
 			.exec()
 
 		if (!level) {
-			return res.status(404).json({
+			res.status(404).json({
 				error: 'No matching store level found'
 			})
 		}
 
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Get store level successfully',
 			level: {
 				point: req.store?.point,
@@ -63,131 +51,97 @@ export const getStoreLevel: ControllerFunction = async (req, res) => {
 			}
 		})
 	} catch (error) {
-		return res.status(500).json({
+		res.status(500).json({
 			error: 'Get store level failed'
 		})
 	}
 }
 
-/**
- * Create a new store level
- * @param req - Express request object
- * @param res - Express response object
- */
-export const createStoreLevel: ControllerFunction = async (req, res) => {
+export const createStoreLevel: RequestHandler = async (req, res) => {
 	try {
 		const { name, minPoint, discount, color } = req.body
 		const storeLevel = new StoreLevel({ name, minPoint, discount, color })
-
 		const level = await storeLevel.save()
-
-		return res.status(200).json({
+		res.status(201).json({
 			success: 'Create store level successfully',
 			level
 		})
 	} catch (error) {
-		return res.status(400).json({
+		res.status(400).json({
 			error: errorHandler(error as MongoError)
 		})
 	}
 }
 
-/**
- * Update an existing store level
- * @param req - Express request object
- * @param res - Express response object
- */
-export const updateStoreLevel: ControllerFunction = async (req, res) => {
+export const updateStoreLevel: RequestHandler = async (req, res) => {
 	try {
 		const { name, minPoint, discount, color } = req.body
-
 		const level = await StoreLevel.findOneAndUpdate(
 			{ _id: req.storeLevel?._id },
 			{ $set: { name, minPoint, discount, color } },
 			{ new: true }
 		).exec()
-
 		if (!level) {
-			return res.status(500).json({
+			res.status(500).json({
 				error: 'Store level not found'
 			})
 		}
-
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Update store level successfully',
 			level
 		})
 	} catch (error) {
-		return res.status(400).json({
+		res.status(400).json({
 			error: errorHandler(error as MongoError)
 		})
 	}
 }
 
-/**
- * Soft delete a store level by setting isDeleted to true
- * @param req - Express request object
- * @param res - Express response object
- */
-export const removeStoreLevel: ControllerFunction = async (req, res) => {
+export const removeStoreLevel: RequestHandler = async (req, res) => {
 	try {
 		const level = await StoreLevel.findOneAndUpdate(
 			{ _id: req.storeLevel?._id },
 			{ $set: { isDeleted: true } },
 			{ new: true }
 		).exec()
-
 		if (!level) {
-			return res.status(500).json({
+			res.status(500).json({
 				error: 'Store level not found'
 			})
 		}
-
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Remove store level successfully'
 		})
 	} catch (error) {
-		return res.status(400).json({
+		res.status(400).json({
 			error: errorHandler(error as MongoError)
 		})
 	}
 }
 
-/**
- * Restore a soft-deleted store level
- * @param req - Express request object
- * @param res - Express response object
- */
-export const restoreStoreLevel: ControllerFunction = async (req, res) => {
+export const restoreStoreLevel: RequestHandler = async (req, res) => {
 	try {
 		const level = await StoreLevel.findOneAndUpdate(
 			{ _id: req.storeLevel?._id },
 			{ $set: { isDeleted: false } },
 			{ new: true }
 		).exec()
-
 		if (!level) {
-			return res.status(500).json({
+			res.status(500).json({
 				error: 'Store level not found'
 			})
 		}
-
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Restore store level successfully'
 		})
 	} catch (error) {
-		return res.status(400).json({
+		res.status(400).json({
 			error: errorHandler(error as MongoError)
 		})
 	}
 }
 
-/**
- * List store levels with pagination, sorting and search
- * @param req - Express request object
- * @param res - Express response object
- */
-export const getStoreLevels: ControllerFunction = async (req, res) => {
+export const getStoreLevels: RequestHandler = async (req, res) => {
 	try {
 		const search = req.query.search?.toString() || ''
 		const sortBy = req.query.sortBy?.toString() || '_id'
@@ -195,7 +149,6 @@ export const getStoreLevels: ControllerFunction = async (req, res) => {
 			req.query.order?.toString() && ['asc', 'desc'].includes(req.query.order?.toString())
 				? req.query.order?.toString()
 				: 'asc'
-
 		const limit =
 			req.query.limit && parseInt(req.query.limit.toString()) > 0
 				? parseInt(req.query.limit.toString())
@@ -204,7 +157,6 @@ export const getStoreLevels: ControllerFunction = async (req, res) => {
 			req.query.page && parseInt(req.query.page.toString()) > 0
 				? parseInt(req.query.page.toString())
 				: 1
-
 		const filter: FilterType = {
 			search,
 			sortBy,
@@ -212,64 +164,52 @@ export const getStoreLevels: ControllerFunction = async (req, res) => {
 			limit,
 			pageCurrent: page
 		}
-
 		const searchQuery = { name: { $regex: search, $options: 'i' } }
 		const count = await StoreLevel.countDocuments(searchQuery)
-
 		const size = count
 		const pageCount = Math.ceil(size / limit)
 		filter.pageCount = pageCount
-
 		let skip = limit * (page - 1)
 		if (page > pageCount && pageCount > 0) {
 			skip = (pageCount - 1) * limit
 		}
-
 		if (count <= 0) {
-			return res.status(200).json({
+			res.status(200).json({
 				success: 'Load list store levels successfully',
 				filter,
 				size,
 				levels: []
 			})
 		}
-
 		const levels = await StoreLevel.find(searchQuery)
 			.sort({ [sortBy]: order === 'asc' ? 1 : -1, _id: 1 })
 			.skip(skip)
 			.limit(limit)
 			.exec()
-
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Load list store levels successfully',
 			filter,
 			size,
 			levels
 		})
 	} catch (error) {
-		return res.status(500).json({
+		res.status(500).json({
 			error: 'Load list store levels failed'
 		})
 	}
 }
 
-/**
- * List all active (non-deleted) store levels
- * @param req - Express request object
- * @param res - Express response object
- */
-export const getActiveStoreLevels: ControllerFunction = async (req, res) => {
+export const getActiveStoreLevels: RequestHandler = async (req, res) => {
 	try {
 		const levels = await StoreLevel.find({ isDeleted: false })
 			.sort('minPoint')
 			.exec()
-
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Load list active store levels successfully',
 			levels
 		})
 	} catch (error) {
-		return res.status(500).json({
+		res.status(500).json({
 			error: 'Load list active store levels failed'
 		})
 	}

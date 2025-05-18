@@ -4,57 +4,55 @@ const router = express.Router()
 // Import route constants
 import { ROUTES } from '../constants/route.constant'
 
-//controllers
+// Middlewares
 import {
-  isAuth,
-  isAdmin,
-  isManager,
-  isOwner,
-  verifyPassword
+	isAuth,
+	isAdmin,
+	isManager,
+	isOwner,
+	verifyPassword
 } from '../controllers/auth.controller'
 import { userById, getUserProfile } from '../controllers/user.controller'
 import { getStoreById, getStoreProfile } from '../controllers/store.controller'
 import {
-  requestTransaction,
-  updateEWallet,
-  createTransaction,
-  getTransactions
+	requestTransaction,
+	updateEWallet,
+	createTransaction,
+	getTransactions
 } from '../controllers/transaction.controller'
 
-//routes
-router.get(ROUTES.TRANSACTION.BY_USER, isAuth, getTransactions)
-router.get(ROUTES.TRANSACTION.BY_STORE, isAuth, isManager, getTransactions)
-router.get(ROUTES.TRANSACTION.FOR_ADMIN, isAuth, isAdmin, getTransactions)
-router.post(
-  ROUTES.TRANSACTION.CREATE_BY_USER,
-  isAuth,
-  verifyPassword,
-  requestTransaction,
-  updateEWallet,
-  createTransaction,
-  getUserProfile
-)
-router.post(
-  ROUTES.TRANSACTION.CREATE_BY_STORE,
-  isAuth,
-  verifyPassword,
-  isOwner,
-  requestTransaction,
-  updateEWallet,
-  createTransaction,
-  getStoreProfile
-)
-// router.post(
-//     '/transaction/create/for/admin/:userId',
-//     isAuth,
-//     verifyPassword,
-//     isAdmin,
-//     requestTransaction,
-//     updateEWallet,
-//     createTransaction,
-// );
+// Middleware groups
+const adminAuth = [isAuth, isAdmin]
+const managerAuth = [isAuth, isManager]
+const ownerAuth = [isAuth, isOwner]
+const userAuth = [isAuth]
+const verifyAuth = [isAuth, verifyPassword]
 
-//params
+// ----------- GET ROUTES -----------
+router.get(ROUTES.TRANSACTION.BY_USER, ...userAuth, getTransactions)
+router.get(ROUTES.TRANSACTION.BY_STORE, ...managerAuth, getTransactions)
+router.get(ROUTES.TRANSACTION.FOR_ADMIN, ...adminAuth, getTransactions)
+
+// ----------- POST ROUTES -----------
+router.post(
+	ROUTES.TRANSACTION.CREATE_BY_USER,
+	...verifyAuth,
+	requestTransaction,
+	updateEWallet,
+	createTransaction,
+	getUserProfile
+)
+router.post(
+	ROUTES.TRANSACTION.CREATE_BY_STORE,
+	...verifyAuth,
+	...ownerAuth,
+	requestTransaction,
+	updateEWallet,
+	createTransaction,
+	getStoreProfile
+)
+
+// ----------- PARAMS -----------
 router.param('storeId', getStoreById)
 router.param('userId', userById)
 

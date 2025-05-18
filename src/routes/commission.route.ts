@@ -18,29 +18,27 @@ import {
 	restoreCommission
 } from '../controllers/commission.controller'
 
-// Routes
-router.get(ROUTES.COMMISSION.LIST_BY_USER, isAuth, isAdmin, getCommissions)
-router.get(ROUTES.COMMISSION.ACTIVE_LIST, getActiveCommissions)
-router.post(
-	ROUTES.COMMISSION.CREATE,
-	isAuth,
-	isAdmin,
-	commissionValidator.commission(),
-	validateHandler,
-	createCommission
-)
-router.put(
-	ROUTES.COMMISSION.UPDATE,
-	isAuth,
-	isAdmin,
-	commissionValidator.commission(),
-	validateHandler,
-	updateCommission
-)
-router.delete(ROUTES.COMMISSION.DELETE, isAuth, isAdmin, removeCommission)
-router.get(ROUTES.COMMISSION.RESTORE, isAuth, isAdmin, restoreCommission)
+// Middleware groups
+const adminAuth = [isAuth, isAdmin]
+const commissionValidatorGroup = [commissionValidator.commission(), validateHandler]
 
-// Params
+// ----------- GET ROUTES -----------
+router.get(ROUTES.COMMISSION.LIST_BY_USER, ...adminAuth, getCommissions)
+router.get(ROUTES.COMMISSION.ACTIVE_LIST, getActiveCommissions)
+
+// ----------- POST ROUTES -----------
+router.post(ROUTES.COMMISSION.CREATE, ...adminAuth, ...commissionValidatorGroup, createCommission)
+
+// ----------- PUT ROUTES -----------
+router.put(ROUTES.COMMISSION.UPDATE, ...adminAuth, ...commissionValidatorGroup, updateCommission)
+
+// ----------- DELETE ROUTES -----------
+router.delete(ROUTES.COMMISSION.DELETE, ...adminAuth, removeCommission)
+
+// ----------- RESTORE ROUTES -----------
+router.get(ROUTES.COMMISSION.RESTORE, ...adminAuth, restoreCommission)
+
+// ----------- PARAMS -----------
 router.param('userId', userById)
 
 export default router

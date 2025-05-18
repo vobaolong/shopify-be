@@ -1,7 +1,7 @@
 import { UserFollowStore, Store } from '../models/index.model'
 import { cleanStore } from '../helpers/storeHandler'
-import { Request, Response } from 'express'
-import { ControllerFunction } from '../types/controller.types'
+import { RequestHandler } from 'express'
+import { errorHandler, MongoError } from '../helpers/errorHandler'
 
 interface FilterType {
 	limit: number
@@ -9,10 +9,7 @@ interface FilterType {
 	pageCount?: number
 }
 
-export const followStore: ControllerFunction = async (
-	req: Request,
-	res: Response
-): Promise<Response | void> => {
+export const followStore: RequestHandler = async (req, res) => {
 	try {
 		const userId = req.user!._id
 		const storeId = req.store!._id
@@ -24,54 +21,45 @@ export const followStore: ControllerFunction = async (
 		)
 
 		if (!follow) {
-			return res.status(400).json({
+			res.status(400).json({
 				error: 'Follow is already exists'
 			})
 		}
-
 		const store = await Store.findOne({ _id: storeId })
 			.select('-e_wallet')
 			.populate('ownerId')
 			.populate('staffIds')
 			.populate('commissionId', '_id name fee')
-
 		if (!store) {
-			return res.status(404).json({
+			res.status(404).json({
 				error: 'Store not found'
 			})
 		}
-
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Follow store successfully',
 			store: cleanStore(store)
 		})
 	} catch (error) {
-		return res.status(500).json({
-			error: 'Follow store failed'
+		res.status(500).json({
+			error: errorHandler(error as MongoError)
 		})
 	}
 }
 
-export const unfollowStore = async (
-	req: Request,
-	res: Response
-): Promise<Response | void> => {
+export const unfollowStore: RequestHandler = async (req, res) => {
 	try {
 		const userId = req.user!._id
 		const storeId = req.store!._id
-
 		const follow = await UserFollowStore.findOneAndUpdate(
 			{ userId, storeId },
 			{ isDeleted: true },
 			{ new: true }
 		)
-
 		if (!follow) {
-			return res.status(400).json({
+			res.status(400).json({
 				error: 'Unfollow is already exists'
 			})
 		}
-
 		const store = await Store.findOne({ _id: storeId })
 			.select('-e_wallet')
 			.populate('ownerId')
@@ -79,56 +67,46 @@ export const unfollowStore = async (
 			.populate('commissionId', '_id name fee')
 
 		if (!store) {
-			return res.status(404).json({
+			res.status(404).json({
 				error: 'Store not found'
 			})
 		}
-
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Unfollow store successfully',
 			store: cleanStore(store)
 		})
 	} catch (error) {
-		return res.status(500).json({
-			error: 'Unfollow store failed'
+		res.status(500).json({
+			error: errorHandler(error as MongoError)
 		})
 	}
 }
 
-export const checkFollowingStore = async (
-	req: Request,
-	res: Response
-): Promise<Response | void> => {
+export const checkFollowingStore: RequestHandler = async (req, res) => {
 	try {
 		const userId = req.user!._id
 		const storeId = req.store!._id
-
 		const follow = await UserFollowStore.findOne({
 			userId,
 			storeId,
 			isDeleted: false
 		})
-
 		if (!follow) {
-			return res.status(200).json({
+			res.status(200).json({
 				error: 'Following store not found'
 			})
 		}
-
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Following store'
 		})
 	} catch (error) {
-		return res.status(404).json({
+		res.status(404).json({
 			error: 'Following store not found'
 		})
 	}
 }
 
-export const getStoreFollowerCount = async (
-	req: Request,
-	res: Response
-): Promise<Response | void> => {
+export const getStoreFollowerCount: RequestHandler = async (req, res) => {
 	try {
 		const storeId = req.store!._id
 		const count = await UserFollowStore.countDocuments({
@@ -136,21 +114,18 @@ export const getStoreFollowerCount = async (
 			isDeleted: false
 		})
 
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'get store number of followers successfully',
 			count
 		})
 	} catch (error) {
-		return res.status(404).json({
+		res.status(404).json({
 			error: 'Following stores not found'
 		})
 	}
 }
 
-export const getFollowedStores = async (
-	req: Request,
-	res: Response
-): Promise<Response | void> => {
+export const getFollowedStores: RequestHandler = async (req, res) => {
 	try {
 		const userId = req.user!._id
 		const limit =
@@ -185,7 +160,7 @@ export const getFollowedStores = async (
 		}
 
 		if (count <= 0) {
-			return res.status(200).json({
+			res.status(200).json({
 				success: 'Load list following stores successfully',
 				filter,
 				size,
@@ -204,15 +179,15 @@ export const getFollowedStores = async (
 
 		const cleanStores = stores.map((store) => cleanStore(store))
 
-		return res.status(200).json({
+		res.status(200).json({
 			success: 'Load list following stores successfully',
 			filter,
 			size,
 			stores: cleanStores
 		})
 	} catch (error) {
-		return res.status(500).json({
-			error: 'Load list followings stores failed'
+		res.status(500).json({
+			error: errorHandler(error as MongoError)
 		})
 	}
 }

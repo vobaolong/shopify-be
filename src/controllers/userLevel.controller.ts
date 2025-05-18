@@ -12,7 +12,7 @@ interface UserLevelRequest extends Request {
 	user?: any
 }
 
-export const getUserLevelById: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const getUserLevelById: RequestHandler = async (req, res, next) => {
 	try {
 		const userLevel = await UserLevel.findById(req.params.id)
 		if (!userLevel) {
@@ -30,7 +30,7 @@ export const getUserLevelById: RequestHandler = async (req: Request, res: Respon
 	}
 }
 
-export const getUserLevel: RequestHandler = async (req: Request, res: Response) => {
+export const getUserLevel: RequestHandler = async (req, res) => {
 	try {
 		const point = req.user!.point >= 0 ? req.user!.point : 0
 		const lvs = await UserLevel.find({
@@ -56,12 +56,12 @@ export const getUserLevel: RequestHandler = async (req: Request, res: Response) 
 	}
 }
 
-export const createUserLevel: RequestHandler = async (req: Request, res: Response) => {
+export const createUserLevel: RequestHandler = async (req, res) => {
 	try {
 		const { name, minPoint, discount, color } = req.body
 		const level = new UserLevel({ name, minPoint, discount, color })
 		await level.save()
-		res.status(200).json({
+		res.status(201).json({
 			success: 'Create user level successfully'
 		})
 	} catch (error) {
@@ -71,7 +71,7 @@ export const createUserLevel: RequestHandler = async (req: Request, res: Respons
 	}
 }
 
-export const updateUserLevel: RequestHandler = async (req: Request, res: Response) => {
+export const updateUserLevel: RequestHandler = async (req, res) => {
 	try {
 		const { name, minPoint, discount, color } = req.body
 		const level = await UserLevel.findOneAndUpdate(
@@ -94,7 +94,7 @@ export const updateUserLevel: RequestHandler = async (req: Request, res: Respons
 	}
 }
 
-export const removeUserLevel: RequestHandler = async (req: Request, res: Response) => {
+export const removeUserLevel: RequestHandler = async (req, res) => {
 	try {
 		const level = await UserLevel.findOneAndUpdate(
 			{ _id: (req as any).userLevel._id },
@@ -116,7 +116,7 @@ export const removeUserLevel: RequestHandler = async (req: Request, res: Respons
 	}
 }
 
-export const restoreUserLevel: RequestHandler = async (req: Request, res: Response) => {
+export const restoreUserLevel: RequestHandler = async (req, res) => {
 	try {
 		const level = await UserLevel.findOneAndUpdate(
 			{ _id: (req as any).userLevel._id },
@@ -138,7 +138,7 @@ export const restoreUserLevel: RequestHandler = async (req: Request, res: Respon
 	}
 }
 
-export const getUserLevels: RequestHandler = async (req: Request, res: Response) => {
+export const getUserLevels: RequestHandler = async (req, res) => {
 	try {
 		const search = req.query.search ? req.query.search.toString() : ''
 		const sortBy = req.query.sortBy ? req.query.sortBy.toString() : '_id'
@@ -201,7 +201,7 @@ export const getUserLevels: RequestHandler = async (req: Request, res: Response)
 	}
 }
 
-export const getActiveUserLevels: RequestHandler = async (req: Request, res: Response) => {
+export const getActiveUserLevels: RequestHandler = async (req, res) => {
 	try {
 		const levels = await UserLevel.find({ isDeleted: false })
 		res.status(200).json({

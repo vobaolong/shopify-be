@@ -2,7 +2,7 @@ import { VariantValue } from '../models/index.model'
 import { errorHandler, MongoError } from '../helpers/errorHandler'
 import { Request, Response, NextFunction, RequestHandler } from 'express'
 
-export const getValueById: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const getValueById: RequestHandler = async (req, res, next) => {
 	try {
 		const variantValue = await VariantValue.findById(req.params.id)
 		if (!variantValue) {
@@ -16,7 +16,7 @@ export const getValueById: RequestHandler = async (req: Request, res: Response, 
 	}
 }
 
-export const createValue: RequestHandler = async (req: Request, res: Response) => {
+export const createValue: RequestHandler = async (req, res) => {
 	try {
 		const { name, variantId } = req.body
 		if (!name || !variantId) {
@@ -25,13 +25,13 @@ export const createValue: RequestHandler = async (req: Request, res: Response) =
 		}
 		const variantValue = new VariantValue({ name, variantId })
 		const savedVariantValue = await variantValue.save()
-		res.status(200).json({ success: 'Create variant value successfully', variantValue: savedVariantValue })
+		res.status(201).json({ success: 'Create variant value successfully', variantValue: savedVariantValue })
 	} catch (error) {
 		res.status(400).json({ error: errorHandler(error as MongoError) })
 	}
 }
 
-export const updateValue: RequestHandler = async (req: Request, res: Response) => {
+export const updateValue: RequestHandler = async (req, res) => {
 	try {
 		const { name } = req.body
 		if (!name) {
@@ -53,7 +53,7 @@ export const updateValue: RequestHandler = async (req: Request, res: Response) =
 	}
 }
 
-export const removeValue: RequestHandler = async (req: Request, res: Response) => {
+export const removeValue: RequestHandler = async (req, res) => {
 	try {
 		const variantValue = await VariantValue.findOneAndUpdate(
 			{ _id: (req as any).variantValue._id },
@@ -70,7 +70,7 @@ export const removeValue: RequestHandler = async (req: Request, res: Response) =
 	}
 }
 
-export const restoreValue: RequestHandler = async (req: Request, res: Response) => {
+export const restoreValue: RequestHandler = async (req, res) => {
 	try {
 		const variantValue = await VariantValue.findOneAndUpdate(
 			{ _id: (req as any).variantValue._id },
@@ -91,7 +91,7 @@ interface VariantRequest extends Request {
 	variant?: any
 }
 
-export const removeAllValues: RequestHandler = async (req: Request, res: Response) => {
+export const removeAllValues: RequestHandler = async (req, res) => {
 	try {
 		await VariantValue.updateMany(
 			{ variantId: (req as any).variant._id },
@@ -103,7 +103,7 @@ export const removeAllValues: RequestHandler = async (req: Request, res: Respons
 	}
 }
 
-export const restoreAllValues: RequestHandler = async (req: Request, res: Response) => {
+export const restoreAllValues: RequestHandler = async (req, res) => {
 	try {
 		await VariantValue.updateMany(
 			{ variantId: (req as any).variant._id },
@@ -115,7 +115,7 @@ export const restoreAllValues: RequestHandler = async (req: Request, res: Respon
 	}
 }
 
-export const getActiveVariantValues: RequestHandler = async (req: Request, res: Response) => {
+export const getActiveVariantValues: RequestHandler = async (req, res) => {
 	try {
 		const values = await VariantValue.find({
 			variantId: (req as any).variant._id,
@@ -133,7 +133,7 @@ export const getActiveVariantValues: RequestHandler = async (req: Request, res: 
 	}
 }
 
-export const getVariantValues: RequestHandler = async (req: Request, res: Response) => {
+export const getVariantValues: RequestHandler = async (req, res) => {
 	try {
 		const values = await VariantValue.find({ variantId: (req as any).variant._id })
 			.populate('variantId')

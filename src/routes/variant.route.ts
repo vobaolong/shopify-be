@@ -4,7 +4,7 @@ const router = express.Router()
 // Import route constants
 import { ROUTES } from '../constants/route.constant'
 
-//import controllers
+// Middlewares
 import { isAuth, isAdmin } from '../controllers/auth.controller'
 import { userById } from '../controllers/user.controller'
 import { checkListCategoriesChild } from '../controllers/category.controller'
@@ -24,42 +24,28 @@ import {
 	restoreAllValues
 } from '../controllers/variantValue.controller'
 
-//routes
-router.get(ROUTES.VARIANT.BY_ID, isAuth, isAdmin, getVariant)
-router.get(ROUTES.VARIANT.ACTIVE, getActiveVariants)
-router.get(ROUTES.VARIANT.LIST, isAuth, isAdmin, getVariants)
-router.post(
-	ROUTES.VARIANT.CREATE,
-	isAuth,
-	isAdmin,
-	checkListCategoriesChild,
-	checkVariant,
-	createVariant
-)
-router.put(
-	ROUTES.VARIANT.UPDATE,
-	isAuth,
-	isAdmin,
-	checkListCategoriesChild,
-	checkVariant,
-	updateVariant
-)
-router.delete(
-	ROUTES.VARIANT.DELETE,
-	isAuth,
-	isAdmin,
-	removeVariant,
-	removeAllValues
-)
-router.get(
-	ROUTES.VARIANT.RESTORE,
-	isAuth,
-	isAdmin,
-	restoreVariant,
-	restoreAllValues
-)
+// Middleware groups
+const adminAuth = [isAuth, isAdmin]
+const variantValidator = [checkListCategoriesChild, checkVariant]
 
-//router params
+// ----------- GET ROUTES -----------
+router.get(ROUTES.VARIANT.BY_ID, ...adminAuth, getVariant)
+router.get(ROUTES.VARIANT.ACTIVE, getActiveVariants)
+router.get(ROUTES.VARIANT.LIST, ...adminAuth, getVariants)
+
+// ----------- POST ROUTES -----------
+router.post(ROUTES.VARIANT.CREATE, ...adminAuth, ...variantValidator, createVariant)
+
+// ----------- PUT ROUTES -----------
+router.put(ROUTES.VARIANT.UPDATE, ...adminAuth, ...variantValidator, updateVariant)
+
+// ----------- DELETE ROUTES -----------
+router.delete(ROUTES.VARIANT.DELETE, ...adminAuth, removeVariant, removeAllValues)
+
+// ----------- RESTORE ROUTES -----------
+router.get(ROUTES.VARIANT.RESTORE, ...adminAuth, restoreVariant, restoreAllValues)
+
+// ----------- PARAMS -----------
 router.param('variantId', getVariantById)
 router.param('userId', userById)
 

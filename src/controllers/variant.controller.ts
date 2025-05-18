@@ -1,8 +1,8 @@
 import { Variant } from '../models/index.model'
 import { errorHandler, MongoError } from '../helpers/errorHandler'
-import { Request, Response, NextFunction, RequestHandler } from 'express'
+import { RequestHandler } from 'express'
 
-export const getVariantById: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const getVariantById: RequestHandler = async (req, res, next) => {
 	try {
 		const variant = await Variant.findById(req.params.id)
 		if (!variant) {
@@ -12,11 +12,11 @@ export const getVariantById: RequestHandler = async (req: Request, res: Response
 		(req as any).variant = variant
 		next()
 	} catch (error) {
-		res.status(404).json({ error: 'Variant not found' })
+		res.status(404).json({ error: errorHandler(error as MongoError) })
 	}
 }
 
-export const getVariant: RequestHandler = async (req: Request, res: Response) => {
+export const getVariant: RequestHandler = async (req, res) => {
 	try {
 		const variant = await Variant.findOne({ _id: (req as any).variant._id }).populate({
 			path: 'categoryIds',
@@ -31,11 +31,11 @@ export const getVariant: RequestHandler = async (req: Request, res: Response) =>
 		}
 		res.status(200).json({ success: 'Load variant successfully', variant })
 	} catch (error) {
-		res.status(500).json({ error: 'Load variant failed' })
+		res.status(500).json({ error: errorHandler(error as MongoError) })
 	}
 }
 
-export const checkVariant: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const checkVariant: RequestHandler = async (req, res, next) => {
 	try {
 		const { name, categoryIds } = req.body
 		const variantId = (req as any).variant ? (req as any).variant._id : null
@@ -54,7 +54,7 @@ export const checkVariant: RequestHandler = async (req: Request, res: Response, 
 	}
 }
 
-export const createVariant: RequestHandler = async (req: Request, res: Response) => {
+export const createVariant: RequestHandler = async (req, res) => {
 	try {
 		const { name, categoryIds } = req.body
 		if (!name || !categoryIds) {
@@ -63,13 +63,13 @@ export const createVariant: RequestHandler = async (req: Request, res: Response)
 		}
 		const variant = new Variant({ name, categoryIds })
 		const savedVariant = await variant.save()
-		res.status(200).json({ success: 'Create variant successfully', variant: savedVariant })
+		res.status(201).json({ success: 'Create variant successfully', variant: savedVariant })
 	} catch (error) {
 		res.status(400).json({ error: errorHandler(error as MongoError) })
 	}
 }
 
-export const updateVariant: RequestHandler = async (req: Request, res: Response) => {
+export const updateVariant: RequestHandler = async (req, res) => {
 	try {
 		const { name } = req.body
 		if (!name) {
@@ -91,7 +91,7 @@ export const updateVariant: RequestHandler = async (req: Request, res: Response)
 	}
 }
 
-export const removeVariant: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const removeVariant: RequestHandler = async (req, res, next) => {
 	try {
 		const variant = await Variant.findOneAndUpdate(
 			{ _id: (req as any).variant._id },
@@ -110,7 +110,7 @@ export const removeVariant: RequestHandler = async (req: Request, res: Response,
 	}
 }
 
-export const restoreVariant: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const restoreVariant: RequestHandler = async (req, res, next) => {
 	try {
 		const variant = await Variant.findOneAndUpdate(
 			{ _id: (req as any).variant._id },
@@ -129,7 +129,7 @@ export const restoreVariant: RequestHandler = async (req: Request, res: Response
 	}
 }
 
-export const getActiveVariants: RequestHandler = async (req: Request, res: Response) => {
+export const getActiveVariants: RequestHandler = async (req, res) => {
 	try {
 		const search = req.query.search ? req.query.search.toString() : ''
 		const sortBy = req.query.sortBy ? req.query.sortBy.toString() : '_id'
@@ -187,11 +187,11 @@ export const getActiveVariants: RequestHandler = async (req: Request, res: Respo
 			variants
 		})
 	} catch (error) {
-		res.status(500).json({ error: 'Load list active variants failed' })
+		res.status(500).json({ error: errorHandler(error as MongoError) })
 	}
 }
 
-export const getVariants: RequestHandler = async (req: Request, res: Response) => {
+export const getVariants: RequestHandler = async (req, res) => {
 	try {
 		const search = req.query.search ? req.query.search.toString() : ''
 		const sortBy = req.query.sortBy ? req.query.sortBy.toString() : '_id'
@@ -254,6 +254,6 @@ export const getVariants: RequestHandler = async (req: Request, res: Response) =
 			variants
 		})
 	} catch (error) {
-		res.status(500).json({ error: 'Load list variants failed' })
+		res.status(500).json({ error: errorHandler(error as MongoError) })
 	}
 }

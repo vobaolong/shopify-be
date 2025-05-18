@@ -85,8 +85,8 @@ interface OrderFilterArgs {
 
 export const getOrderById: RequestParamHandler = async (
 	req: OrderRequest,
-	res: Response,
-	next: NextFunction,
+	res,
+	next,
 	id: string
 ) => {
 	try {
@@ -103,8 +103,8 @@ export const getOrderById: RequestParamHandler = async (
 
 export const getOrderItemById: RequestParamHandler = async (
 	req: OrderRequest,
-	res: Response,
-	next: NextFunction,
+	res,
+	next,
 	id: string
 ) => {
 	try {
@@ -366,8 +366,8 @@ export const getOrdersForAdmin: RequestHandler = async (
 
 export const createOrder: RequestHandler = async (
 	req: OrderRequest,
-	res: Response,
-	next: NextFunction
+	res,
+	next
 ) => {
 	if (!next) return
 	try {
@@ -443,8 +443,8 @@ export const createOrder: RequestHandler = async (
 
 export const createOrderItems: RequestHandler = async (
 	req: OrderRequest,
-	res: Response,
-	next: NextFunction
+	res,
+	next
 ) => {
 	if (!next) return
 	try {
@@ -474,8 +474,8 @@ export const createOrderItems: RequestHandler = async (
 
 export const removeCart: RequestHandler = async (
 	req: OrderRequest,
-	res: Response,
-	next: NextFunction
+	res,
+	next
 ) => {
 	if (!next) return
 
@@ -528,8 +528,8 @@ export const removeAllCartItems: RequestHandler = async (
 
 export const checkOrderAuth: RequestHandler = async (
 	req: OrderRequest,
-	res: Response,
-	next: NextFunction
+	res,
+	next
 ) => {
 	if (!next) return
 
@@ -584,8 +584,8 @@ export const readOrder: RequestHandler = async (
 
 export const updateStatusForUser: RequestHandler = async (
 	req: OrderRequest,
-	res: Response,
-	next: NextFunction
+	res,
+	next
 ) => {
 	if (!next) return
 	try {
@@ -657,8 +657,8 @@ export const updateStatusForUser: RequestHandler = async (
 
 export const updateStatusForStore: RequestHandler = async (
 	req: OrderRequest,
-	res: Response,
-	next: NextFunction
+	res,
+	next
 ) => {
 	if (!next) return
 	try {
@@ -1001,8 +1001,8 @@ export const returnOrder: RequestHandler = async (req, res) => {
 }
 
 export const countOrders: RequestHandler = async (
-	req: Request,
-	res: Response
+	req,
+	res
 ) => {
 	try {
 		const filterArgs: Record<string, any> = {}
@@ -1030,9 +1030,9 @@ export const countOrders: RequestHandler = async (
 }
 
 export const updatePoint: RequestHandler = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+	req,
+	res,
+	next
 ) => {
 	if (!next) return
 	try {
