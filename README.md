@@ -68,7 +68,22 @@ To get started with the Shopify Backend API, follow these steps:
    npm install
    ```
 
-3. **Configure environment variables**: Set up your environment variables as needed.
+3. **Configure environment variables**: Create a `.env` file in the root directory with the following variables:
+
+   ```env
+   DATABASE='your_mongodb_connection_string'
+   NODE_ENV="development"
+   ADMIN_ID='your_admin_id'
+   ACCESS_TOKEN_SECRET="your_access_token_secret"
+   REFRESH_TOKEN_SECRET="your_refresh_token_secret"
+   JWT_FORGOT_PASSWORD_SECRET='your_jwt_forgot_password_secret'
+   ADMIN_EMAIL_PASSWORD='your_email_password'
+   JWT_EMAIL_CONFIRM_SECRET="your_email_confirm_secret"
+   PORT=5000
+   VNP_HASH_SECRET='your_vnpayment_hash_secret'
+   VNP_TMN_CODE='your_vnpayment_tmn_code'
+   VNP_URL='your_vnpayment_url'
+   ```
 
 4. **Run the development server**:
    ```bash
