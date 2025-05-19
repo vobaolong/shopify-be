@@ -15,6 +15,16 @@ Welcome to the Shopify Backend API, a robust backend solution for a Shopify-like
 - **Favorites**: Allow users to favorite products
 - **Categories & Brands**: Organize products by categories and brands
 - **Notifications**: System for sending notifications to users
+- **Email System**: Comprehensive email notification system for various events
+
+## API Documentation
+
+The API is documented using Swagger:
+
+- Main API Documentation: `swagger.yaml`
+- Email API Documentation: `email-api-docs.yaml`
+
+To view the documentation, you can use Swagger UI or any other OpenAPI viewer.
 
 ## API Routes
 
@@ -42,6 +52,14 @@ Welcome to the Shopify Backend API, a robust backend solution for a Shopify-like
 
 - Create and manage orders
 - Order status tracking
+
+### Email Notifications
+
+- Store-related notifications (creation, activation, ban)
+- Product-related notifications (activation, ban)
+- Order-related notifications (delivery confirmation)
+- User verification emails
+- Password reset emails
 
 ### Additional Features
 

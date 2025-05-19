@@ -5,19 +5,19 @@ const router = express.Router()
 import { ROUTES } from '../constants/route.constant'
 
 // Middlewares
-import { isAuth } from '../controllers/auth.controller'
-import { userById } from '../controllers/user.controller'
+import { isAuth } from '../middlewares/auth.middleware'
+import { getUserById } from '../controllers/user.controller'
 import {
-	getCartById,
-	getCartItemById,
-	createCart,
-	createCartItem,
-	getListCarts,
-	getListCartItem,
-	updateCartItem,
-	removeCartItem,
-	removeCart,
-	countCartItems
+  getCartById,
+  getCartItemById,
+  createCart,
+  createCartItem,
+  getListCarts,
+  getListCartItem,
+  updateCartItem,
+  removeCartItem,
+  removeCart,
+  countCartItems
 } from '../controllers/cart.controller'
 
 // Middleware groups
@@ -40,6 +40,6 @@ router.delete(ROUTES.CART.REMOVE, ...auth, removeCartItem, removeCart)
 // ----------- PARAMS -----------
 router.param('cartId', getCartById)
 router.param('cartItemId', getCartItemById)
-router.param('userId', userById)
+router.param('userId', getUserById)
 
 export default router

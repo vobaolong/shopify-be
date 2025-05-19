@@ -14,15 +14,6 @@ export interface CommissionRequest<T = any> extends Request {
   body: T
 }
 
-export interface CommissionFilter {
-  search: string
-  sortBy: string
-  order: 'asc' | 'desc'
-  limit: number
-  pageCurrent: number
-  pageCount?: number
-}
-
 export interface CommissionSearchQuery {
   name: { $regex: string; $options: string }
   [key: string]: any

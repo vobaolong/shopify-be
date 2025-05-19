@@ -4,17 +4,17 @@ import express from 'express'
 import { ROUTES } from '../constants/route.constant'
 
 // Middlewares
-import { isAuth, isAdmin } from '../controllers/auth.controller'
-import { userById } from '../controllers/user.controller'
+import { isAuth, isAdmin } from '../middlewares/auth.middleware'
+import { getUserById } from '../controllers/user.controller'
 import {
-	getReviewById,
-	createReview,
-	updateReview,
-	deleteReview,
-	updateRating,
-	getReviews,
-	checkReview,
-	deleteReviewByAdmin
+  getReviewById,
+  createReview,
+  updateReview,
+  deleteReview,
+  updateRating,
+  getReviews,
+  checkReview,
+  deleteReviewByAdmin
 } from '../controllers/review.controller'
 
 const router = express.Router()
@@ -37,10 +37,15 @@ router.put(ROUTES.REVIEW.UPDATE, ...auth, updateReview, updateRating)
 router.delete(ROUTES.REVIEW.DELETE, ...auth, deleteReview, updateRating)
 
 // ----------- ADMIN DELETE ROUTES -----------
-router.delete(ROUTES.REVIEW.ADMIN_DELETE, ...adminAuth, deleteReviewByAdmin, updateRating)
+router.delete(
+  ROUTES.REVIEW.ADMIN_DELETE,
+  ...adminAuth,
+  deleteReviewByAdmin,
+  updateRating
+)
 
 // ----------- PARAMS -----------
 router.param('reviewId', getReviewById)
-router.param('userId', userById)
+router.param('userId', getUserById)
 
 export default router

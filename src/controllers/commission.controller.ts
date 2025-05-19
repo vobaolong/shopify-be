@@ -1,11 +1,11 @@
-import { Request, RequestHandler, Response } from 'express'
+import { RequestHandler, Response } from 'express'
 import Commission, { ICommission } from '../models/commission.model'
 import { errorHandler, MongoError } from '../helpers/errorHandler'
 import {
-	CommissionFilter,
 	CommissionRequest,
 	CommissionSearchQuery
 } from '../types/commission.type'
+import { FilterType } from '../types/controller.types'
 
 export const getCommissions: RequestHandler = async (
 	req: CommissionRequest,
@@ -26,7 +26,7 @@ export const getCommissions: RequestHandler = async (
 			req.query.page && parseInt(req.query.page) > 0
 				? parseInt(req.query.page)
 				: 1
-		const filter: CommissionFilter = {
+		const filter: FilterType = {
 			search,
 			sortBy,
 			order,
@@ -51,6 +51,7 @@ export const getCommissions: RequestHandler = async (
 				size,
 				commissions: []
 			})
+			return
 		}
 		const commissions = await Commission.find(searchQuery)
 			.sort({ [sortBy]: order, _id: 1 })
@@ -70,19 +71,14 @@ export const getCommissions: RequestHandler = async (
 	}
 }
 
-export const getActiveCommissions: RequestHandler = async (
-	req,
-	res
-) => {
+export const getActiveCommissions: RequestHandler = async (req, res) => {
 	try {
 		const commissions = await Commission.find({ isDeleted: false })
-
 		const sanitizedCommissions = commissions.map((commission: ICommission) => {
 			const commissionObj = commission.toObject()
 			delete commissionObj.isDeleted
 			commissionObj
 		})
-
 		res.status(200).json({
 			success: 'Load list active commissions successfully',
 			commissions: sanitizedCommissions
@@ -123,18 +119,16 @@ export const updateCommission: RequestHandler = async (
 	try {
 		const commissionId = req.params.commissionId
 		const { name, fee, description } = req.body
-
 		const commission = await Commission.findOneAndUpdate(
 			{ _id: commissionId },
 			{ $set: { name, fee, description } }
 		)
-
 		if (!commission) {
 			res.status(404).json({
 				error: 'Commission not found'
 			})
+			return
 		}
-
 		res.status(200).json({
 			success: 'Update commission successfully'
 		})
@@ -156,13 +150,12 @@ export const removeCommission: RequestHandler = async (
 			{ _id: commissionId },
 			{ $set: { isDeleted: true } }
 		)
-
 		if (!commission) {
 			res.status(404).json({
 				error: 'Commission not found'
 			})
+			return
 		}
-
 		res.status(200).json({
 			success: 'Remove commission successfully'
 		})
@@ -179,18 +172,16 @@ export const restoreCommission: RequestHandler = async (
 ) => {
 	try {
 		const commissionId = req.params.commissionId
-
 		const commission = await Commission.findOneAndUpdate(
 			{ _id: commissionId },
 			{ $set: { isDeleted: false } }
 		)
-
 		if (!commission) {
 			res.status(404).json({
 				error: 'Commission not found'
 			})
+			return
 		}
-
 		res.status(200).json({
 			success: 'Restore commission successfully'
 		})

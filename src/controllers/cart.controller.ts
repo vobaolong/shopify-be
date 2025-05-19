@@ -97,7 +97,6 @@ export const createCartItem: RequestHandler = async (
 ) => {
 	try {
 		const { productId, variantValueIds, count } = req.body
-
 		if (!productId || !count) {
 			const cartId = req.cartItem?.cartId
 			const itemCount = await CartItem.countDocuments({ cartId }).exec()
@@ -187,22 +186,17 @@ export const getListCarts: RequestHandler = async (
 				? parseInt(req.query.page.toString())
 				: 1
 		let skip = (page - 1) * limit
-
 		const filter: FilterOptions = {
 			limit,
 			pageCurrent: page
 		}
-
 		const count = await Cart.countDocuments({ userId, isDeleted: false }).exec()
-
 		const size = count
 		const pageCount = Math.ceil(size / limit)
 		filter.pageCount = pageCount
-
 		if (page > pageCount && pageCount > 0) {
 			skip = (pageCount - 1) * limit
 		}
-
 		if (count <= 0) {
 			res.status(200).json({
 				success: 'Load list carts successfully',
@@ -212,14 +206,12 @@ export const getListCarts: RequestHandler = async (
 			})
 			return
 		}
-
 		const carts = await Cart.find({ userId, isDeleted: false })
 			.populate('storeId', '_id name avatar isActive isOpen address')
 			.sort({ name: 1, _id: 1 })
 			.skip(skip)
 			.limit(limit)
 			.exec()
-
 		res.status(200).json({
 			success: 'Load list carts successfully',
 			filter,
@@ -266,7 +258,6 @@ export const getListCartItem: RequestHandler = async (
 				populate: { path: 'variantId' }
 			})
 			.exec()
-
 		res.status(200).json({
 			success: 'Load list cart items successfully',
 			items
@@ -278,10 +269,7 @@ export const getListCartItem: RequestHandler = async (
 	}
 }
 
-export const updateCartItem: RequestHandler = async (
-	req,
-	res
-) => {
+export const updateCartItem: RequestHandler = async (req, res) => {
 	try {
 		const { count } = req.body
 
@@ -320,7 +308,7 @@ export const updateCartItem: RequestHandler = async (
 		res.status(200).json({
 			success: 'Update cart item successfully',
 			item,
-			user: cleanUserLess((req as any).user)
+			user: cleanUserLess(req.user || {})
 		})
 	} catch (error) {
 		res.status(500).json({
@@ -329,14 +317,9 @@ export const updateCartItem: RequestHandler = async (
 	}
 }
 
-export const removeCartItem: RequestHandler = async (
-	req,
-	res,
-	next
-) => {
+export const removeCartItem: RequestHandler = async (req, res, next) => {
 	try {
 		await CartItem.deleteOne({ _id: (req as any).cartItem._id }).exec()
-
 		const cartId = (req as any).cartItem.cartId
 		const count = await CartItem.countDocuments({ cartId }).exec()
 
@@ -347,7 +330,7 @@ export const removeCartItem: RequestHandler = async (
 		} else {
 			res.status(200).json({
 				success: 'Remove cart item successfully',
-				user: cleanUserLess((req as any).user)
+				user: cleanUserLess(req.user || {})
 			})
 		}
 	} catch (error) {
@@ -357,10 +340,7 @@ export const removeCartItem: RequestHandler = async (
 	}
 }
 
-export const removeCart: RequestHandler = async (
-	req,
-	res
-) => {
+export const removeCart: RequestHandler = async (req, res) => {
 	try {
 		const cart = await Cart.findOneAndUpdate(
 			{ _id: (req as any).cartId },
@@ -374,7 +354,6 @@ export const removeCart: RequestHandler = async (
 			})
 			return
 		}
-
 		res.status(200).json({
 			success: 'Remove cart successfully',
 			cart,
@@ -387,10 +366,7 @@ export const removeCart: RequestHandler = async (
 	}
 }
 
-export const countCartItems: RequestHandler = async (
-	req,
-	res
-) => {
+export const countCartItems: RequestHandler = async (req, res) => {
 	try {
 		const result = await CartItem.aggregate([
 			{
@@ -410,12 +386,10 @@ export const countCartItems: RequestHandler = async (
 				}
 			}
 		]).exec()
-
 		const foundResult = result.find(
 			(r) => r._id && r._id[0] && r._id[0].equals((req as any).user._id)
 		)
 		const count = foundResult ? foundResult.count : 0
-
 		res.status(200).json({
 			success: 'Count cart items successfully',
 			count

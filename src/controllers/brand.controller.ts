@@ -1,9 +1,6 @@
 import { Brand } from '../models/index.model'
 import { errorHandler, MongoError } from '../helpers/errorHandler'
 import {
-	Request,
-	Response,
-	NextFunction,
 	RequestHandler,
 	RequestParamHandler
 } from 'express'
@@ -21,6 +18,7 @@ export const getBrandById: RequestParamHandler = async (
 			res.status(404).json({
 				error: 'Brand not found'
 			})
+			return
 		}
 		req.brand = brand || undefined
 		next()
@@ -46,8 +44,10 @@ export const getBrand: RequestHandler = async (req, res) => {
 			.exec()
 		if (!brand) {
 			res.status(500).json({
-				error: 'Load brand failed'
+				error:
+					'Load brand failed'
 			})
+			return
 		}
 		res.status(200).json({
 			success: 'Load brand successfully',
@@ -60,11 +60,7 @@ export const getBrand: RequestHandler = async (req, res) => {
 	}
 }
 
-export const checkBrand: RequestHandler = async (
-	req,
-	res,
-	next
-) => {
+export const checkBrand: RequestHandler = async (req, res, next) => {
 	try {
 		const { name, categoryIds } = req.body
 		const brandId = req.brand ? req.brand._id : null
@@ -85,10 +81,7 @@ export const checkBrand: RequestHandler = async (
 	}
 }
 
-export const createBrand: RequestHandler = async (
-	req,
-	res
-) => {
+export const createBrand: RequestHandler = async (req, res) => {
 	try {
 		const { name, categoryIds } = req.body
 
@@ -96,6 +89,7 @@ export const createBrand: RequestHandler = async (
 			res.status(400).json({
 				error: 'All fields are required'
 			})
+			return
 		}
 
 		const brand = new Brand({
@@ -116,16 +110,14 @@ export const createBrand: RequestHandler = async (
 	}
 }
 
-export const updateBrand: RequestHandler = async (
-	req,
-	res
-) => {
+export const updateBrand: RequestHandler = async (req, res) => {
 	try {
 		const { name, categoryIds } = req.body
 		if (!name || !categoryIds) {
 			res.status(400).json({
 				error: 'All fields are required'
 			})
+			return
 		}
 		const brand = await Brand.findOneAndUpdate(
 			{ _id: req.brand?._id },
@@ -136,6 +128,7 @@ export const updateBrand: RequestHandler = async (
 			res.status(500).json({
 				error: 'Brand not found'
 			})
+			return
 		}
 		res.status(200).json({
 			success: 'Update brand successfully',
@@ -148,11 +141,7 @@ export const updateBrand: RequestHandler = async (
 	}
 }
 
-export const removeBrand: RequestHandler = async (
-	req,
-	res,
-	next
-) => {
+export const removeBrand: RequestHandler = async (req, res, next) => {
 	try {
 		const brand = await Brand.findOneAndUpdate(
 			{ _id: req.brand?._id },
@@ -164,6 +153,7 @@ export const removeBrand: RequestHandler = async (
 			res.status(500).json({
 				error: 'Brand not found'
 			})
+			return
 		}
 		req.brand = brand || undefined
 		if (next) next()
@@ -174,11 +164,7 @@ export const removeBrand: RequestHandler = async (
 	}
 }
 
-export const restoreBrand: RequestHandler = async (
-	req,
-	res,
-	next
-) => {
+export const restoreBrand: RequestHandler = async (req, res, next) => {
 	try {
 		const brand = await Brand.findOneAndUpdate(
 			{ _id: req.brand?._id },
@@ -189,6 +175,7 @@ export const restoreBrand: RequestHandler = async (
 			res.status(500).json({
 				error: 'Brand not found'
 			})
+			return
 		}
 		req.brand = brand || undefined
 		if (next) next()
@@ -255,6 +242,7 @@ export const getBrandCategories: RequestHandler = async (req, res) => {
 				size,
 				brands: []
 			})
+			return
 		}
 
 		const brands = await Brand.find(filterArgs)
@@ -330,6 +318,7 @@ export const listBrands: RequestHandler = async (req, res) => {
 				size,
 				brands: []
 			})
+			return
 		}
 
 		const brands = await Brand.find(filterArgs)

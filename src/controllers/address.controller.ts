@@ -1,8 +1,7 @@
-import { Request, RequestHandler, Response } from 'express'
+import { RequestHandler } from 'express'
 import Address from '../models/address.model'
 import { errorHandler, MongoError } from '../helpers/errorHandler'
 
-// Hàm lấy thông tin địa chỉ từ địa chỉ string
 export const getAddress: RequestHandler = async (req, res) => {
 	try {
 		const { address } = req.params
@@ -24,7 +23,6 @@ export const getAddress: RequestHandler = async (req, res) => {
 	}
 }
 
-// Hàm lấy danh sách tỉnh thành
 export const getProvinces: RequestHandler = async (req, res) => {
 	try {
 		const addresses = await Address.find({}, 'provinceName')

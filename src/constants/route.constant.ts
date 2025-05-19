@@ -9,7 +9,7 @@ export const ROUTES = {
 		REFRESH_TOKEN: '/auth/refresh-token',
 		FORGOT_PASSWORD: '/auth/forgot-password',
 		CHANGE_PASSWORD: '/auth/change-password/:forgot-password-code',
-		CONFIRM_EMAIL: '/auth/confirm-email/:user-id',
+		CONFIRM_EMAIL: '/auth/confirm-email/:userId',
 		VERIFY_EMAIL: '/auth/verify-email/:email-code'
 	},
 
@@ -100,14 +100,13 @@ export const ROUTES = {
 	// Commission routes
 	COMMISSION: {
 		BASE: '/commission',
-		LIST_BY_USER: '/user/:userId/commissions',
-		CREATE: '/commission/:userId',
-		UPDATE: '/commission/:commissionId/:userId',
-		DELETE: '/commission/:commissionId/:userId',
-		RESTORE: '/commission/:commissionId/:userId/restore',
+		LIST: '/commissions',
+		CREATE: '/commission',
+		UPDATE: '/commission/:commissionId',
+		DELETE: '/commission/:commissionId',
+		RESTORE: '/commission/:commissionId/restore',
 		ACTIVE_LIST: '/commission/active'
-	},
-	// Notification routes
+	}, // Notification routes
 	NOTIFICATION: {
 		BASE: '/notification',
 		GET: '/notification/:userId',
@@ -120,7 +119,9 @@ export const ROUTES = {
 			ACTIVE_STORE: '/notification/send/active-store/:userId/:storeId',
 			BAN_PRODUCT: '/notification/send/ban-product/:userId',
 			ACTIVE_PRODUCT: '/notification/send/active-product/:userId',
-			DELIVERY_SUCCESS: '/notification/send/delivery-success/:userId'
+			DELIVERY_SUCCESS: '/notification/send/delivery-success/:userId',
+			REPORT_STORE: '/notification/send/report-store/:userId/:storeId',
+			REPORT_PRODUCT: '/notification/send/report-product/:userId'
 		}
 	},
 	// Order routes

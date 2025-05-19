@@ -1,10 +1,4 @@
-import {
-	Request,
-	Response,
-	NextFunction,
-	RequestHandler,
-	RequestParamHandler
-} from 'express'
+import { Request, RequestHandler, RequestParamHandler } from 'express'
 import Category, { ICategory } from '../models/category.model'
 import fs from 'fs'
 import { errorHandler, MongoError } from '../helpers/errorHandler'
@@ -29,8 +23,9 @@ export const getCategoryById: RequestParamHandler = async (
 			res.status(404).json({
 				error: 'Category not found'
 			})
+			return
 		}
-		req.category = category as ICategory
+		req.category = category
 		next()
 	} catch (error) {
 		res.status(404).json({
@@ -41,7 +36,7 @@ export const getCategoryById: RequestParamHandler = async (
 
 export const getCategory: RequestHandler = async (
 	req: CategoryRequest,
-	res: Response
+	res
 ) => {
 	try {
 		const category = await Category.findOne({
@@ -73,7 +68,7 @@ const deleteUploadedFile = (filepath?: string): void => {
 			fs.unlinkSync('public' + filepath)
 		}
 	} catch (error) {
-		// Silently fail if file deletion fails
+		console.error('Error deleting file:', error)
 	}
 }
 
@@ -86,22 +81,14 @@ export const checkCategory: RequestHandler = async (
 	res,
 	next
 ) => {
-	// Lấy categoryId từ cả req.fields và req.body
-	const fields = req.fields || {};
-	const body = req.body || {};
-	const categoryId = fields.categoryId || body.categoryId;
-
-	console.log('checkCategory - req.body:', body);
-	console.log('checkCategory - req.fields:', fields);
-	console.log('checkCategory - categoryId:', categoryId);
-
-	if (!categoryId) return next();
-
+	const fields = req.fields || {}
+	const body = req.body || {}
+	const categoryId = fields.categoryId || body.categoryId
+	if (!categoryId) return next()
 	try {
 		const category = await Category.findOne({ _id: categoryId }).populate(
 			'categoryId'
 		)
-
 		if (
 			!category ||
 			(category.categoryId && (category.categoryId as any).categoryId)
@@ -110,7 +97,7 @@ export const checkCategory: RequestHandler = async (
 			res.status(400).json({
 				error: 'CategoryId invalid'
 			})
-			return;
+			return
 		}
 		next()
 	} catch (error) {
@@ -127,19 +114,17 @@ export const checkCategoryChild: RequestHandler = async (
 	next
 ) => {
 	let categoryId = req.body.categoryId
-
 	try {
 		if (!categoryId && req.fields) {
 			categoryId = req.fields.categoryId
 		}
-
 		const category = await Category.findOne({ categoryId })
-
 		if (category) {
 			deleteUploadedFiles(req.filepaths || [])
 			res.status(400).json({
 				error: 'CategoryId invalid'
 			})
+			return
 		}
 		next()
 	} catch (error) {
@@ -161,6 +146,7 @@ export const checkListCategoriesChild: RequestHandler = async (
 			res.status(400).json({
 				error: 'categoryIds invalid'
 			})
+			return
 		}
 		next()
 	} catch (error) {
@@ -170,13 +156,13 @@ export const checkListCategoriesChild: RequestHandler = async (
 
 export const createCategory: RequestHandler = async (
 	req: CategoryRequest,
-	res: Response
+	res
 ) => {
-	const fields = req.fields || {};
-	const body = req.body || {};
-	const name = fields.name || body.name;
-	const categoryId = fields.categoryId || body.categoryId;
-	const image = req.file?.path;
+	const fields = req.fields || {}
+	const body = req.body || {}
+	const name = fields.name || body.name
+	const categoryId = fields.categoryId || body.categoryId
+	const image = req.file?.path
 	if (!name) {
 		deleteUploadedFile(image)
 		res.status(400).json({
@@ -184,18 +170,18 @@ export const createCategory: RequestHandler = async (
 		})
 		return
 	}
-
 	try {
 		const category = new Category({
 			name,
 			categoryId,
 			image
 		})
-
 		const savedCategory = await category.save()
 		res.status(201).json({
 			success: 'Creating category successfully',
-			category: savedCategory.toObject ? savedCategory.toObject() : savedCategory
+			category: savedCategory.toObject
+				? savedCategory.toObject()
+				: savedCategory
 		})
 	} catch (error) {
 		deleteUploadedFile(image)
@@ -207,31 +193,29 @@ export const createCategory: RequestHandler = async (
 
 export const updateCategory: RequestHandler = async (
 	req: CategoryRequest,
-	res: Response
+	res
 ) => {
-	const fields = req.fields || {};
-	const body = req.body || {};
-	let name = fields.name || body.name;
-	let categoryId = fields.categoryId || body.categoryId;
-	const image = req.filepaths?.[0] ? req.filepaths[0] : req.category?.image;
+	const fields = req.fields || {}
+	const body = req.body || {}
+	let name = fields.name || body.name
+	let categoryId = fields.categoryId || body.categoryId
+	const image = req.filepaths?.[0] ? req.filepaths[0] : req.category?.image
 	if (!categoryId) {
-		categoryId = null;
+		categoryId = null
 	} else if (categoryId == req.category?._id) {
-		deleteUploadedFile(req.filepaths?.[0]);
+		deleteUploadedFile(req.filepaths?.[0])
 		res.status(400).json({
 			error: 'categoryId invalid'
-		});
-		return;
+		})
+		return
 	}
-
 	if (!name || !image) {
-		deleteUploadedFile(req.filepaths?.[0]);
+		deleteUploadedFile(req.filepaths?.[0])
 		res.status(400).json({
 			error: 'All fields are required'
-		});
-		return;
+		})
+		return
 	}
-
 	try {
 		const category = await Category.findOneAndUpdate(
 			{ _id: req.category?._id },
@@ -241,7 +225,6 @@ export const updateCategory: RequestHandler = async (
 			path: 'categoryId',
 			populate: { path: 'categoryId' }
 		})
-
 		if (!category) {
 			deleteUploadedFile(req.filepaths?.[0])
 			res.status(400).json({
@@ -249,7 +232,6 @@ export const updateCategory: RequestHandler = async (
 			})
 			return
 		}
-
 		res.status(200).json({
 			success: 'Update category successfully',
 			category: category.toObject ? category.toObject() : category
@@ -264,7 +246,7 @@ export const updateCategory: RequestHandler = async (
 
 export const removeCategory: RequestHandler = async (
 	req: CategoryRequest,
-	res: Response
+	res
 ) => {
 	try {
 		const category = await Category.findOneAndUpdate(
@@ -275,11 +257,11 @@ export const removeCategory: RequestHandler = async (
 			path: 'categoryId',
 			populate: { path: 'categoryId' }
 		})
-
 		if (!category) {
 			res.status(404).json({
 				error: 'category not found'
 			})
+			return
 		}
 		res.status(200).json({
 			success: 'Remove category successfully'
@@ -293,7 +275,7 @@ export const removeCategory: RequestHandler = async (
 
 export const restoreCategory: RequestHandler = async (
 	req: CategoryRequest,
-	res: Response
+	res
 ) => {
 	try {
 		const category = await Category.findOneAndUpdate(
@@ -321,7 +303,7 @@ export const restoreCategory: RequestHandler = async (
 
 export const getActiveCategories: RequestHandler = async (
 	req: CategoryRequest,
-	res: Response
+	res
 ) => {
 	const search = req.query.search?.toString() || ''
 	const sortBy = req.query.sortBy?.toString() || '_id'
@@ -337,7 +319,6 @@ export const getActiveCategories: RequestHandler = async (
 		req.query.page && parseInt(req.query.page.toString()) > 0
 			? parseInt(req.query.page.toString())
 			: 1
-
 	const filter: FilterType = {
 		search,
 		sortBy,
@@ -345,7 +326,6 @@ export const getActiveCategories: RequestHandler = async (
 		limit,
 		pageCurrent: page
 	}
-
 	const filterArgs: Record<string, any> = {
 		name: {
 			$regex: search,
@@ -375,6 +355,7 @@ export const getActiveCategories: RequestHandler = async (
 				size,
 				categories: []
 			})
+			return
 		}
 		const categories = await Category.find(filterArgs)
 			.sort({ [sortBy]: order === 'asc' ? 1 : -1, _id: 1 })
@@ -384,7 +365,9 @@ export const getActiveCategories: RequestHandler = async (
 				path: 'categoryId',
 				populate: { path: 'categoryId' }
 			})
-		const plainCategories = categories.map(cat => cat.toObject ? cat.toObject() : cat)
+		const plainCategories = categories.map((cat) =>
+			cat.toObject ? cat.toObject() : cat
+		)
 		res.status(200).json({
 			success: 'Load list active categories successfully',
 			filter,
@@ -400,7 +383,7 @@ export const getActiveCategories: RequestHandler = async (
 
 export const getCategories: RequestHandler = async (
 	req: CategoryRequest,
-	res: Response
+	res
 ) => {
 	const search = (req.query.search as string) || ''
 	const sortBy = (req.query.sortBy as string) || '_id'
@@ -462,7 +445,9 @@ export const getCategories: RequestHandler = async (
 				path: 'categoryId',
 				populate: { path: 'categoryId' }
 			})
-		const plainCategories = categories.map(cat => cat.toObject ? cat.toObject() : cat)
+		const plainCategories = categories.map((cat) =>
+			cat.toObject ? cat.toObject() : cat
+		)
 		res.status(200).json({
 			success: 'Load list categories successfully',
 			filter,
@@ -482,7 +467,7 @@ interface StoreRequest extends CategoryRequest {
 
 export const getCategoriesByStore: RequestHandler = async (
 	req: StoreRequest,
-	res: Response
+	res
 ) => {
 	try {
 		const categories = await Category.find({
@@ -494,7 +479,9 @@ export const getCategoriesByStore: RequestHandler = async (
 				path: 'categoryId'
 			}
 		})
-		const plainCategories = categories.map(cat => cat.toObject ? cat.toObject() : cat)
+		const plainCategories = categories.map((cat) =>
+			cat.toObject ? cat.toObject() : cat
+		)
 		res.status(200).json({
 			success: 'Load list categories of store successfully',
 			categories: plainCategories

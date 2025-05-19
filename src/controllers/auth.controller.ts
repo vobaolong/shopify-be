@@ -1,18 +1,14 @@
 import { Request, Response, RequestHandler } from 'express'
 import jwt from 'jsonwebtoken'
-import mongoose from 'mongoose'
 import { errorHandler, MongoError } from '../helpers/errorHandler'
 import { User, RefreshToken } from '../models/index.model'
-import { Role } from '../enums/index.enum'
 import {
 	AuthRequest,
 	SignoutRequest,
 	RefreshTokenRequest,
 	ForgotPasswordRequest,
-	ChangePasswordRequest,
 	SocialAuthRequest,
-	AuthUpdateRequest,
-	AuthenticatedRequest
+	AuthUpdateRequest
 } from '../types/auth.types'
 
 export const signup = async (req: AuthRequest, res: Response) => {
@@ -20,7 +16,6 @@ export const signup = async (req: AuthRequest, res: Response) => {
 		const { firstName, lastName, email, phone, password } = req.body
 		const user = new User({ firstName, lastName, email, phone, password })
 		await user.save()
-
 		res.status(201).json({
 			success: 'Signing up successfully, you can sign in now',
 			user
@@ -32,12 +27,7 @@ export const signup = async (req: AuthRequest, res: Response) => {
 	}
 }
 
-// Hàm đăng nhập tài khoản
-export const signin = async (
-	req: any,
-	res: any,
-	next: any
-) => {
+export const signin = async (req: any, res: any, next: any) => {
 	try {
 		const { email, phone, password } = req.body
 		const query = {
@@ -65,7 +55,7 @@ export const signin = async (
 			})
 			return
 		}
-		(req as any).auth = user
+		; (req as any).auth = user
 		next()
 	} catch (error) {
 		res.status(404).json({
@@ -75,11 +65,10 @@ export const signin = async (
 }
 
 export const createToken: RequestHandler = async (req, res, next) => {
-	const authReq = req as AuthRequest;
+	const authReq = req as AuthRequest
 	try {
 		const user = authReq.auth
 		const { _id, role } = user
-
 		const accessToken = jwt.sign(
 			{ _id },
 			process.env.ACCESS_TOKEN_SECRET as string,
@@ -87,7 +76,6 @@ export const createToken: RequestHandler = async (req, res, next) => {
 				expiresIn: '48h'
 			}
 		)
-
 		const refreshToken = jwt.sign(
 			{ _id },
 			process.env.REFRESH_TOKEN_SECRET as string,
@@ -95,10 +83,8 @@ export const createToken: RequestHandler = async (req, res, next) => {
 				expiresIn: '9999 days'
 			}
 		)
-
 		const token = new RefreshToken({ jwt: refreshToken })
 		await token.save()
-
 		res.status(201).json({
 			success: 'Sign in successfully',
 			accessToken,
@@ -113,14 +99,12 @@ export const createToken: RequestHandler = async (req, res, next) => {
 	}
 }
 
-// Hàm đăng xuất
 export const signout: RequestHandler = async (
 	req: SignoutRequest,
 	res: Response
 ) => {
 	try {
 		const { refreshToken } = req.body
-
 		if (!refreshToken) {
 			res.status(401).json({ error: 'refreshToken is required' })
 			return
@@ -136,31 +120,25 @@ export const signout: RequestHandler = async (
 	}
 }
 
-// Hàm làm mới token
 export const refreshToken: RequestHandler = async (
 	req: RefreshTokenRequest,
 	res: Response
 ) => {
 	try {
 		const { refreshToken } = req.body
-
 		if (!refreshToken) {
 			res.status(401).json({ error: 'refreshToken is required' })
 			return
 		}
-
 		const token = await RefreshToken.findOne({ jwt: refreshToken }).exec()
-
 		if (!token) {
 			res.status(404).json({
 				error: 'refreshToken is invalid'
 			})
 			return
 		}
-
 		const decoded = jwt.decode(token.jwt) as { _id: string }
 		const { _id } = decoded
-
 		const accessToken = jwt.sign(
 			{ _id },
 			process.env.ACCESS_TOKEN_SECRET as string,
@@ -168,19 +146,16 @@ export const refreshToken: RequestHandler = async (
 				expiresIn: '48h'
 			}
 		)
-
 		const newRefreshToken = jwt.sign(
 			{ _id },
 			process.env.REFRESH_TOKEN_SECRET as string,
 			{ expiresIn: '9999 days' }
 		)
-
 		const updatedToken = await RefreshToken.findOneAndUpdate(
 			{ jwt: refreshToken },
 			{ $set: { jwt: newRefreshToken } },
 			{ new: true }
 		).exec()
-
 		if (!updatedToken) {
 			res.status(500).json({
 				error: 'Create JWT failed, try again later'
@@ -199,7 +174,6 @@ export const refreshToken: RequestHandler = async (
 	}
 }
 
-// Hàm quên mật khẩu
 export const forgotPassword: RequestHandler = async (
 	req: ForgotPasswordRequest,
 	res,
@@ -212,27 +186,24 @@ export const forgotPassword: RequestHandler = async (
 			{ email, phone },
 			process.env.JWT_FORGOT_PASSWORD_SECRET as string
 		)
-
 		const query = {
 			$or: [
 				{ email: { $exists: true, $ne: null, $eq: email } },
 				{ phone: { $exists: true, $ne: null, $eq: phone } }
 			]
 		}
-
 		const user = await User.findOneAndUpdate(
 			query,
 			{ $set: { forgot_password_code } },
 			{ new: true }
 		).exec()
-
 		if (!user) {
 			res.status(404).json({
 				error: 'User not found'
 			})
 			return
 		}
-		(req as any).msg = {
+		; (req as any).msg = {
 			email: email || '',
 			phone: phone || '',
 			name: `${user.firstName} ${user.lastName}`,
@@ -251,9 +222,8 @@ export const forgotPassword: RequestHandler = async (
 	}
 }
 
-// Hàm đổi mật khẩu
-export const changePassword: RequestHandler<{ forgotPasswordCode: string }> = async (
-	req: Request<{ forgotPasswordCode: string }>,
+export const changePassword: RequestHandler = async (
+	req: Request,
 	res: Response
 ) => {
 	try {
@@ -263,7 +233,6 @@ export const changePassword: RequestHandler<{ forgotPasswordCode: string }> = as
 			{ forgot_password_code },
 			{ $unset: { forgot_password_code: '' } }
 		)
-
 		if (!user) {
 			res.status(404).json({
 				error: 'User not found'
@@ -282,7 +251,6 @@ export const changePassword: RequestHandler<{ forgotPasswordCode: string }> = as
 	}
 }
 
-// Hàm đăng nhập bằng Google
 export const authSocial: RequestHandler = async (
 	req: SocialAuthRequest,
 	res,
@@ -299,10 +267,7 @@ export const authSocial: RequestHandler = async (
 		const user = await User.findOne({
 			googleId: { $exists: true, $ne: null, $eq: googleId }
 		}).exec()
-
-		if (user) {
-			(req as any).auth = user
-		}
+		if (user) req.auth = user
 		next()
 	} catch (error) {
 		res.status(500).json({
@@ -311,7 +276,6 @@ export const authSocial: RequestHandler = async (
 	}
 }
 
-// Hàm cập nhật thông tin tài khoản
 export const authUpdate: RequestHandler = async (
 	req: AuthUpdateRequest,
 	res,
@@ -323,14 +287,12 @@ export const authUpdate: RequestHandler = async (
 	}
 	try {
 		const { firstName, lastName, email, googleId } = req.body
-
 		if (googleId) {
 			const user = await User.findOneAndUpdate(
 				{ email: { $exists: true, $ne: null, $eq: email } },
 				{ $set: { googleId } },
 				{ new: true }
 			).exec()
-
 			if (!user) {
 				const newUser = new User({
 					firstName,
@@ -339,169 +301,14 @@ export const authUpdate: RequestHandler = async (
 					googleId,
 					isEmailActive: true
 				})
-
 				const savedUser = await newUser.save()
 				req.auth = savedUser
 			} else {
 				req.auth = user
 			}
 		}
-
 		next()
 	} catch (error) {
 		next()
 	}
-}
-
-// Hàm kiểm tra mật khẩu
-export const verifyPassword: RequestHandler = async (
-	req,
-	res,
-	next
-) => {
-	try {
-		const { currentPassword } = req.body
-		const user = await User.findById(req.user?._id)
-
-		if (!user) {
-			res.status(404).json({
-				error: 'User not found'
-			})
-			return
-		}
-
-		if (user.googleId) {
-			next()
-			return
-		}
-
-		if (!user.authenticate(currentPassword)) {
-			res.status(401).json({
-				error: "Current password doesn't match"
-			})
-			return
-		}
-
-		next()
-	} catch (error) {
-		res.status(500).json({
-			error: 'Verification failed'
-		})
-	}
-}
-
-// Hàm kiểm tra quyền đăng nhập
-export const isAuth: RequestHandler = async (
-	req: AuthenticatedRequest,
-	res,
-	next
-) => {
-	const authHeader = req.headers && req.headers.authorization
-	const token = authHeader && authHeader.split(' ')[1]
-	if (!token) {
-		res.status(401).json({
-			error: 'No token provided! Please sign in again'
-		})
-		return
-	}
-
-	jwt.verify(
-		token,
-		process.env.ACCESS_TOKEN_SECRET as string,
-		async (error: any, decoded: any) => {
-			if (error) {
-				res.status(401).json({
-					error: 'Unauthorized! Please sign in again'
-				})
-				return
-			}
-			// Lấy user từ database
-			const user = await User.findById(decoded._id)
-			if (!user) {
-				res.status(401).json({
-					error: 'User not found'
-				})
-				return
-			}
-			req.user = user
-			next()
-		}
-	)
-}
-
-// Hàm kiểm tra quyền quản lý cửa hàng
-export const isManager: RequestHandler = (
-	req,
-	res,
-	next
-) => {
-	const user = req.user as { _id: mongoose.Types.ObjectId }
-	const store = req.store as {
-		ownerId: mongoose.Types.ObjectId
-		staffIds: mongoose.Types.ObjectId[]
-	}
-
-	if (!store || !user) {
-		res.status(403).json({
-			error: 'Store or user not found',
-			isManager: false
-		})
-		return
-	}
-
-	const isUserManager =
-		user._id.equals(store.ownerId) || store.staffIds.includes(user._id)
-
-	if (!isUserManager) {
-		res.status(403).json({
-			error: 'Store Manager resource! Access denied',
-			isManager: false
-		})
-		return
-	}
-	next()
-}
-
-// Hàm kiểm tra quyền chủ cửa hàng
-export const isOwner: RequestHandler = (
-	req,
-	res,
-	next
-) => {
-	const user = req.user as { _id: mongoose.Types.ObjectId }
-	const store = req.store as {
-		ownerId: mongoose.Types.ObjectId
-	}
-
-	if (!store || !user) {
-		res.status(403).json({
-			error: 'Store or user not found',
-			isOwner: false
-		})
-		return
-	}
-
-	if (!user._id.equals(store.ownerId)) {
-		res.status(403).json({
-			error: 'Store Owner resource! Access denied',
-			isOwner: false
-		})
-		return
-	}
-	next()
-}
-
-// Hàm kiểm tra quyền quản trị viên
-export const isAdmin: RequestHandler = (
-	req: AuthenticatedRequest,
-	res: Response,
-	next
-) => {
-	if (req.user.role !== Role.ADMIN) {
-		res.status(403).json({
-			error: 'Admin resource! Access denied'
-		})
-		return
-	}
-	next()
 }

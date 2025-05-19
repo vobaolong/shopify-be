@@ -6,18 +6,20 @@ import { ROUTES } from '../constants/route.constant'
 
 //import controllers
 import {
-	getNotifications,
-	updateRead,
-	deleteNotifications
+  getNotifications,
+  updateRead,
+  deleteNotifications
 } from '../controllers/notification.controller'
 
 import {
-	sendBanStoreEmail,
-	sendActiveStoreEmail,
-	sendBanProductEmail,
-	sendActiveProductEmail,
-	sendCreateStoreEmail,
-	sendDeliveryEmailEmail
+  sendBanStoreEmail,
+  sendActiveStoreEmail,
+  sendBanProductEmail,
+  sendActiveProductEmail,
+  sendCreateStoreEmail,
+  sendDeliveryEmailEmail,
+  sendReportStoreEmail,
+  sendReportProductEmail
 } from '../controllers/email.controller'
 
 // ----------- GET ROUTES -----------
@@ -36,5 +38,7 @@ router.post(ROUTES.NOTIFICATION.SEND.ACTIVE_STORE, sendActiveStoreEmail)
 router.post(ROUTES.NOTIFICATION.SEND.BAN_PRODUCT, sendBanProductEmail)
 router.post(ROUTES.NOTIFICATION.SEND.ACTIVE_PRODUCT, sendActiveProductEmail)
 router.post(ROUTES.NOTIFICATION.SEND.DELIVERY_SUCCESS, sendDeliveryEmailEmail)
+router.post(ROUTES.NOTIFICATION.SEND.REPORT_STORE, sendReportStoreEmail)
+router.post(ROUTES.NOTIFICATION.SEND.REPORT_PRODUCT, sendReportProductEmail)
 
 export default router
