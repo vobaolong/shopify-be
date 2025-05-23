@@ -10,14 +10,14 @@ import { validateHandler } from '../helpers/validateHandler'
 import { isAuth, isAdmin } from '../middlewares/auth.middleware'
 import { getUserById } from '../controllers/user.controller'
 import {
-  getUserLevelById,
-  getUserLevel,
-  createUserLevel,
-  updateUserLevel,
-  removeUserLevel,
-  restoreUserLevel,
-  getUserLevels,
-  getActiveUserLevels
+	getUserLevelById,
+	getUserLevel,
+	createUserLevel,
+	updateUserLevel,
+	removeUserLevel,
+	restoreUserLevel,
+	getUserLevels,
+	getActiveUserLevels
 } from '../controllers/userLevel.controller'
 
 // Middleware groups
@@ -31,18 +31,18 @@ router.get(ROUTES.USER_LEVEL.LEVELS, ...adminAuth, getUserLevels)
 
 // ----------- POST ROUTES -----------
 router.post(
-  ROUTES.USER_LEVEL.CREATE,
-  ...adminAuth,
-  ...levelValidatorGroup,
-  createUserLevel
+	ROUTES.USER_LEVEL.CREATE,
+	...adminAuth,
+	...levelValidatorGroup,
+	createUserLevel
 )
 
 // ----------- PUT ROUTES -----------
 router.put(
-  ROUTES.USER_LEVEL.UPDATE,
-  ...adminAuth,
-  ...levelValidatorGroup,
-  updateUserLevel
+	ROUTES.USER_LEVEL.UPDATE,
+	...adminAuth,
+	...levelValidatorGroup,
+	updateUserLevel
 )
 
 // ----------- DELETE ROUTES -----------

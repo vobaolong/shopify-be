@@ -16,6 +16,10 @@ interface UserRequest extends Request {
     order?: string
     limit?: string
     page?: string
+    createdAtFrom?: string
+    createdAtTo?: string
+    isEmailActive?: string
+    searchField?: string
     [key: string]: any
   }
 }
@@ -562,22 +566,24 @@ export const listUser: RequestHandler = async (
       pageCurrent: page
     }
 
-    const filterArgs = {
-      $or: [
-        {
-          firstName: {
-            $regex: search,
-            $options: 'i'
-          }
-        },
-        {
-          lastName: {
-            $regex: search,
-            $options: 'i'
-          }
-        }
-      ],
-      role: { $ne: 'admin' }
+    const searchField = req.query.searchField as string | undefined
+    let filterArgs: any = { role: { $ne: 'admin' } }
+    if (searchField && search) {
+      if (searchField === 'name') {
+        filterArgs.$or = [
+          { firstName: { $regex: search, $options: 'i' } },
+          { lastName: { $regex: search, $options: 'i' } }
+        ]
+      } else {
+        filterArgs[searchField] = { $regex: search, $options: 'i' }
+      }
+    } else if (search) {
+      filterArgs.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } }
+      ]
     }
 
     const count = await User.countDocuments(filterArgs)
@@ -629,18 +635,15 @@ export const listUserForAdmin: RequestHandler = async (
         ? req.query.order
         : 'asc'
     const limit =
-      req.query.limit &&
-      !isNaN(parseInt(req.query.limit as string)) &&
-      parseInt(req.query.limit as string) > 0
-        ? parseInt(req.query.limit as string)
+      req.query.limit && parseInt(req.query.limit) > 0
+        ? parseInt(req.query.limit)
         : 6
     const page =
-      req.query.page &&
-      !isNaN(parseInt(req.query.page as string)) &&
-      parseInt(req.query.page as string) > 0
-        ? parseInt(req.query.page as string)
+      req.query.page && parseInt(req.query.page) > 0
+        ? parseInt(req.query.page)
         : 1
-
+    const createdAtFrom = req.query.createdAtFrom as string | undefined
+    const createdAtTo = req.query.createdAtTo as string | undefined
     const filter: FilterType = {
       search,
       sortBy,
@@ -648,41 +651,37 @@ export const listUserForAdmin: RequestHandler = async (
       limit,
       pageCurrent: page
     }
-
-    const filterArgs = {
-      $or: [
-        {
-          firstName: {
-            $regex: search,
-            $options: 'i'
-          }
-        },
-        {
-          lastName: {
-            $regex: search,
-            $options: 'i'
-          }
-        },
-        {
-          email: {
-            $regex: search,
-            $options: 'i'
-          }
-        },
-        {
-          phone: {
-            $regex: search,
-            $options: 'i'
-          }
-        }
-      ],
-      role: { $ne: 'admin' }
+    const searchField = req.query.searchField as string | undefined
+    let filterArgs: any = { role: { $ne: 'admin' } }
+    if (searchField && search) {
+      if (searchField === 'name') {
+        filterArgs.$or = [
+          { firstName: { $regex: search, $options: 'i' } },
+          { lastName: { $regex: search, $options: 'i' } }
+        ]
+      } else {
+        filterArgs[searchField] = { $regex: search, $options: 'i' }
+      }
+    } else if (search) {
+      filterArgs.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } }
+      ]
+    }
+    if (typeof req.query.isEmailActive !== 'undefined') {
+      filterArgs.isEmailActive = req.query.isEmailActive === 'true'
+    }
+    if (createdAtFrom || createdAtTo) {
+      filterArgs.createdAt = {}
+      if (createdAtFrom) filterArgs.createdAt.$gte = new Date(createdAtFrom)
+      if (createdAtTo) filterArgs.createdAt.$lte = new Date(createdAtTo)
     }
     const count = await User.countDocuments(filterArgs)
     const size = count
     const pageCount = Math.ceil(size / limit)
     filter.pageCount = pageCount
-
     let skip = (page - 1) * limit
     if (page > pageCount) {
       skip = (pageCount - 1) * limit
@@ -694,6 +693,7 @@ export const listUserForAdmin: RequestHandler = async (
         size,
         users: []
       })
+      return
     }
     const users = await User.find(filterArgs)
       .lean()

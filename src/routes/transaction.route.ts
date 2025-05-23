@@ -29,7 +29,7 @@ const verifyAuth = [isAuth, verifyPassword]
 // ----------- GET ROUTES -----------
 router.get(ROUTES.TRANSACTION.BY_USER, isAuth, getTransactions)
 router.get(ROUTES.TRANSACTION.BY_STORE, ...managerAuth, getTransactions)
-router.get(ROUTES.TRANSACTION.FOR_ADMIN, ...adminAuth, getTransactions)
+router.get(ROUTES.TRANSACTION.BY_ADMIN, ...adminAuth, getTransactions)
 
 // ----------- POST ROUTES -----------
 router.post(

@@ -170,13 +170,6 @@ export const createStore: RequestHandler = async (
     const cover = req.filepaths ? req.filepaths[1] : undefined
 
     if (!name || !bio || !address || !commissionId || !avatar || !cover) {
-      try {
-        if (req.filepaths) {
-          fs.unlinkSync('public' + req.filepaths[0])
-          fs.unlinkSync('public' + req.filepaths[1])
-        }
-      } catch {}
-
       res.status(400).json({
         error: 'All fields are required'
       })
@@ -232,13 +225,6 @@ export const createStore: RequestHandler = async (
       storeId: savedStore._id
     })
   } catch (error) {
-    try {
-      if (req.filepaths) {
-        fs.unlinkSync('public' + req.filepaths[0])
-        fs.unlinkSync('public' + req.filepaths[1])
-      }
-    } catch {}
-
     res.status(400).json({
       error: errorHandler(error as MongoError)
     })
@@ -483,21 +469,10 @@ export const updateAvatar = async (
       .exec()
 
     if (!store) {
-      try {
-        if (req.filepaths) {
-          fs.unlinkSync('public' + req.filepaths[0])
-        }
-      } catch {}
       res.status(500).json({
         error: 'Store not found'
       })
       return
-    }
-
-    if (oldpath && oldpath !== '/uploads/default.webp') {
-      try {
-        fs.unlinkSync('public' + oldpath)
-      } catch {}
     }
     // Cast to IUser before using cleanUser
     store.ownerId = safeCleanUser(store.ownerId)
@@ -509,12 +484,6 @@ export const updateAvatar = async (
       store
     })
   } catch (error) {
-    try {
-      if (req.filepaths) {
-        fs.unlinkSync('public' + req.filepaths[0])
-      }
-    } catch {}
-
     res.status(500).json({
       error: errorHandler(error as MongoError)
     })
@@ -539,12 +508,6 @@ export const updateCover = async (
       .exec()
 
     if (!store) {
-      try {
-        if (req.filepaths) {
-          fs.unlinkSync('public' + req.filepaths[0])
-        }
-      } catch {}
-
       res.status(500).json({
         error: 'Store not found'
       })
@@ -552,9 +515,6 @@ export const updateCover = async (
     }
 
     if (oldpath && oldpath !== '/uploads/default.webp') {
-      try {
-        fs.unlinkSync('public' + oldpath)
-      } catch {}
       return
     }
 
@@ -569,12 +529,6 @@ export const updateCover = async (
       store
     })
   } catch (error) {
-    try {
-      if (req.filepaths) {
-        fs.unlinkSync('public' + req.filepaths[0])
-      }
-    } catch {}
-
     res.status(500).json({
       error: errorHandler(error as MongoError)
     })
@@ -602,12 +556,6 @@ export const addFeatureImage = async (
 
     const index = featured_images.length
     if (index >= 7) {
-      try {
-        if (req.filepaths) {
-          fs.unlinkSync('public' + req.filepaths[0])
-        }
-      } catch {}
-
       res.status(400).json({
         error: 'Limit is 7 images'
       })
@@ -625,12 +573,6 @@ export const addFeatureImage = async (
       .exec()
 
     if (!store) {
-      try {
-        if (req.filepaths) {
-          fs.unlinkSync('public' + req.filepaths[0])
-        }
-      } catch {}
-
       res.status(500).json({
         error: 'Store not found'
       })
@@ -648,12 +590,6 @@ export const addFeatureImage = async (
       store
     })
   } catch (error) {
-    try {
-      if (req.filepaths) {
-        fs.unlinkSync('public' + req.filepaths[0])
-      }
-    } catch {}
-
     res.status(500).json({
       error: errorHandler(error as MongoError)
     })
@@ -677,9 +613,6 @@ export const updateFeatureImage = async (
 
     const featured_images = req.store.featured_images
     if (index >= featured_images.length) {
-      try {
-        fs.unlinkSync('public' + image)
-      } catch {}
       res.status(404).json({
         error: 'Feature image not found'
       })
@@ -700,10 +633,6 @@ export const updateFeatureImage = async (
       .exec()
 
     if (!store) {
-      try {
-        fs.unlinkSync('public' + image)
-      } catch {}
-
       res.status(500).json({
         error: 'Store not found'
       })
@@ -711,9 +640,7 @@ export const updateFeatureImage = async (
     }
 
     if (oldpath && oldpath !== '/uploads/default.webp') {
-      try {
-        fs.unlinkSync('public' + oldpath)
-      } catch {}
+      return
     }
 
     // Cast to IUser before using cleanUser
@@ -727,12 +654,6 @@ export const updateFeatureImage = async (
       store
     })
   } catch (error) {
-    try {
-      if (req.filepaths) {
-        fs.unlinkSync('public' + req.filepaths[0])
-      }
-    } catch {}
-
     res.status(400).json({
       error: errorHandler(error as MongoError)
     })
@@ -759,11 +680,6 @@ export const removeFeaturedImage = async (
       })
       return
     }
-
-    try {
-      fs.unlinkSync('public' + featured_images[index])
-    } catch {}
-
     featured_images.splice(index, 1)
 
     const store = await Store.findOneAndUpdate(
@@ -783,7 +699,6 @@ export const removeFeaturedImage = async (
       return
     }
 
-    // Cast to IUser before using cleanUser
     store.ownerId = safeCleanUser(store.ownerId)
     store.staffIds.forEach((staff, index) => {
       store.staffIds[index] = safeCleanUser(staff)
@@ -1014,26 +929,20 @@ export const removeStaff = async (
   }
 }
 
-export const getStoreCommissions = (
+export const getStoreCommissions = async (
   req: StoreRequest,
   res: Response,
   next: NextFunction
-): void => {
-  Store.distinct(
-    'commissionId',
-    {},
-    (error: Error, commissions: mongoose.Types.ObjectId[]) => {
-      if (error) {
-        res.status(400).json({
-          error: 'Commissions not found'
-        })
-        return
-      }
-
-      req.loadedCommissions = commissions
-      next()
-    }
-  )
+): Promise<void> => {
+  try {
+    const commissions = await Store.distinct('commissionId', {})
+    req.loadedCommissions = commissions
+    next()
+  } catch (error) {
+    res.status(400).json({
+      error: 'Commissions not found'
+    })
+  }
 }
 
 export const getStores = (req: StoreRequest, res: Response): void => {
@@ -1273,117 +1182,94 @@ export const getStoresByUser = (req: StoreRequest, res: Response): void => {
   })
 }
 
-export const getStoresForAdmin = (req: StoreRequest, res: Response): void => {
-  const search = req.query.search ? req.query.search : ''
+export const getStoresForAdmin = async (req: StoreRequest, res: Response) => {
+  try {
+    // 1. Parse query params
+    const {
+      search = '',
+      isActive,
+      sortBy = '_id',
+      sortMoreBy = '_id',
+      order = 'asc',
+      limit = 6,
+      page = 1,
+      commissionId
+    } = req.query
 
-  let isActive: boolean[] = [true, false]
-  if (req.query.isActive == 'true') isActive = [true]
-  if (req.query.isActive == 'false') isActive = [false]
+    const createdAtFrom = req.query.createdAtFrom as string | undefined
+    const createdAtTo = req.query.createdAtTo as string | undefined
+    const isActiveArr =
+      isActive === 'true'
+        ? [true]
+        : isActive === 'false'
+        ? [false]
+        : [true, false]
 
-  const sortBy = req.query.sortBy ? req.query.sortBy : '_id'
-  const sortMoreBy = req.query.sortMoreBy ? req.query.sortMoreBy : '_id'
-  const order =
-    req.query.order && (req.query.order == 'asc' || req.query.order == 'desc')
-      ? req.query.order
-      : 'asc'
-
-  const limit =
-    req.query.limit && Number(req.query.limit) > 0
-      ? parseInt(req.query.limit)
-      : 6
-  const page =
-    req.query.page && Number(req.query.page) > 0 ? parseInt(req.query.page) : 1
-  let skip = limit * (page - 1)
-
-  const commissionId = req.query.commissionId
-    ? [req.query.commissionId]
-    : req.loadedCommissions
-
-  const filter: StoreFilterType = {
-    search: search as string,
-    sortBy: sortBy as string,
-    sortMoreBy: sortMoreBy as string,
-    order: order as string,
-    isActive,
-    commissionId: commissionId as string[],
-    limit,
-    pageCurrent: page
-  }
-
-  const filterArgs = {
-    $or: [
-      {
-        name: {
-          $regex: search,
-          $options: 'i'
-        }
-      },
-      {
-        bio: { $regex: search, $options: 'i' }
+    // 2. Build filter
+    const filterArgs: any = {
+      $or: [
+        { name: { $regex: search, $options: 'i' } },
+        { bio: { $regex: search, $options: 'i' } }
+      ],
+      isActive: { $in: isActiveArr },
+      commissionId: {
+        $in: commissionId ? [commissionId] : req.loadedCommissions
       }
-    ],
-    isActive: { $in: isActive },
-    commissionId: { $in: commissionId }
-  }
-
-  Store.countDocuments(filterArgs, (error: Error, count: number) => {
-    if (error) {
-      res.status(404).json({
-        error: 'Stores not found'
-      })
-      return
+    }
+    const rating = req.query.rating
+    if (rating) {
+      if (rating === '5') {
+        filterArgs.rating = 5
+      } else {
+        filterArgs.rating = { $gte: Number(rating) }
+      }
     }
 
-    const size = count
-    const pageCount = Math.ceil(size / limit)
-    filter.pageCount = pageCount
+    // 3. Count & pagination
+    const total = await Store.countDocuments(filterArgs)
+    const pageCount = Math.ceil(total / +limit) || 1
+    const skip = +limit * (Math.min(+page, pageCount) - 1)
 
-    if (page > pageCount) {
-      skip = (pageCount - 1) * limit
-    }
-
-    if (count <= 0) {
+    if (total === 0) {
       res.status(200).json({
         success: 'Load list stores successfully',
-        filter,
-        size,
+        filter: { ...req.query, pageCount },
+        size: 0,
         stores: []
       })
       return
     }
-
-    Store.find(filterArgs)
+    if (createdAtFrom || createdAtTo) {
+      filterArgs.createdAt = {}
+      if (createdAtFrom) filterArgs.createdAt.$gte = new Date(createdAtFrom)
+      if (createdAtTo) filterArgs.createdAt.$lte = new Date(createdAtTo)
+    }
+    const sortOrder = order === 'desc' ? -1 : 1
+    // 4. Query data
+    const stores = await Store.find(filterArgs)
       .select('-e_wallet')
-      .sort({
-        [sortBy as string]: order,
-        [sortMoreBy as string]: order,
-        _id: 1
-      })
+      .sort({ [sortBy]: sortOrder, [sortMoreBy]: sortOrder, _id: 1 })
       .skip(skip)
-      .limit(limit)
+      .limit(+limit)
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')
       .exec()
-      .then((stores) => {
-        stores.forEach((store) => {
-          store.ownerId = safeCleanUserLess(store.ownerId)
-          store.staffIds = store.staffIds.map((staff) =>
-            safeCleanUserLess(staff)
-          )
-        })
 
-        res.status(200).json({
-          success: 'Load list stores successfully',
-          filter,
-          size,
-          stores
-        })
-      })
-      .catch(() => {
-        res.status(500).json({
-          error: 'Load list stores failed'
-        })
-      })
-  })
+    // 5. Clean data
+    stores.forEach((store) => {
+      store.ownerId = safeCleanUserLess(store.ownerId)
+      store.staffIds = store.staffIds.map(safeCleanUserLess)
+    })
+
+    // 6. Response
+    res.status(200).json({
+      success: 'Load list stores successfully',
+      filter: { ...req.query, pageCount },
+      size: total,
+      stores
+    })
+  } catch (err) {
+    res.status(500).json({ error: 'Load list stores failed' })
+  }
 }

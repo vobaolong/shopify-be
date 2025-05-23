@@ -10,6 +10,9 @@ export interface CommissionRequest<T = any> extends Request {
     order?: 'asc' | 'desc'
     limit?: string
     page?: string
+    createdAtFrom?: string
+    createdAtTo?: string
+    commission?: string
   }
   body: T
 }
