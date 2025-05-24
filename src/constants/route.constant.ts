@@ -44,7 +44,7 @@ export const ROUTES = {
     UPDATE: '/store/:storeId/user/:userId/product/:productId',
     // Selling status
     SELLING: '/store/:storeId/user/:userId/product/:productId/selling',
-    ACTIVE: '/user/:userId/product/:productId/active',
+    ACTIVE: '/admin/active-product/:productId',
     // Image routes
     IMAGES_ADD: '/store/:storeId/user/:userId/product/:productId/images',
     IMAGES_UPDATE: '/store/:storeId/user/:userId/product/:productId/images',
