@@ -69,12 +69,13 @@ export const ROUTES = {
   BRAND: {
     GET_BY_ID: '/brand/:brandId',
     ACTIVE: '/brands/active',
-    LIST: '/brands',
-    LIST_FOR_ADMIN: '/admin/:userId/brands',
-    CREATE: '/brand/:userId',
-    UPDATE: '/brand/:brandId/:userId',
-    DELETE: '/brand/:brandId/:userId',
-    RESTORE: '/brand/:brandId/:userId/restore'
+    LIST: '/admin/brands',
+    LIST_FOR_ADMIN: '/admin/brands',
+    CREATE: '/admin/brand',
+    UPDATE: '/admin/brand/:brandId',
+    DELETE: '/admin/brand/:brandId',
+    RESTORE: '/admin/brand/:brandId/restore',
+    CHECK_NAME: '/admin/brand/check-name'
   },
   // Cart routes
   CART: {

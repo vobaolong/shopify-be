@@ -15,7 +15,8 @@ import {
   removeBrand,
   restoreBrand,
   listBrands,
-  getBrandCategories
+  getBrandCategories,
+  checkBrandNameExist
 } from '../controllers/brand.controller'
 
 // Middleware groups
@@ -25,8 +26,8 @@ const brandValidator = [checkListCategoriesChild, checkBrand]
 // ----------- GET ROUTES -----------
 router.get(ROUTES.BRAND.GET_BY_ID, ...adminAuth, getBrand)
 router.get(ROUTES.BRAND.ACTIVE, getBrandCategories, listBrands)
-router.get(ROUTES.BRAND.LIST, listBrands)
 router.get(ROUTES.BRAND.LIST_FOR_ADMIN, ...adminAuth, listBrands)
+router.get(ROUTES.BRAND.CHECK_NAME, checkBrandNameExist)
 
 // ----------- POST ROUTES -----------
 router.post(ROUTES.BRAND.CREATE, ...adminAuth, ...brandValidator, createBrand)
