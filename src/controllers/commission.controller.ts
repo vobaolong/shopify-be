@@ -28,6 +28,7 @@ export const getCommissions: RequestHandler = async (
         : 1
     const createdAtFrom = req.query.createdAtFrom as string | undefined
     const createdAtTo = req.query.createdAtTo as string | undefined
+    const status = req.query.status
     const filter: FilterType = {
       search,
       sortBy,
@@ -45,6 +46,8 @@ export const getCommissions: RequestHandler = async (
       if (createdAtFrom) searchQuery.createdAt.$gte = new Date(createdAtFrom)
       if (createdAtTo) searchQuery.createdAt.$lte = new Date(createdAtTo)
     }
+    if (status === 'active') searchQuery.isDeleted = false
+    if (status === 'deleted') searchQuery.isDeleted = true
     const count = await Commission.countDocuments(searchQuery)
     const size = count
     const pageCount = Math.ceil(size / limit)

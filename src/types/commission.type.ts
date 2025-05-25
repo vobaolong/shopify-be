@@ -13,6 +13,7 @@ export interface CommissionRequest<T = any> extends Request {
     createdAtFrom?: string
     createdAtTo?: string
     commission?: string
+    status?: string
   }
   body: T
 }

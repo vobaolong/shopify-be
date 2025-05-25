@@ -89,7 +89,7 @@ export const ROUTES = {
   CATEGORY: {
     BASE: '/category',
     GET_BY_ID: '/category/:categoryId',
-    LIST_BY_ADMIN: '/categories',
+    LIST_BY_ADMIN: '/admin/categories',
     LIST_BY_STORE: '/store/:storeId/categories',
     ACTIVE: '/categories/active',
     CREATE: '/category/create',
@@ -160,9 +160,9 @@ export const ROUTES = {
   // Report routes
   REPORT: {
     BASE: '/report',
-    LIST: '/reports',
-    CREATE: '/report-create',
-    DELETE: '/report-delete/:id'
+    LIST: '/admin/reports',
+    CREATE: '/report',
+    DELETE: '/admin/report/:id'
   },
   // Review routes
   REVIEW: {
