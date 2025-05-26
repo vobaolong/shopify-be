@@ -1,25 +1,25 @@
 export enum OrderStatus {
-	NOT_PROCESSED = 'Not processed',
-	PROCESSING = 'Processing',
-	SHIPPED = 'Shipped',
-	DELIVERED = 'Delivered',
-	CANCELLED = 'Cancelled',
-	RETURNED = 'Returned'
+  PENDING = 'Pending',
+  PROCESSING = 'Processing',
+  SHIPPED = 'Shipped',
+  DELIVERED = 'Delivered',
+  CANCELLED = 'Cancelled',
+  RETURNED = 'Returned'
 }
 
 export enum ReturnStatus {
-	PENDING = 'Pending',
-	APPROVED = 'Approved',
-	REJECTED = 'Rejected'
+  PENDING = 'Pending',
+  APPROVED = 'Approved',
+  REJECTED = 'Rejected'
 }
 
 export enum ModelReport {
-	STORE = 'Store',
-	PRODUCT = 'Product',
-	REVIEW = 'Review'
+  STORE = 'Store',
+  PRODUCT = 'Product',
+  REVIEW = 'Review'
 }
 
 export enum Role {
-	USER = 'user',
-	ADMIN = 'admin'
+  USER = 'user',
+  ADMIN = 'admin'
 }

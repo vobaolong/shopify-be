@@ -40,9 +40,9 @@ const orderSchema: Schema<IOrder> = new Schema(
     },
     status: {
       type: String,
-      default: OrderStatus.NOT_PROCESSED,
+      default: OrderStatus.PENDING,
       enum: [
-        OrderStatus.NOT_PROCESSED,
+        OrderStatus.PENDING,
         OrderStatus.PROCESSING,
         OrderStatus.SHIPPED,
         OrderStatus.DELIVERED,

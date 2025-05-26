@@ -138,16 +138,16 @@ export const ROUTES = {
     },
 
     STORE: {
-      LIST: '/order/store/:storeId/:userId',
-      DETAIL: '/order/store/:storeId/:userId/:orderId',
-      ITEMS: '/order/store/:storeId/:userId/:orderId/items',
-      UPDATE: '/order/store/:storeId/:userId/:orderId/update'
+      LIST: '/store/:storeId/orders',
+      DETAIL: '/store/:storeId/orders/:orderId',
+      ITEMS: '/store/:storeId/orders/:orderId/items',
+      UPDATE: '/store/:storeId/orders/:orderId/update'
     },
 
     ADMIN: {
-      LIST: '/orders/admin',
-      DETAIL: '/order/admin/:orderId',
-      ITEMS: '/order/admin/:orderId/items'
+      LIST: '/admin/orders',
+      DETAIL: '/admin/order/:orderId',
+      ITEMS: '/admin/order/:orderId/items'
     },
 
     RETURN: {
