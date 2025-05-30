@@ -83,8 +83,10 @@ const loginPasswordValidator = (): ValidationChain =>
 
 // --- Exported Validators ---
 export const signup = (): ValidationChain[] => [
-  nameValidator('firstName'),
-  nameValidator('lastName'),
+  nameValidator('userName'),
+  nameValidator('name'),
+  nameValidator('gender'),
+  nameValidator('dateOfBirth'),
   ...emailOrPhoneValidator(),
   strongPasswordValidator()
 ]
@@ -99,8 +101,10 @@ const forgotPassword = (): ValidationChain[] => [...emailOrPhoneValidator()]
 const changePassword = (): ValidationChain[] => [strongPasswordValidator()]
 
 const authSocial = (): ValidationChain[] => [
-  nameValidator('firstName'),
-  nameValidator('lastName'),
+  nameValidator('userName'),
+  nameValidator('name'),
+  nameValidator('gender'),
+  nameValidator('dateOfBirth'),
   emailValidator()
 ]
 

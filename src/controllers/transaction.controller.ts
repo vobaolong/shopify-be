@@ -26,7 +26,7 @@ export const getTransactionById: RequestParamHandler = async (
 export const readTransaction: RequestHandler = async (req, res) => {
   try {
     const transaction = await Transaction.findOne({ _id: req.transaction?._id })
-      .populate('userId', '_id firstName lastName avatar')
+      .populate('userId', '_id userName name avatar')
       .populate('storeId', '_id name avatar isOpen isActive')
       .exec()
     if (!transaction) {
@@ -204,19 +204,14 @@ export const getTransactions: RequestHandler = async (req, res) => {
         {
           $match: {
             $or: [
-              { 'userInfo.firstName': { $regex: search, $options: 'i' } },
-              { 'userInfo.lastName': { $regex: search, $options: 'i' } },
-              { 'userInfo.fullName': { $regex: search, $options: 'i' } },
+              { 'userInfo.userName': { $regex: search, $options: 'i' } },
+              { 'userInfo.name': { $regex: search, $options: 'i' } },
               {
                 userInfo: { $exists: true, $ne: null },
                 $expr: {
                   $regexMatch: {
                     input: {
-                      $concat: [
-                        '$userInfo.firstName',
-                        ' ',
-                        '$userInfo.lastName'
-                      ]
+                      $concat: ['$userInfo.userName', ' ', '$userInfo.name']
                     },
                     regex: search,
                     options: 'i'
@@ -251,8 +246,8 @@ export const getTransactions: RequestHandler = async (req, res) => {
         userId: tx.userInfo
           ? {
               _id: tx.userInfo._id,
-              firstName: tx.userInfo.firstName,
-              lastName: tx.userInfo.lastName,
+              userName: tx.userInfo.userName,
+              name: tx.userInfo.name,
               avatar: tx.userInfo.avatar
             }
           : undefined,
@@ -284,7 +279,7 @@ export const getTransactions: RequestHandler = async (req, res) => {
         .sort({ [sortBy]: order === 'asc' ? 1 : -1, _id: 1 })
         .skip(skip)
         .limit(limit)
-        .populate('userId', '_id firstName lastName avatar')
+        .populate('userId', '_id userName name avatar')
         .populate('storeId', '_id name avatar isActive isOpen')
         .exec()
     }

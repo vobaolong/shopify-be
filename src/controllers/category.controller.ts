@@ -4,6 +4,11 @@ import fs from 'fs'
 import { errorHandler, MongoError } from '../helpers/errorHandler'
 import mongoose from 'mongoose'
 import { FilterType } from '../types/controller.types'
+import {
+  CLOUDINARY_BASE_URL,
+  uploadImage,
+  deleteImage
+} from '../helpers/cloudinary'
 
 interface CategoryRequest extends Request {
   category?: ICategory
@@ -53,7 +58,19 @@ export const getCategory: RequestHandler = async (
     }
     res.status(200).json({
       success: 'Load category successfully',
-      category: category && category.toObject ? category.toObject() : category
+      category:
+        category && category.toObject
+          ? {
+              ...category.toObject(),
+              image:
+                category.image && category.image.startsWith('/uploads/')
+                  ? `${CLOUDINARY_BASE_URL}/shopify/categories${category.image.replace(
+                      '/uploads',
+                      ''
+                    )}`
+                  : category.image
+            }
+          : category
     })
   } catch (error) {
     res.status(500).json({
@@ -199,7 +216,52 @@ export const updateCategory: RequestHandler = async (
   const body = req.body || {}
   let name = fields.name || body.name
   let categoryId = fields.categoryId || body.categoryId
-  const image = req.filepaths?.[0] ? req.filepaths[0] : req.category?.image
+  let imageUrl = req.category?.image // Start with current image URL
+  const uploadedFilePath = req.filepaths?.[0] // Path of the newly uploaded file, if any
+
+  if (uploadedFilePath) {
+    // If a new file was uploaded, upload it to Cloudinary
+    try {
+      // Assuming uploadImage function exists and works correctly
+      // You might need to import the uploadImage function from your Cloudinary helper file
+      const uploadResult = await uploadImage(
+        uploadedFilePath,
+        'shopify/categories'
+      ) // Specify a folder
+      imageUrl = uploadResult.url // Use the full Cloudinary URL
+      // Optionally, delete the old image from Cloudinary if req.category?.image was a Cloudinary URL
+      // You would need to extract the publicId from the old URL and call deleteImage
+      if (
+        req.category?.image &&
+        req.category.image.includes('res.cloudinary.com')
+      ) {
+        const oldPublicId = req.category.image.split('/').pop()?.split('.')[0]
+        if (oldPublicId) {
+          await deleteImage(`shopify/categories/${oldPublicId}`) // Use imported function
+        }
+      }
+    } catch (uploadError) {
+      console.error('Error uploading image to Cloudinary:', uploadError)
+      // Clean up the newly uploaded local file on error
+      deleteUploadedFile(uploadedFilePath)
+      res.status(500).json({ error: 'Failed to upload image' })
+      return
+    }
+  } else if (!req.category?.image && !name) {
+    // Case where no new image is uploaded and no old image exists, and no name is provided
+    deleteUploadedFile(uploadedFilePath) // Should be undefined, but safe to call
+    res.status(400).json({
+      error: 'All fields are required (including image if not updating name)'
+    })
+    return
+  } else if (imageUrl && imageUrl.startsWith('/uploads/')) {
+    // If no new file uploaded, but old image is a local path, convert it
+    imageUrl = `${CLOUDINARY_BASE_URL}/shopify/categories${imageUrl.replace(
+      '/uploads',
+      ''
+    )}`
+  }
+
   if (!categoryId) {
     categoryId = null
   } else if (categoryId == req.category?._id) {
@@ -209,7 +271,8 @@ export const updateCategory: RequestHandler = async (
     })
     return
   }
-  if (!name || !image) {
+  if (!name || !imageUrl) {
+    // Check for name or the final image URL
     deleteUploadedFile(req.filepaths?.[0])
     res.status(400).json({
       error: 'All fields are required'
@@ -219,7 +282,7 @@ export const updateCategory: RequestHandler = async (
   try {
     const category = await Category.findOneAndUpdate(
       { _id: req.category?._id },
-      { $set: { name, image, categoryId } },
+      { $set: { name, image: imageUrl, categoryId } },
       { new: true }
     ).populate({
       path: 'categoryId',
@@ -452,7 +515,16 @@ export const getCategories: RequestHandler = async (
       success: 'Load list categories successfully',
       filter,
       size,
-      categories: plainCategories
+      categories: plainCategories.map((cat) => ({
+        ...cat,
+        image:
+          cat.image && cat.image.startsWith('/uploads/')
+            ? `${CLOUDINARY_BASE_URL}/shopify/categories${cat.image.replace(
+                '/uploads',
+                ''
+              )}`
+            : cat.image
+      }))
     })
   } catch (error) {
     res.status(500).json({

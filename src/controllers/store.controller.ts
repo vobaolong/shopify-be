@@ -724,7 +724,7 @@ export const getStaffs = async (
       .select('staffIds')
       .populate(
         'staffIds',
-        '_id firstName lastName slug email phone id_card point avatar cover'
+        '_id userName name slug email phone id_card point avatar cover'
       )
       .exec()
 

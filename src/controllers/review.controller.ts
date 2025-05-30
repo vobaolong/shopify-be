@@ -2,10 +2,11 @@ import { Review, Product, Store } from '../models/index.model'
 import { errorHandler, MongoError } from '../helpers/errorHandler'
 import { Request, Response, NextFunction, RequestHandler } from 'express'
 import { FilterType } from '../types/controller.types'
+import { Role } from '../enums/index.enum'
 
 export const getReviewById: RequestHandler = async (req, res, next) => {
   try {
-    const review = await Review.findById(req.params.id)
+    const review = await Review.findById(req.params.reviewId)
     if (!review) {
       res.status(404).json({
         error: 'Review not found'
@@ -143,7 +144,7 @@ export const deleteReview: RequestHandler = async (req, res, next) => {
 
 export const deleteReviewByAdmin: RequestHandler = async (req, res, next) => {
   try {
-    const isAdmin = req.user?.role === 'admin'
+    const isAdmin = req.user?.role === Role.ADMIN
     const deleteCondition = {
       _id: (req as any).review?._id,
       ...(isAdmin ? {} : { userId: req.user?._id })
@@ -312,7 +313,7 @@ export const getReviews: RequestHandler = async (req, res) => {
       .sort({ [sortBy]: order === 'asc' ? 1 : -1, _id: 1 })
       .skip(skip)
       .limit(limit)
-      .populate('userId', '_id firstName lastName avatar')
+      .populate('userId', '_id userName name avatar')
       .populate('productId', '_id name')
       .populate('storeId', '_id name avatar')
       .populate('orderId', '_id updatedAt')

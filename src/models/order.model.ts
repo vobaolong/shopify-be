@@ -8,8 +8,8 @@ interface IOrder extends Document {
   status: OrderStatus
   address: string
   phone: string
-  firstName: string
-  lastName: string
+  userName: string
+  name: string
   shippingFee: mongoose.Types.Decimal128
   amountFromUser: mongoose.Types.Decimal128
   amountFromStore: mongoose.Types.Decimal128
@@ -58,11 +58,11 @@ const orderSchema: Schema<IOrder> = new Schema(
       type: String,
       required: true
     },
-    firstName: {
+    userName: {
       type: String,
       required: true
     },
-    lastName: {
+    name: {
       type: String,
       required: true
     },

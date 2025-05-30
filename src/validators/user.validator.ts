@@ -1,69 +1,53 @@
 import { check, oneOf } from 'express-validator'
 
 export const updateProfile = () => [
-  check('firstName')
-    .not()
-    .isEmpty()
-    .withMessage('FirstName is required')
+  check('userName')
+    .notEmpty()
+    .withMessage('UserName is required')
     .isLength({ max: 32 })
-    .withMessage('FirstName can contain up to 32 characters')
-    .matches(
-      /^[A-Za-záàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệóòỏõọôốồổỗộơớờởỡợíìỉĩịúùủũụưứừửữựýỳỷỹỵđÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÉÈẺẼẸÊẾỀỂỄỆÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÍÌỈĨỊÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴĐ\s]+$/
-    )
-    .withMessage(
-      "FirstName can contain numbers, some special characters such as _, ', - and space"
-    )
-    .custom(checkStoreName),
-
-  check('lastName')
-    .not()
-    .isEmpty()
-    .withMessage('LastName is required')
+    .withMessage('UserName can contain up to 32 characters')
+    .matches(/^[a-zA-Z0-9_]+$/)
+    .withMessage('UserName chỉ chứa chữ, số, dấu gạch dưới'),
+  check('name')
+    .notEmpty()
+    .withMessage('Name is required')
     .isLength({ max: 32 })
-    .withMessage('LastName can contain up to 32 characters')
-    .matches(
-      /^[A-Za-záàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệóòỏõọôốồổỗộơớờởỡợíìỉĩịúùủũụưứừửữựýỳỷỹỵđÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÉÈẺẼẸÊẾỀỂỄỆÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÍÌỈĨỊÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴĐ\s]+$/
-    )
-    .withMessage(
-      "LastName can contain numbers, some special characters such as _, ', - and space"
-    )
-    .custom(checkStoreName),
+    .withMessage('Name can contain up to 32 characters'),
+  check('gender')
+    .optional()
+    .isIn(['male', 'female'])
+    .withMessage('Gender must be male or female'),
+  check('dateOfBirth')
+    .optional()
+    .isISO8601()
+    .withMessage('Date of birth must be a valid date'),
 
-  oneOf(
-    [
-      check('id_card')
-        .not()
-        .isEmpty()
-        .matches(/(^\d{9}$|^\d{12}$)/),
+  oneOf([
+    check('id_card')
+      .not()
+      .isEmpty()
+      .matches(/(^\d{9}$|^\d{12}$)/)
+      .withMessage('Id_card must contain 9 or 12 numbers'),
+    check('id_card').not().exists()
+  ]),
 
-      check('id_card').not().exists()
-    ],
-    'Id_card must contain 9 or 12 numbers'
-  ),
+  oneOf([
+    check('email')
+      .not()
+      .isEmpty()
+      .matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
+      .withMessage('Email must contain @'),
+    check('email').not().exists()
+  ]),
 
-  oneOf(
-    [
-      check('email')
-        .not()
-        .isEmpty()
-        .matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/),
-
-      check('email').not().exists()
-    ],
-    'Email must contain @'
-  ),
-
-  oneOf(
-    [
-      check('phone')
-        .not()
-        .isEmpty()
-        .matches(/^\d{10,11}$/),
-
-      check('phone').not().exists()
-    ],
-    'Phone must contain 10 or 11 numbers'
-  )
+  oneOf([
+    check('phone')
+      .not()
+      .isEmpty()
+      .matches(/^\d{10,11}$/)
+      .withMessage('Phone must contain 10 or 11 numbers'),
+    check('phone').not().exists()
+  ])
 ]
 
 export const updateAccount = () => [
@@ -96,7 +80,7 @@ export const userAddress = () => [
 ]
 
 //custom validator
-export const checkStoreName = (val) => {
+export const checkStoreName = (val: string) => {
   const regex = [/buy[^a-z0-9]*now/i]
 
   let flag = true

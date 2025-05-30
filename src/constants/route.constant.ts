@@ -10,7 +10,9 @@ export const ROUTES = {
     FORGOT_PASSWORD: '/auth/forgot-password',
     CHANGE_PASSWORD: '/auth/change-password/:forgot-password-code',
     CONFIRM_EMAIL: '/auth/confirm-email/:userId',
-    VERIFY_EMAIL: '/auth/verify-email/:email-code'
+    VERIFY_EMAIL: '/auth/verify-email/:email-code',
+    SEND_OTP: '/auth/send-otp',
+    VERIFY_OTP: '/auth/verify-otp'
   },
 
   // User routes
@@ -18,15 +20,15 @@ export const ROUTES = {
     BASE: '/user',
     GET_USER: '/user/:userId',
     PROFILE: '/user/profile/:userId',
-    PROFILE_UPDATE: '/user/profile-update/:userId',
-    PASSWORD_UPDATE: '/user/password-update/:userId',
+    PROFILE_UPDATE: '/user/profile/:userId',
+    PASSWORD_UPDATE: '/user/password/:userId',
     LIST_USERS: '/users',
     LIST_USERS_ADMIN: '/admin/users',
     ADDRESS_ADD: '/user/address-add/:userId',
-    ADDRESS_UPDATE: '/user/address-update/:userId',
-    ADDRESS_DELETE: '/user/address-delete/:userId',
-    AVATAR_UPDATE: '/user/avatar-update/:userId',
-    COVER_UPDATE: '/user/cover-update/:userId'
+    ADDRESS_UPDATE: '/user/address/:userId',
+    ADDRESS_DELETE: '/user/address/:userId',
+    AVATAR_UPDATE: '/user/avatar/:userId',
+    COVER_UPDATE: '/user/cover/:userId'
   },
 
   // Product routes
@@ -170,10 +172,10 @@ export const ROUTES = {
     BASE: '/review',
     LIST: '/reviews',
     CHECK: '/review-check/:userId',
-    CREATE: '/review-create/:userId',
-    UPDATE: '/review-update/:reviewId/:userId',
-    DELETE: '/review-delete/:reviewId/:userId',
-    ADMIN_DELETE: '/reviews-delete/:reviewId/:userId'
+    CREATE: '/review/:userId',
+    UPDATE: '/review/:reviewId/:userId',
+    DELETE: '/review/:reviewId/:userId',
+    ADMIN_DELETE: '/admin/review/:reviewId'
   },
   // Store routes
   STORE: {

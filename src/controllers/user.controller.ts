@@ -24,6 +24,7 @@ interface UserRequest extends Request {
   }
 }
 
+// 1. User profile and authentication
 export const getUserById: RequestParamHandler = async (
   req: UserRequest,
   res,
@@ -96,13 +97,16 @@ export const updateProfile: RequestHandler = async (
   res: Response
 ) => {
   try {
-    const { firstName, lastName, id_card, email, phone } = req.body as {
-      firstName?: string
-      lastName?: string
-      id_card?: string
-      email?: string
-      phone?: string
-    }
+    const { userName, name, gender, dateOfBirth, id_card, email, phone } =
+      req.body as {
+        userName?: string
+        name?: string
+        gender?: string
+        dateOfBirth?: string
+        id_card?: string
+        email?: string
+        phone?: string
+      }
 
     if (!req.user) {
       res.status(404).json({
@@ -128,8 +132,10 @@ export const updateProfile: RequestHandler = async (
         { _id: req.user._id },
         {
           $set: {
-            firstName,
-            lastName,
+            userName,
+            name,
+            gender,
+            dateOfBirth,
             id_card,
             email,
             phone,
@@ -208,6 +214,136 @@ export const updatePassword: RequestHandler = async (
   }
 }
 
+export const updateAvatar: RequestHandler = async (
+  req: UserRequest,
+  res: Response
+) => {
+  try {
+    if (!req.file) {
+      console.error('No file uploaded')
+      res.status(400).json({ error: 'No file uploaded' })
+      return
+    }
+    if (!req.user) {
+      console.error('No user in request')
+      res.status(404).json({ error: 'User not found' })
+      return
+    }
+
+    // Lấy public_id từ old avatar URL nếu là hình ảnh cloudinary
+    const oldAvatar = req.user.avatar || ''
+    let oldPublicId = null
+    if (oldAvatar && oldAvatar.includes('cloudinary.com')) {
+      const matches = oldAvatar.match(/\/upload\/v\d+\/([^/]+)\.\w+$/)
+      if (matches && matches[1]) {
+        oldPublicId = matches[1]
+      }
+    }
+
+    // File đã được upload bởi middleware uploadAvatarSingle
+    const avatarUrl = req.file.path
+
+    // Cập nhật URL mới vào user
+    const user = await User.findOneAndUpdate(
+      { _id: req.user._id },
+      { $set: { avatar: avatarUrl } },
+      { new: true }
+    )
+
+    if (!user) {
+      res.status(404).json({
+        error: 'User not found'
+      })
+      return
+    }
+
+    // Xóa ảnh cũ trên Cloudinary nếu có
+    if (
+      oldPublicId &&
+      oldPublicId !== 'default' &&
+      !oldAvatar.includes('/uploads/default.webp')
+    ) {
+      try {
+        await deleteImage(oldPublicId)
+      } catch (error) {
+        console.error('Error deleting old avatar image:', error)
+      }
+    }
+
+    res.status(200).json({
+      success: 'Update avatar successfully',
+      user: cleanUserLess(user.toObject ? user.toObject() : user)
+    })
+  } catch (error) {
+    console.error('Avatar update error:', error)
+    res.status(500).json({ error: errorHandler(error as MongoError) })
+  }
+}
+
+export const updateCover: RequestHandler = async (
+  req: UserRequest,
+  res: Response
+) => {
+  try {
+    if (!req.file) {
+      res.status(400).json({
+        error: 'No file uploaded'
+      })
+      return
+    }
+
+    // Lấy public_id từ old cover URL nếu là hình ảnh cloudinary
+    const oldCover = req.user.cover || ''
+    let oldPublicId = null
+    if (oldCover && oldCover.includes('cloudinary.com')) {
+      const matches = oldCover.match(/\/upload\/v\d+\/([^/]+)\.\w+$/)
+      if (matches && matches[1]) {
+        oldPublicId = matches[1]
+      }
+    }
+
+    // File đã được upload bởi middleware uploadCoverSingle
+    const coverUrl = req.file.path
+
+    // Cập nhật URL mới vào user
+    const user = await User.findOneAndUpdate(
+      { _id: req.user._id },
+      { $set: { cover: coverUrl } },
+      { new: true }
+    )
+
+    if (!user) {
+      res.status(404).json({
+        error: 'User not found'
+      })
+      return
+    }
+    // Xóa ảnh cũ trên Cloudinary nếu có
+    if (
+      oldPublicId &&
+      oldPublicId !== 'default' &&
+      !oldCover.includes('/uploads/default.webp')
+    ) {
+      try {
+        await deleteImage(oldPublicId)
+      } catch (error) {
+        console.error('Error deleting old cover image:', error)
+      }
+    }
+
+    res.status(200).json({
+      success: 'Update cover successfully',
+      user: cleanUserLess(user.toObject ? user.toObject() : user)
+    })
+  } catch (error) {
+    console.error('Cover update error:', error)
+    res.status(400).json({
+      error: errorHandler(error as MongoError)
+    })
+  }
+}
+
+// 2. Address management
 export const addAddress: RequestHandler = async (
   req: UserRequest,
   res: Response
@@ -406,133 +542,7 @@ export const removeAddress: RequestHandler = async (
   }
 }
 
-export const updateAvatar: RequestHandler = async (
-  req: UserRequest,
-  res: Response
-) => {
-  try {
-    if (!req.file) {
-      res.status(400).json({
-        error: 'No file uploaded'
-      })
-      return
-    }
-
-    // Lấy public_id từ old avatar URL nếu là hình ảnh cloudinary
-    const oldAvatar = req.user.avatar || ''
-    let oldPublicId = null
-    if (oldAvatar && oldAvatar.includes('cloudinary.com')) {
-      const matches = oldAvatar.match(/\/upload\/v\d+\/([^/]+)\.\w+$/)
-      if (matches && matches[1]) {
-        oldPublicId = matches[1]
-      }
-    }
-
-    // File đã được upload bởi middleware uploadAvatarSingle
-    const avatarUrl = req.file.path
-
-    // Cập nhật URL mới vào user
-    const user = await User.findOneAndUpdate(
-      { _id: req.user._id },
-      { $set: { avatar: avatarUrl } },
-      { new: true }
-    )
-
-    if (!user) {
-      res.status(404).json({
-        error: 'User not found'
-      })
-      return
-    }
-
-    // Xóa ảnh cũ trên Cloudinary nếu có
-    if (
-      oldPublicId &&
-      oldPublicId !== 'default' &&
-      !oldAvatar.includes('/uploads/default.webp')
-    ) {
-      try {
-        await deleteImage(oldPublicId)
-      } catch (error) {
-        console.error('Error deleting old avatar image:', error)
-      }
-    }
-
-    res.status(200).json({
-      success: 'Update avatar successfully',
-      user: cleanUserLess(user.toObject ? user.toObject() : user)
-    })
-  } catch (error) {
-    console.error('Avatar update error:', error)
-    res.status(400).json({
-      error: errorHandler(error as MongoError)
-    })
-  }
-}
-
-export const updateCover: RequestHandler = async (
-  req: UserRequest,
-  res: Response
-) => {
-  try {
-    if (!req.file) {
-      res.status(400).json({
-        error: 'No file uploaded'
-      })
-      return
-    }
-
-    // Lấy public_id từ old cover URL nếu là hình ảnh cloudinary
-    const oldCover = req.user.cover || ''
-    let oldPublicId = null
-    if (oldCover && oldCover.includes('cloudinary.com')) {
-      const matches = oldCover.match(/\/upload\/v\d+\/([^/]+)\.\w+$/)
-      if (matches && matches[1]) {
-        oldPublicId = matches[1]
-      }
-    }
-
-    // File đã được upload bởi middleware uploadCoverSingle
-    const coverUrl = req.file.path
-
-    // Cập nhật URL mới vào user
-    const user = await User.findOneAndUpdate(
-      { _id: req.user._id },
-      { $set: { cover: coverUrl } },
-      { new: true }
-    )
-
-    if (!user) {
-      res.status(404).json({
-        error: 'User not found'
-      })
-      return
-    }
-    // Xóa ảnh cũ trên Cloudinary nếu có
-    if (
-      oldPublicId &&
-      oldPublicId !== 'default' &&
-      !oldCover.includes('/uploads/default.webp')
-    ) {
-      try {
-        await deleteImage(oldPublicId)
-      } catch (error) {
-        console.error('Error deleting old cover image:', error)
-      }
-    }
-
-    res.status(200).json({
-      success: 'Update cover successfully',
-      user: cleanUserLess(user.toObject ? user.toObject() : user)
-    })
-  } catch (error) {
-    console.error('Cover update error:', error)
-    res.status(400).json({
-      error: errorHandler(error as MongoError)
-    })
-  }
-}
-
+// 3. User listing and admin functions
 export const listUser: RequestHandler = async (
   req: UserRequest,
   res: Response
@@ -571,16 +581,16 @@ export const listUser: RequestHandler = async (
     if (searchField && search) {
       if (searchField === 'name') {
         filterArgs.$or = [
-          { firstName: { $regex: search, $options: 'i' } },
-          { lastName: { $regex: search, $options: 'i' } }
+          { userName: { $regex: search, $options: 'i' } },
+          { name: { $regex: search, $options: 'i' } }
         ]
       } else {
         filterArgs[searchField] = { $regex: search, $options: 'i' }
       }
     } else if (search) {
       filterArgs.$or = [
-        { firstName: { $regex: search, $options: 'i' } },
-        { lastName: { $regex: search, $options: 'i' } },
+        { userName: { $regex: search, $options: 'i' } },
+        { name: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
         { phone: { $regex: search, $options: 'i' } }
       ]
@@ -627,11 +637,11 @@ export const listUserForAdmin: RequestHandler = async (
   res: Response
 ) => {
   try {
-    const search = req.query.search ? (req.query.search as string) : ''
-    const sortBy = req.query.sortBy ? (req.query.sortBy as string) : '_id'
+    // 1. Extract and normalize query params
+    const search = req.query.search ? String(req.query.search) : ''
+    const sortBy = req.query.sortBy ? String(req.query.sortBy) : '_id'
     const order =
-      req.query.order &&
-      (req.query.order === 'asc' || req.query.order === 'desc')
+      req.query.order === 'asc' || req.query.order === 'desc'
         ? req.query.order
         : 'asc'
     const limit =
@@ -644,48 +654,64 @@ export const listUserForAdmin: RequestHandler = async (
         : 1
     const createdAtFrom = req.query.createdAtFrom as string | undefined
     const createdAtTo = req.query.createdAtTo as string | undefined
-    const filter: FilterType = {
-      search,
-      sortBy,
-      order,
-      limit,
-      pageCurrent: page
-    }
     const searchField = req.query.searchField as string | undefined
+    const isEmailActive =
+      typeof req.query.isEmailActive !== 'undefined'
+        ? req.query.isEmailActive === 'true'
+        : undefined
+
+    // 2. Build filter object for Mongo query
     let filterArgs: any = { role: { $ne: 'admin' } }
+
+    // 2a. Search logic
     if (searchField && search) {
       if (searchField === 'name') {
         filterArgs.$or = [
-          { firstName: { $regex: search, $options: 'i' } },
-          { lastName: { $regex: search, $options: 'i' } }
+          { userName: { $regex: search, $options: 'i' } },
+          { name: { $regex: search, $options: 'i' } }
         ]
       } else {
         filterArgs[searchField] = { $regex: search, $options: 'i' }
       }
     } else if (search) {
       filterArgs.$or = [
-        { firstName: { $regex: search, $options: 'i' } },
-        { lastName: { $regex: search, $options: 'i' } },
+        { userName: { $regex: search, $options: 'i' } },
+        { name: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
         { phone: { $regex: search, $options: 'i' } }
       ]
     }
-    if (typeof req.query.isEmailActive !== 'undefined') {
-      filterArgs.isEmailActive = req.query.isEmailActive === 'true'
+
+    // 2b. Email active filter
+    if (typeof isEmailActive !== 'undefined') {
+      filterArgs.isEmailActive = isEmailActive
     }
+
+    // 2c. Created at date range
     if (createdAtFrom || createdAtTo) {
       filterArgs.createdAt = {}
       if (createdAtFrom) filterArgs.createdAt.$gte = new Date(createdAtFrom)
       if (createdAtTo) filterArgs.createdAt.$lte = new Date(createdAtTo)
     }
+
+    // 3. Pagination and count
     const count = await User.countDocuments(filterArgs)
     const size = count
     const pageCount = Math.ceil(size / limit)
-    filter.pageCount = pageCount
+    const filter: FilterType = {
+      search,
+      sortBy,
+      order,
+      limit,
+      pageCurrent: page,
+      pageCount
+    }
     let skip = (page - 1) * limit
     if (page > pageCount) {
       skip = (pageCount - 1) * limit
     }
+
+    // 4. Early return if no users
     if (count <= 0) {
       res.status(200).json({
         success: 'Load list users successfully',
@@ -697,7 +723,7 @@ export const listUserForAdmin: RequestHandler = async (
     }
     const users = await User.find(filterArgs)
       .lean()
-      .sort({ [sortBy as string]: order, _id: 1 })
+      .sort({ [sortBy]: order, _id: 1 })
       .skip(skip)
       .limit(limit)
     const cleanedUsers = users.map((user: any) => cleanUserLess(user))

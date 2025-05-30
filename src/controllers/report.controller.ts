@@ -98,7 +98,7 @@ export const getReports: RequestHandler = async (
       .sort({ [sortBy]: order === 'asc' ? 1 : -1, _id: 1 })
       .skip(skip)
       .limit(parseInt(limit))
-      .populate('reportBy', '_id firstName lastName email')
+      .populate('reportBy', '_id userName name email')
 
     const newReports = await Promise.all(
       reports.map(async (report: IReport) => {

@@ -19,7 +19,7 @@ import {
   RequestHandler
 } from 'express'
 import { FilterType } from '../types/controller.types'
-import { OrderStatus, ReturnStatus } from '../enums/index.enum'
+import { OrderStatus, ReturnStatus, Role } from '../enums/index.enum'
 
 const ObjectId = mongoose.Types.ObjectId
 
@@ -53,8 +53,8 @@ interface CreateOrderBody {
   commissionId: string
   address: string
   phone: string
-  firstName: string
-  lastName: string
+  userName: string
+  name: string
   shippingFee: number
   amountFromUser: number
   amountFromStore: number
@@ -260,7 +260,7 @@ const processOrderResults = async (
       .sort({ [filter.sortBy]: filter.order === 'asc' ? 1 : -1, _id: 1 })
       .skip(skip)
       .limit(limit)
-      .populate('userId', '_id firstName lastName avatar')
+      .populate('userId', '_id userName name avatar')
       .populate('storeId', '_id name address avatar isActive isOpen')
       .populate('commissionId')
 
@@ -401,9 +401,9 @@ export const createOrder: RequestHandler = async (
       commissionId,
       address,
       phone,
-      firstName,
+      userName,
       shippingFee,
-      lastName,
+      name,
       amountFromUser,
       amountFromStore,
       amountToStore,
@@ -418,8 +418,8 @@ export const createOrder: RequestHandler = async (
       !address ||
       !shippingFee ||
       !phone ||
-      !firstName ||
-      !lastName ||
+      !userName ||
+      !name ||
       !amountFromUser ||
       !amountFromStore ||
       !amountToStore ||
@@ -437,8 +437,8 @@ export const createOrder: RequestHandler = async (
     const order = new Order({
       userId,
       storeId,
-      firstName,
-      lastName,
+      userName,
+      name,
       phone,
       address,
       shippingFee,
@@ -556,7 +556,7 @@ export const checkOrderAuth: RequestHandler = async (
       error: 'User or order not found'
     })
   }
-  if (req.user.role === 'admin') {
+  if (req.user.role === Role.ADMIN) {
     next()
   } else if (
     req.user._id.equals(req.order.userId) ||
@@ -581,7 +581,7 @@ export const readOrder: RequestHandler = async (
       })
     }
     const order = await Order.findOne({ _id: req.order._id })
-      .populate('userId', '_id firstName lastName avatar')
+      .populate('userId', '_id userName name avatar')
       .populate('storeId', '_id name address avatar isActive isOpen')
       .populate('commissionId')
     if (!order) {
@@ -636,7 +636,7 @@ export const updateStatusForUser: RequestHandler = async (
       { $set: { status } },
       { new: true }
     )
-      .populate('userId', '_id firstName lastName avatar')
+      .populate('userId', '_id userName name avatar')
       .populate('storeId', '_id name address avatar isActive isOpen')
       .populate('commissionId')
 
@@ -719,7 +719,7 @@ export const updateStatusForStore: RequestHandler = async (
       { $set: { status } },
       { new: true }
     )
-      .populate('userId', '_id firstName lastName avatar')
+      .populate('userId', '_id userName name avatar')
       .populate('storeId', '_id name address avatar isActive isOpen')
       .populate('commissionId')
 

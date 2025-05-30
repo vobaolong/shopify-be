@@ -21,11 +21,13 @@ export interface AuthenticatedRequest extends Request {
 export interface AuthUpdateRequest extends Request {
   auth?: any
   body: {
-    firstName: string
-    lastName: string
     email: string
     googleId: string
     avatar?: string
+    userName: string
+    name: string
+    gender?: 'male' | 'female'
+    dateOfBirth?: Date
   }
 }
 

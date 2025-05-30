@@ -77,7 +77,11 @@ const createEmailTemplate = (
  * @param html Email HTML content
  * @returns Promise from nodemailer
  */
-const sendEmail = (to: string, subject: string, html: string): Promise<any> => {
+export const sendEmail = (
+  to: string,
+  subject: string,
+  html: string
+): Promise<any> => {
   const message: EmailMessage = {
     from: process.env.ADMIN_EMAIL,
     to,
@@ -175,7 +179,7 @@ export const sendConfirmationEmail: RequestHandler = (req, res) => {
       const title = 'Xác minh địa chỉ email của bạn'
       const text =
         'Để có quyền truy cập vào tài khoản của bạn, vui lòng xác minh địa chỉ email của bạn bằng cách nhấp vào liên kết bên dưới.'
-      const name = `${user.firstName} ${user.lastName}`
+      const name = `${user.name}`
       const clientUrl = getClientUrl()
       const buttonUrl = `${clientUrl}/verify/email/${email_code}`
       const html = createEmailTemplate(
@@ -210,7 +214,7 @@ export const sendActiveStoreEmail: RequestHandler = async (req, res) => {
     }
     const time = formatDate(Date.now())
     const title = 'THÔNG BÁO MỞ KHOÁ TÀI KHOẢN GIAN HÀNG'
-    const name = `${user.firstName} ${user.lastName}`
+    const name = `${user.userName}`
     const content = `<p>Chúng tôi xin trân trọng thông báo rằng tài khoản shop <strong style="color: #2266cc">${store?.name}</strong> của quý khách sẽ mở khóa trở lại vào lúc: <strong>${time}</strong>.<br/>Chúng tôi rất xin lỗi vì sự bất tiện mà việc đóng cửa đã gây ra và chân thành cảm ơn sự kiên nhẫn và sự ủng hộ của quý khách hàng trong thời gian qua.<br/>Mong rằng sau quá trình mở khóa, chúng tôi sẽ tiếp tục nhận được sự ủng hộ và hợp tác từ phía quý khách hàng. <br/>Mọi thắc mắc hoặc yêu cầu hỗ trợ, vui lòng liên hệ với chúng tôi qua email bên dưới.</p>`
     const html = createEmailTemplate(title, name, content)
     const response = handleEmailResponse(res)
@@ -238,7 +242,7 @@ export const sendBanStoreEmail: RequestHandler = async (req, res) => {
     }
     const time = formatDate(Date.now())
     const title = 'THÔNG BÁO KHOÁ TÀI KHOẢN GIAN HÀNG'
-    const name = `${user.firstName} ${user.lastName}`
+    const name = `${user.userName}`
     const content = `<p>Chúng tôi xin thông báo rằng tài khoản shop <strong style="color: #2266cc">${store?.name}</strong> của bạn đã bị khoá vào lúc: <strong>${time}</strong> do vi phạm các quy định và điều khoản sử dụng của chúng tôi. <br/> Vui lòng liên hệ với chúng tôi để biết thêm thông tin chi tiết và hướng dẫn để khôi phục tài khoản của bạn.</p>`
     const html = createEmailTemplate(title, name, content)
     const response = handleEmailResponse(res)
@@ -268,7 +272,7 @@ export const sendDeliveryEmailEmail: RequestHandler = async (req, res) => {
     }
     const time = formatDate(Date.now())
     const title = 'THÔNG BÁO GIAO HÀNG THÀNH CÔNG'
-    const name = `${user.firstName} ${user.lastName}`
+    const name = `${user.userName}`
     const content = `<p>Chúng tôi xin trân trọng thông báo rằng đơn hàng <strong style="color: #2266cc">${order?._id}</strong> của quý khách đã được giao thành công vào lúc: <strong>${time}</strong>.</p>`
     const html = createEmailTemplate(title, name, content)
     const response = handleEmailResponse(res)
@@ -295,7 +299,7 @@ export const sendCreateStoreEmail: RequestHandler = async (req, res) => {
       return
     }
     const title = 'THÔNG BÁO MỞ GIAN HÀNG THÀNH CÔNG'
-    const name = `${user.firstName} ${user.lastName}`
+    const name = `${user.userName}`
     const content = `<p>Chúng tôi xin trân trọng thông báo rằng gian hàng <strong style="color: #2266cc">${store?.name}</strong> của Quý khách đã được mở thành công trên hệ thống của chúng tôi.<br/>Đội ngũ hỗ trợ của chúng tôi sẽ liên hệ với Quý khách trong thời gian sớm nhất để hướng dẫn và hỗ trợ trong quá trình vận hành gian hàng.<br/>
     <br/>
     Chúng tôi rất mong gian hàng của Quý khách sẽ đem lại nhiều cơ hội kinh doanh thành công trên nền tảng của chúng tôi.</p>`
@@ -323,7 +327,7 @@ export const sendActiveProductEmail: RequestHandler = async (req, res) => {
     }
     const time = formatDate(Date.now())
     const title = 'THÔNG BÁO MỞ KHOÁ SẢN PHẨM'
-    const name = `${user.firstName} ${user.lastName}`
+    const name = `${user.userName}`
     const content = `<p>Chúng tôi xin trân trọng thông báo rằng sản phẩm của cửa hàng sẽ mở khóa trở lại vào lúc: <strong>${time}</strong>.<br/>Chúng tôi rất xin lỗi vì sự bất tiện mà việc khoá sản phẩm đã gây ra và chân thành cảm ơn sự kiên nhẫn và sự ủng hộ của quý khách hàng trong thời gian qua.<br/>Mong rằng sau quá trình mở khóa, chúng tôi sẽ tiếp tục nhận được sự ủng hộ và hợp tác từ phía quý khách hàng. <br/>Mọi thắc mắc hoặc yêu cầu hỗ trợ, vui lòng liên hệ với chúng tôi qua email bên dưới.</p>`
     const html = createEmailTemplate(title, name, content)
     const response = handleEmailResponse(res)
@@ -349,7 +353,7 @@ export const sendBanProductEmail: RequestHandler = async (req, res) => {
     }
     const time = formatDate(Date.now())
     const title = 'THÔNG BÁO KHOÁ SẢN PHẨM'
-    const name = `${user.firstName} ${user.lastName}`
+    const name = `${user.userName}`
     const content = `<p>Chúng tôi xin thông báo rằng sản phẩm của shop đã bị khoá vào lúc: <strong>${time}</strong> do vi phạm các quy định và điều khoản sử dụng của chúng tôi. <br/> Vui lòng liên hệ với chúng tôi để biết thêm thông tin chi tiết và hướng dẫn để khôi phục tài khoản của bạn.</p>`
     const html = createEmailTemplate(title, name, content)
     const response = handleEmailResponse(res)
@@ -376,7 +380,7 @@ export const sendReportStoreEmail: RequestHandler = async (req, res) => {
     }
     const time = formatDate(Date.now())
     const title = 'BÁO CÁO GIAN HÀNG'
-    const name = `${user.firstName} ${user.lastName}`
+    const name = `${user.userName}`
     const content = `<p>Chúng tôi xin thông báo rằng tài khoản shop <strong style="color: #2266cc">${store?.name}</strong> của bạn đã bị báo cáo vào lúc: <strong>${time}</strong> do vi phạm các quy định và điều khoản sử dụng của chúng tôi. <br/> Vui lòng liên hệ với chúng tôi để biết thêm thông tin chi tiết</p>`
     const html = createEmailTemplate(title, name, content)
     if (user.email) {
@@ -406,7 +410,7 @@ export const sendReportProductEmail: RequestHandler = async (req, res) => {
     }
     const time = formatDate(Date.now())
     const title = 'BÁO CÁO SẢN PHẨM'
-    const name = `${user.firstName} ${user.lastName}`
+    const name = `${user.userName}`
     const content = `<p>Chúng tôi xin thông báo rằng sản phẩm shop của bạn đã bị báo cáo vào lúc: <strong>${time}</strong> do vi phạm các quy định và điều khoản sử dụng của chúng tôi. <br/> Vui lòng liên hệ với chúng tôi để biết thêm thông tin chi tiết</p>`
     const html = createEmailTemplate(title, name, content)
     if (user.email) {
