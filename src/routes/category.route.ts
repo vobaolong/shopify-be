@@ -5,7 +5,6 @@ import { ROUTES } from '../constants/route.constant'
 // Middlewares
 import { isAuth, isAdmin } from '../middlewares/auth.middleware'
 import { getStoreById } from '../controllers/store.controller'
-import { uploadSingleImage } from '../controllers/upload.controller'
 import {
   getCategoryById,
   getCategory,
@@ -23,7 +22,6 @@ import { uploadCategorySingle } from '../middlewares/uploadCloudinary'
 
 // Middleware groups
 const adminAuth = [isAuth, isAdmin]
-const categoryValidator = [uploadCategorySingle, checkCategory]
 
 // ----------- GET ROUTES -----------
 router.get(ROUTES.CATEGORY.GET_BY_ID, getCategory)
@@ -39,7 +37,8 @@ router.get(ROUTES.CATEGORY.LIST_BY_ADMIN, ...adminAuth, getCategories)
 router.post(
   ROUTES.CATEGORY.CREATE,
   ...adminAuth,
-  ...categoryValidator,
+  uploadCategorySingle,
+  checkCategory,
   createCategory
 )
 
@@ -47,7 +46,8 @@ router.post(
 router.put(
   ROUTES.CATEGORY.UPDATE,
   ...adminAuth,
-  ...categoryValidator,
+  uploadCategorySingle,
+  checkCategory,
   updateCategory
 )
 

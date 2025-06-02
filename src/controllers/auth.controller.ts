@@ -12,18 +12,13 @@ import {
 } from '../types/auth.types'
 import { sendEmail } from './email.controller'
 
-// Lưu OTP tạm thời (demo, production nên dùng Redis hoặc DB)
 const otpStore = new Map<string, string>()
 
 export const signup = async (req: AuthRequest, res: Response) => {
   try {
-    // Log request body để debug
-    console.log('Signup body:', req.body)
-    // CHUẨN HÓA email về chữ thường nếu có
     if (req.body.email) req.body.email = req.body.email.toLowerCase()
-    const { userName, email } = req.body
+    const { userName, email, phone } = req.body
 
-    // Kiểm tra email đã tồn tại
     if (email) {
       const existedEmail = await User.findOne({ email })
       if (existedEmail) {
@@ -31,7 +26,6 @@ export const signup = async (req: AuthRequest, res: Response) => {
       }
     }
 
-    // Kiểm tra userName đã tồn tại
     if (userName) {
       const existedUser = await User.findOne({ userName })
       if (existedUser) {
@@ -39,8 +33,17 @@ export const signup = async (req: AuthRequest, res: Response) => {
       }
     }
 
-    // Nếu không trùng, tạo user mới (email đã chuẩn hóa)
-    const user = new User(req.body)
+    if (phone) {
+      const existedPhone = await User.findOne({ phone })
+      if (existedPhone) {
+        return res.status(400).json({ error: 'Số điện thoại đã được sử dụng!' })
+      }
+    }
+    const user = new User({
+      ...req.body,
+      // Set isEmailActive to true for email signups since OTP verification is done before signup
+      isEmailActive: req.body.email ? true : false
+    })
     await user.save()
     res.status(201).json({
       success: 'Signing up successfully, you can sign in now',
@@ -383,4 +386,22 @@ export const verifyOTP: RequestHandler = async (
   } catch (error) {
     res.status(500).json({ error: 'Xác thực OTP thất bại!' })
   }
+}
+
+export const checkEmailExists: RequestHandler = async (req, res) => {
+  const { email } = req.body
+  console.log('Backend: checkEmailExists called with email:', email)
+
+  if (!email) {
+    console.log('Backend: No email provided')
+    res.status(400).json({ exists: false, error: 'Email is required' })
+    return
+  }
+
+  const existed = await User.findOne({ email })
+  console.log('Backend: User found:', !!existed)
+
+  const result = { exists: !!existed }
+  console.log('Backend: Returning result:', result)
+  res.json(result)
 }

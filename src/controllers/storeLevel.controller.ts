@@ -149,6 +149,9 @@ export const restoreStoreLevel: RequestHandler = async (req, res) => {
 export const getStoreLevels: RequestHandler = async (req, res) => {
   try {
     const search = req.query.search?.toString() || ''
+    const status = req.query.status?.toString() || 'all'
+    const createdAtFrom = req.query.createdAtFrom?.toString()
+    const createdAtTo = req.query.createdAtTo?.toString()
     const sortBy = req.query.sortBy?.toString() || '_id'
     const order =
       req.query.order?.toString() &&
@@ -170,8 +173,33 @@ export const getStoreLevels: RequestHandler = async (req, res) => {
       limit,
       pageCurrent: page
     }
-    const searchQuery = { name: { $regex: search, $options: 'i' } }
-    const count = await StoreLevel.countDocuments(searchQuery)
+
+    const query: any = {}
+
+    // Search filtering
+    if (search) {
+      query.name = { $regex: search, $options: 'i' }
+    }
+
+    // Status filtering
+    if (status === 'active') {
+      query.isDeleted = false
+    } else if (status === 'deleted') {
+      query.isDeleted = true
+    }
+
+    // Date range filtering
+    if (createdAtFrom || createdAtTo) {
+      query.createdAt = {}
+      if (createdAtFrom) {
+        query.createdAt.$gte = new Date(createdAtFrom)
+      }
+      if (createdAtTo) {
+        query.createdAt.$lte = new Date(createdAtTo)
+      }
+    }
+
+    const count = await StoreLevel.countDocuments(query)
     const size = count
     const pageCount = Math.ceil(size / limit)
     filter.pageCount = pageCount
@@ -186,8 +214,9 @@ export const getStoreLevels: RequestHandler = async (req, res) => {
         size,
         levels: []
       })
+      return
     }
-    const levels = await StoreLevel.find(searchQuery)
+    const levels = await StoreLevel.find(query)
       .sort({ [sortBy]: order === 'asc' ? 1 : -1, _id: 1 })
       .skip(skip)
       .limit(limit)

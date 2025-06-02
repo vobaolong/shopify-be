@@ -10,6 +10,7 @@ export const getBrandById: RequestParamHandler = async (
   id: string
 ) => {
   try {
+    // Tìm brand mà không quan tâm isDeleted để có thể update
     const brand = await Brand.findById(id).exec()
     if (!brand) {
       res.status(404).json({
@@ -29,15 +30,7 @@ export const getBrandById: RequestParamHandler = async (
 export const getBrand: RequestHandler = async (req, res) => {
   try {
     const brand = await Brand.findOne({ _id: req.brand?._id })
-      .populate({
-        path: 'categoryIds',
-        populate: {
-          path: 'categoryId',
-          populate: {
-            path: 'categoryId'
-          }
-        }
-      })
+      .populate('categoryIds')
       .exec()
     if (!brand) {
       res.status(500).json({
@@ -58,7 +51,17 @@ export const getBrand: RequestHandler = async (req, res) => {
 
 export const checkBrand: RequestHandler = async (req, res, next) => {
   try {
-    const { name, categoryIds } = req.body
+    let { name, categoryIds } = req.body
+
+    // Parse categoryIds if it's a JSON string (for FormData)
+    if (typeof categoryIds === 'string') {
+      try {
+        categoryIds = JSON.parse(categoryIds)
+      } catch (parseError) {
+        // If parsing fails, continue with original value
+      }
+    }
+
     const brandId = req.brand ? req.brand._id : null
     const existingBrand = await Brand.findOne({
       _id: { $ne: brandId },
@@ -79,13 +82,25 @@ export const checkBrand: RequestHandler = async (req, res, next) => {
 
 export const createBrand: RequestHandler = async (req, res) => {
   try {
-    const { name, categoryIds } = req.body
+    let { name, categoryIds } = req.body
 
     if (!name || !categoryIds) {
       res.status(400).json({
         error: 'All fields are required'
       })
       return
+    }
+
+    // Parse categoryIds if it's a JSON string
+    if (typeof categoryIds === 'string') {
+      try {
+        categoryIds = JSON.parse(categoryIds)
+      } catch (parseError) {
+        res.status(400).json({
+          error: 'Invalid categoryIds format'
+        })
+        return
+      }
     }
 
     const brand = new Brand({
@@ -108,13 +123,26 @@ export const createBrand: RequestHandler = async (req, res) => {
 
 export const updateBrand: RequestHandler = async (req, res) => {
   try {
-    const { name, categoryIds } = req.body
+    let { name, categoryIds } = req.body
     if (!name || !categoryIds) {
       res.status(400).json({
         error: 'All fields are required'
       })
       return
     }
+
+    // Parse categoryIds if it's a JSON string
+    if (typeof categoryIds === 'string') {
+      try {
+        categoryIds = JSON.parse(categoryIds)
+      } catch (parseError) {
+        res.status(400).json({
+          error: 'Invalid categoryIds format'
+        })
+        return
+      }
+    }
+
     const brand = await Brand.findOneAndUpdate(
       { _id: req.brand?._id },
       { $set: { name, categoryIds } },
@@ -137,7 +165,7 @@ export const updateBrand: RequestHandler = async (req, res) => {
   }
 }
 
-export const removeBrand: RequestHandler = async (req, res, next) => {
+export const removeBrand: RequestHandler = async (req, res) => {
   try {
     const brand = await Brand.findOneAndUpdate(
       { _id: req.brand?._id },
@@ -146,13 +174,16 @@ export const removeBrand: RequestHandler = async (req, res, next) => {
     ).exec()
 
     if (!brand) {
-      res.status(500).json({
+      res.status(404).json({
         error: 'Brand not found'
       })
       return
     }
-    req.brand = brand || undefined
-    if (next) next()
+
+    res.status(200).json({
+      success: 'Brand deleted successfully',
+      brand
+    })
   } catch (error) {
     res.status(400).json({
       error: errorHandler(error as MongoError)
@@ -160,7 +191,7 @@ export const removeBrand: RequestHandler = async (req, res, next) => {
   }
 }
 
-export const restoreBrand: RequestHandler = async (req, res, next) => {
+export const restoreBrand: RequestHandler = async (req, res) => {
   try {
     const brand = await Brand.findOneAndUpdate(
       { _id: req.brand?._id },
@@ -168,13 +199,16 @@ export const restoreBrand: RequestHandler = async (req, res, next) => {
       { new: true }
     ).exec()
     if (!brand) {
-      res.status(500).json({
+      res.status(404).json({
         error: 'Brand not found'
       })
       return
     }
-    req.brand = brand || undefined
-    if (next) next()
+
+    res.status(200).json({
+      success: 'Brand restored successfully',
+      brand
+    })
   } catch (error) {
     res.status(400).json({
       error: errorHandler(error as MongoError)

@@ -9,10 +9,9 @@ export const ROUTES = {
     REFRESH_TOKEN: '/auth/refresh-token',
     FORGOT_PASSWORD: '/auth/forgot-password',
     CHANGE_PASSWORD: '/auth/change-password/:forgot-password-code',
-    CONFIRM_EMAIL: '/auth/confirm-email/:userId',
-    VERIFY_EMAIL: '/auth/verify-email/:email-code',
     SEND_OTP: '/auth/send-otp',
-    VERIFY_OTP: '/auth/verify-otp'
+    VERIFY_OTP: '/auth/verify-otp',
+    CHECK_EMAIL: '/auth/check-email'
   },
 
   // User routes
@@ -207,11 +206,22 @@ export const ROUTES = {
     BASE: '/store-level',
     GET_LEVEL: '/store/level/:storeId',
     ACTIVE_LEVELS: '/store/levels-active',
-    LEVELS: '/store/levels',
-    CREATE: '/store/level-create',
-    UPDATE: '/store/level/:storeLevelId',
-    DELETE: '/store/level/:storeLevelId',
-    RESTORE: '/store/level/:storeLevelId'
+    LEVELS: '/admin/store-levels',
+    CREATE: '/admin/store-level',
+    UPDATE: '/admin/store-level/:storeLevelId',
+    DELETE: '/admin/store-level/:storeLevelId',
+    RESTORE: '/admin/store-level/restore/:storeLevelId'
+  },
+  // User Level routes
+  USER_LEVEL: {
+    BASE: '/user-level',
+    GET_LEVEL: '/user/level/:userId',
+    ACTIVE_LEVELS: '/user-levels/active',
+    LEVELS: '/admin/user-levels',
+    CREATE: '/admin/user-level',
+    UPDATE: '/admin/user-level/:userLevelId',
+    DELETE: '/admin/user-level/:userLevelId',
+    RESTORE: '/admin/user-level/restore/:userLevelId'
   },
   // Transaction routes
   TRANSACTION: {
@@ -240,17 +250,7 @@ export const ROUTES = {
     FOLLOWING_STORES: '/following/stores/:userId',
     CHECK_FOLLOWING_STORE: '/check/following/stores/:storeId/:userId'
   },
-  // User Level routes
-  USER_LEVEL: {
-    BASE: '/user-level',
-    GET_LEVEL: '/user/level/:userId',
-    ACTIVE_LEVELS: '/user-levels/active',
-    LEVELS: '/admin/user-levels',
-    CREATE: '/admin/user-level',
-    UPDATE: '/admin/user-level/:userLevelId',
-    DELETE: '/admin/user-level/:userLevelId',
-    RESTORE: '/admin/user-level/restore/:userLevelId'
-  },
+
   // Variant routes
   VARIANT: {
     BASE: '/variant',

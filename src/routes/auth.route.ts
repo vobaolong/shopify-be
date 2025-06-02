@@ -18,15 +18,13 @@ import {
   createToken,
   authUpdate,
   sendOTPEmail,
-  verifyOTP
+  verifyOTP,
+  checkEmailExists
 } from '../controllers/auth.controller'
 import { isAuth } from '../middlewares/auth.middleware'
 import { getUserById } from '../controllers/user.controller'
-import {
-  sendChangePasswordEmail,
-  sendConfirmationEmail,
-  verifyEmail
-} from '../controllers/email.controller'
+import { sendChangePasswordEmail } from '../controllers/email.controller'
+import { User } from '../models/index.model'
 
 // Middleware groups
 const signupValidator = [authValidator.signup(), validateHandler]
@@ -40,6 +38,7 @@ const changePasswordValidator = [
   authValidator.changePassword(),
   validateHandler
 ]
+
 // ----------- POST ROUTES -----------
 router.post(
   ROUTES.AUTH.SIGNUP,
@@ -64,6 +63,7 @@ router.post(
 )
 router.post(ROUTES.AUTH.SEND_OTP, sendOTPEmail)
 router.post(ROUTES.AUTH.VERIFY_OTP, verifyOTP)
+router.post(ROUTES.AUTH.CHECK_EMAIL, checkEmailExists)
 
 // ----------- PUT ROUTES -----------
 router.put(
@@ -72,9 +72,6 @@ router.put(
   changePassword
 )
 
-// ----------- GET ROUTES -----------
-router.get(ROUTES.AUTH.CONFIRM_EMAIL, isAuth, sendConfirmationEmail)
-router.get(ROUTES.AUTH.VERIFY_EMAIL, verifyEmail)
 // ----------- PARAMS -----------
 router.param('userId', getUserById)
 

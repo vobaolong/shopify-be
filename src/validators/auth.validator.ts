@@ -85,8 +85,8 @@ const loginPasswordValidator = (): ValidationChain =>
 export const signup = (): ValidationChain[] => [
   nameValidator('userName'),
   nameValidator('name'),
-  nameValidator('gender'),
-  nameValidator('dateOfBirth'),
+  // nameValidator('gender'),
+  // nameValidator('dateOfBirth'),
   ...emailOrPhoneValidator(),
   strongPasswordValidator()
 ]

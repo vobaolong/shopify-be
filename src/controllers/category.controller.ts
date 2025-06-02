@@ -1,14 +1,9 @@
 import { Request, RequestHandler, RequestParamHandler } from 'express'
 import Category, { ICategory } from '../models/category.model'
-import fs from 'fs'
 import { errorHandler, MongoError } from '../helpers/errorHandler'
 import mongoose from 'mongoose'
 import { FilterType } from '../types/controller.types'
-import {
-  CLOUDINARY_BASE_URL,
-  uploadImage,
-  deleteImage
-} from '../helpers/cloudinary'
+import { CLOUDINARY_BASE_URL, deleteImage } from '../helpers/cloudinary'
 
 interface CategoryRequest extends Request {
   category?: ICategory
@@ -79,20 +74,6 @@ export const getCategory: RequestHandler = async (
   }
 }
 
-const deleteUploadedFile = (filepath?: string): void => {
-  try {
-    if (filepath) {
-      fs.unlinkSync('public' + filepath)
-    }
-  } catch (error) {
-    console.error('Error deleting file:', error)
-  }
-}
-
-const deleteUploadedFiles = (filepaths: string[] = []): void => {
-  filepaths.forEach((path) => deleteUploadedFile(path))
-}
-
 export const checkCategory: RequestHandler = async (
   req: CategoryRequest,
   res,
@@ -110,7 +91,6 @@ export const checkCategory: RequestHandler = async (
       !category ||
       (category.categoryId && (category.categoryId as any).categoryId)
     ) {
-      deleteUploadedFile(req.filepaths?.[0])
       res.status(400).json({
         error: 'CategoryId invalid'
       })
@@ -118,7 +98,6 @@ export const checkCategory: RequestHandler = async (
     }
     next()
   } catch (error) {
-    deleteUploadedFile(req.filepaths?.[0])
     res.status(400).json({
       error: 'CategoryId invalid'
     })
@@ -137,7 +116,6 @@ export const checkCategoryChild: RequestHandler = async (
     }
     const category = await Category.findOne({ categoryId })
     if (category) {
-      deleteUploadedFiles(req.filepaths || [])
       res.status(400).json({
         error: 'CategoryId invalid'
       })
@@ -180,13 +158,14 @@ export const createCategory: RequestHandler = async (
   const name = fields.name || body.name
   const categoryId = fields.categoryId || body.categoryId
   const image = req.file?.path
+
   if (!name) {
-    deleteUploadedFile(image)
     res.status(400).json({
       error: 'All fields are required'
     })
     return
   }
+
   try {
     const category = new Category({
       name,
@@ -201,7 +180,6 @@ export const createCategory: RequestHandler = async (
         : savedCategory
     })
   } catch (error) {
-    deleteUploadedFile(image)
     res.status(400).json({
       error: errorHandler(error as MongoError)
     })
@@ -216,80 +194,69 @@ export const updateCategory: RequestHandler = async (
   const body = req.body || {}
   let name = fields.name || body.name
   let categoryId = fields.categoryId || body.categoryId
-  let imageUrl = req.category?.image // Start with current image URL
-  const uploadedFilePath = req.filepaths?.[0] // Path of the newly uploaded file, if any
 
-  if (uploadedFilePath) {
-    // If a new file was uploaded, upload it to Cloudinary
-    try {
-      // Assuming uploadImage function exists and works correctly
-      // You might need to import the uploadImage function from your Cloudinary helper file
-      const uploadResult = await uploadImage(
-        uploadedFilePath,
-        'shopify/categories'
-      ) // Specify a folder
-      imageUrl = uploadResult.url // Use the full Cloudinary URL
-      // Optionally, delete the old image from Cloudinary if req.category?.image was a Cloudinary URL
-      // You would need to extract the publicId from the old URL and call deleteImage
-      if (
-        req.category?.image &&
-        req.category.image.includes('res.cloudinary.com')
-      ) {
-        const oldPublicId = req.category.image.split('/').pop()?.split('.')[0]
-        if (oldPublicId) {
-          await deleteImage(`shopify/categories/${oldPublicId}`) // Use imported function
-        }
-      }
-    } catch (uploadError) {
-      console.error('Error uploading image to Cloudinary:', uploadError)
-      // Clean up the newly uploaded local file on error
-      deleteUploadedFile(uploadedFilePath)
-      res.status(500).json({ error: 'Failed to upload image' })
-      return
-    }
-  } else if (!req.category?.image && !name) {
-    // Case where no new image is uploaded and no old image exists, and no name is provided
-    deleteUploadedFile(uploadedFilePath) // Should be undefined, but safe to call
+  // Validate required name field
+  if (!name) {
     res.status(400).json({
-      error: 'All fields are required (including image if not updating name)'
+      error: 'Name field is required'
     })
     return
-  } else if (imageUrl && imageUrl.startsWith('/uploads/')) {
-    // If no new file uploaded, but old image is a local path, convert it
-    imageUrl = `${CLOUDINARY_BASE_URL}/shopify/categories${imageUrl.replace(
-      '/uploads',
-      ''
-    )}`
   }
 
+  // Handle categoryId validation
   if (!categoryId) {
     categoryId = null
   } else if (categoryId == req.category?._id) {
-    deleteUploadedFile(req.filepaths?.[0])
     res.status(400).json({
       error: 'categoryId invalid'
     })
     return
   }
-  if (!name || !imageUrl) {
-    // Check for name or the final image URL
-    deleteUploadedFile(req.filepaths?.[0])
-    res.status(400).json({
-      error: 'All fields are required'
-    })
-    return
+
+  // Build update object
+  const updateData: any = { name, categoryId }
+
+  // Handle image upload if a new file was uploaded
+  if (req.file) {
+    // Get public_id from old image URL if it's a Cloudinary image
+    const oldImage = req.category?.image || ''
+    let oldPublicId = null
+    if (oldImage && oldImage.includes('cloudinary.com')) {
+      const matches = oldImage.match(/\/upload\/v\d+\/([^/]+)\.\w+$/)
+      if (matches && matches[1]) {
+        oldPublicId = matches[1]
+      }
+    }
+
+    // File has been uploaded by middleware uploadCategorySingle
+    const imageUrl = req.file.path
+    updateData.image = imageUrl
+
+    // Delete old image from Cloudinary if it exists
+    if (
+      oldPublicId &&
+      oldPublicId !== 'default' &&
+      !oldImage.includes('/uploads/default.webp')
+    ) {
+      try {
+        await deleteImage(oldPublicId)
+      } catch (error) {
+        console.error('Error deleting old category image:', error)
+      }
+    }
   }
+
   try {
     const category = await Category.findOneAndUpdate(
       { _id: req.category?._id },
-      { $set: { name, image: imageUrl, categoryId } },
+      { $set: updateData },
       { new: true }
     ).populate({
       path: 'categoryId',
       populate: { path: 'categoryId' }
     })
+
     if (!category) {
-      deleteUploadedFile(req.filepaths?.[0])
       res.status(400).json({
         error: 'Update category failed'
       })
@@ -300,7 +267,6 @@ export const updateCategory: RequestHandler = async (
       category: category.toObject ? category.toObject() : category
     })
   } catch (error) {
-    deleteUploadedFile(req.filepaths?.[0])
     res.status(500).json({
       error: errorHandler(error as MongoError)
     })

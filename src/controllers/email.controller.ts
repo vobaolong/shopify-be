@@ -1,6 +1,5 @@
 import { User, Store, Order } from '../models/index.model'
 import nodemailer from 'nodemailer'
-import jwt from 'jsonwebtoken'
 import { errorHandler, MongoError } from '../helpers/errorHandler'
 import { formatDate } from '../helpers/formatDate'
 import { Response, NextFunction, RequestHandler } from 'express'
@@ -146,58 +145,6 @@ export const sendChangePasswordEmail: RequestHandler = (req, res, next) => {
   sendEmail(email || '', title || '', html)
     .then(() => console.log('Send email successfully'))
     .catch((error) => console.log('Send email failed', error))
-}
-
-/**
- * Middleware to send email confirmation
- */
-export const sendConfirmationEmail: RequestHandler = (req, res) => {
-  const authReq = req as AuthenticatedRequest
-  if (!authReq.user?.email) {
-    res.status(400).json({ error: 'No email provided' })
-    return
-  }
-  if (authReq.user.isEmailActive) {
-    res.status(400).json({ error: 'Email Verified' })
-    return
-  }
-  const email_code = jwt.sign(
-    { email: authReq.body.email },
-    process.env.JWT_EMAIL_CONFIRM_SECRET || ''
-  )
-  User.findOneAndUpdate(
-    { _id: authReq.user?._id },
-    { $set: { email_code } },
-    { new: true }
-  )
-    .exec()
-    .then((user) => {
-      if (!user) {
-        res.status(500).json({ error: 'User not found' })
-        return
-      }
-      const title = 'Xác minh địa chỉ email của bạn'
-      const text =
-        'Để có quyền truy cập vào tài khoản của bạn, vui lòng xác minh địa chỉ email của bạn bằng cách nhấp vào liên kết bên dưới.'
-      const name = `${user.name}`
-      const clientUrl = getClientUrl()
-      const buttonUrl = `${clientUrl}/verify/email/${email_code}`
-      const html = createEmailTemplate(
-        title,
-        name,
-        `<p>${text}</p>`,
-        'Xác thực ngay!',
-        buttonUrl
-      )
-      const response = handleEmailResponse(res)
-      authReq.user?.email &&
-        sendEmail(authReq.user.email, title, html)
-          .then(response.success)
-          .catch(response.error)
-    })
-    .catch((error) => {
-      res.status(500).json({ error: 'Send email failed' })
-    })
 }
 
 /**
@@ -426,31 +373,4 @@ export const sendReportProductEmail: RequestHandler = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Send email failed' })
   }
-}
-
-/**
- * Middleware to verify email
- */
-export const verifyEmail: RequestHandler = (req, res) => {
-  User.findOneAndUpdate(
-    { email_code: req.params.emailCode },
-    { $set: { isEmailActive: true }, $unset: { email_code: '' } }
-  )
-    .exec()
-    .then((user) => {
-      if (!user) {
-        res.status(500).json({
-          error: 'User not found'
-        })
-        return
-      }
-      res.status(200).json({
-        success: 'Confirm email successfully'
-      })
-    })
-    .catch((error) => {
-      res.status(500).json({
-        error: errorHandler(error as MongoError)
-      })
-    })
 }
