@@ -40,7 +40,7 @@ const phoneValidator = () =>
     .matches(PHONE_REGEX)
     .withMessage('Must be a valid Vietnamese phone number')
 
-const emailOrPhoneValidator = (): ValidationChain[] => [
+const identifierValidator = (): ValidationChain[] => [
   check('email')
     .optional()
     .matches(EMAIL_REGEX)
@@ -49,12 +49,16 @@ const emailOrPhoneValidator = (): ValidationChain[] => [
     .optional()
     .matches(PHONE_REGEX)
     .withMessage('Invalid phone format'),
+  check('userName')
+    .optional()
+    .isLength({ min: 3, max: 32 })
+    .withMessage('Username must be 3-32 characters'),
   check().custom((_, { req }) => {
-    const { email, phone } = req.body
-    if (email && phone)
-      throw new Error('Only one of email or phone should be provided')
-    if (!email && !phone)
-      throw new Error('Either email or phone must be provided')
+    const { email, phone, userName } = req.body
+    if ([email, phone, userName].filter(Boolean).length !== 1)
+      throw new Error(
+        'Chỉ được nhập một trong các trường: email, phone hoặc userName'
+      )
     return true
   })
 ]
@@ -87,16 +91,16 @@ export const signup = (): ValidationChain[] => [
   nameValidator('name'),
   // nameValidator('gender'),
   // nameValidator('dateOfBirth'),
-  ...emailOrPhoneValidator(),
+  ...identifierValidator(),
   strongPasswordValidator()
 ]
 
 const signin = (): ValidationChain[] => [
-  ...emailOrPhoneValidator(),
+  ...identifierValidator(),
   loginPasswordValidator()
 ]
 
-const forgotPassword = (): ValidationChain[] => [...emailOrPhoneValidator()]
+const forgotPassword = (): ValidationChain[] => [...identifierValidator()]
 
 const changePassword = (): ValidationChain[] => [strongPasswordValidator()]
 

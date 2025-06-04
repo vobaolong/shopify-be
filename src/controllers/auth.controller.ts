@@ -41,7 +41,6 @@ export const signup = async (req: AuthRequest, res: Response) => {
     }
     const user = new User({
       ...req.body,
-      // Set isEmailActive to true for email signups since OTP verification is done before signup
       isEmailActive: req.body.email ? true : false
     })
     await user.save()
@@ -58,20 +57,30 @@ export const signup = async (req: AuthRequest, res: Response) => {
 
 export const signin = async (req: any, res: any, next: any) => {
   try {
-    const { email, phone, password } = req.body
+    const { email, phone, userName, password } = req.body
     const query = {
       $or: [
-        {
-          email: { $exists: true, $ne: null, $eq: email },
-          googleId: { $exists: false, $eq: null }
-        },
-        {
-          phone: { $exists: true, $ne: null, $eq: phone },
-          googleId: { $exists: false, $eq: null }
-        }
-      ]
+        email
+          ? {
+              email: { $exists: true, $ne: null, $eq: email },
+              googleId: { $exists: false, $eq: null }
+            }
+          : null,
+        phone
+          ? {
+              phone: { $exists: true, $ne: null, $eq: phone },
+              googleId: { $exists: false, $eq: null }
+            }
+          : null,
+        userName
+          ? {
+              userName: { $exists: true, $ne: null, $eq: userName },
+              googleId: { $exists: false, $eq: null }
+            }
+          : null
+      ].filter(Boolean)
     }
-    const user = await User.findOne(query).exec()
+    const user = await User.findOne(query as any)
     if (!user) {
       res.status(404).json({
         error: 'User not found! Please try again'
@@ -102,7 +111,7 @@ export const createToken: RequestHandler = async (req, res, next) => {
       { _id },
       process.env.ACCESS_TOKEN_SECRET as string,
       {
-        expiresIn: '48h'
+        expiresIn: '7days'
       }
     )
     const refreshToken = jwt.sign(
@@ -390,18 +399,14 @@ export const verifyOTP: RequestHandler = async (
 
 export const checkEmailExists: RequestHandler = async (req, res) => {
   const { email } = req.body
-  console.log('Backend: checkEmailExists called with email:', email)
 
   if (!email) {
-    console.log('Backend: No email provided')
     res.status(400).json({ exists: false, error: 'Email is required' })
     return
   }
 
   const existed = await User.findOne({ email })
-  console.log('Backend: User found:', !!existed)
 
   const result = { exists: !!existed }
-  console.log('Backend: Returning result:', result)
   res.json(result)
 }

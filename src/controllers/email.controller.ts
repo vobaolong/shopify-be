@@ -55,7 +55,7 @@ const createEmailTemplate = (
     <h1 style="color: #2266cc"><img src="https://i.imgur.com/uw3oLis.png" alt="Store Image" style="max-width: 4%; height: auto; margin-right: 10px" />${title}</h1>
     <hr/>
     <b>Xin chào ${name},</b>
-    <p>Cảm ơn bạn đã lựa chọn Buynow.</p>
+    <p>Cảm ơn bạn đã lựa chọn ShopBase.</p>
     ${content}
     ${buttonHtml}
     ${
@@ -84,7 +84,7 @@ export const sendEmail = (
   const message: EmailMessage = {
     from: process.env.ADMIN_EMAIL,
     to,
-    subject: `Buynow E-commerce - ${subject}`,
+    subject: `ShopBase E-commerce - ${subject}`,
     html
   }
   return transport.sendMail(message)
