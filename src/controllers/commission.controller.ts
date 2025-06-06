@@ -89,7 +89,7 @@ export const getActiveCommissions: RequestHandler = async (req, res) => {
     const sanitizedCommissions = commissions.map((commission: ICommission) => {
       const commissionObj = commission.toObject()
       delete commissionObj.isDeleted
-      commissionObj
+      return commissionObj
     })
     res.status(200).json({
       success: 'Load list active commissions successfully',

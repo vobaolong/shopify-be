@@ -23,7 +23,7 @@ export const ROUTES = {
     PASSWORD_UPDATE: '/user/password/:userId',
     LIST_USERS: '/users',
     LIST_USERS_ADMIN: '/admin/users',
-    ADDRESS_ADD: '/user/address-add/:userId',
+    ADDRESS_ADD: '/user/address/:userId',
     ADDRESS_UPDATE: '/user/address/:userId',
     ADDRESS_DELETE: '/user/address/:userId',
     AVATAR_UPDATE: '/user/avatar/:userId',
@@ -133,7 +133,7 @@ export const ROUTES = {
 
     USER: {
       LIST: '/order/user/:userId',
-      DETAIL: '/order/user/:userId/:orderId',
+      DETAIL: '/order/user/:orderId/:userId',
       ITEMS: '/order/user/:userId/:orderId/items',
       UPDATE: '/order/user/:userId/:orderId/update'
     },
@@ -182,7 +182,7 @@ export const ROUTES = {
     GET_STORE: '/store/:storeId',
     PROFILE: '/store/profile/:storeId/:userId',
     LIST_STORES: '/stores',
-    STORES_BY_USER: '/stores/by-user/:userId',
+    STORES_BY_USER: '/user/stores/:userId',
     STORES_FOR_ADMIN: '/admin/stores',
     CREATE: '/store-create/:userId',
     UPDATE: '/store/:storeId/:userId',
@@ -226,11 +226,11 @@ export const ROUTES = {
   // Transaction routes
   TRANSACTION: {
     BASE: '/transaction',
-    BY_USER: '/transactions/by-user/:userId',
-    BY_STORE: '/transactions/by-store/:storeId/:userId',
+    BY_USER: '/user/transactions/:userId',
+    BY_STORE: '/store/transactions/:storeId/:userId',
     BY_ADMIN: '/admin/transactions',
-    CREATE_BY_USER: '/transaction/create-by-user/:userId',
-    CREATE_BY_STORE: '/transaction/create-by-store/:storeId/:userId'
+    CREATE_BY_USER: '/user/transaction/:userId',
+    CREATE_BY_STORE: '/store/transaction/:storeId/:userId'
   },
   // Upload routes
   UPLOAD: {

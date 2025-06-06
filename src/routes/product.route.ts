@@ -4,7 +4,7 @@ const router = express.Router()
 // Import route constants
 import { ROUTES } from '../constants/route.constant'
 import { getUserById } from '../controllers/user.controller'
-import { getStoreById } from '../controllers/store.controller'
+import { getStoreById } from '../controllers/store'
 import { checkCategoryChild } from '../controllers/category.controller'
 
 import {

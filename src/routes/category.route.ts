@@ -4,7 +4,7 @@ const router = express.Router()
 import { ROUTES } from '../constants/route.constant'
 // Middlewares
 import { isAuth, isAdmin } from '../middlewares/auth.middleware'
-import { getStoreById } from '../controllers/store.controller'
+import { getStoreById } from '../controllers/store'
 import {
   getCategoryById,
   getCategory,

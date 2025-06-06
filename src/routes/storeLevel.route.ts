@@ -9,7 +9,7 @@ import levelValidator from '../validators/level.validator'
 import { validateHandler } from '../helpers/validateHandler'
 import { isAuth, isAdmin } from '../middlewares/auth.middleware'
 import { getUserById } from '../controllers/user.controller'
-import { getStoreById } from '../controllers/store.controller'
+import { getStoreById } from '../controllers/store'
 import {
   storeLevelById,
   getStoreLevel,

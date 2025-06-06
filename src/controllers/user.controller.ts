@@ -57,7 +57,7 @@ export const getUser: RequestHandler = (req: UserRequest, res: Response) => {
   }
   res.status(200).json({
     success: 'Get user successfully',
-    user: cleanUser(req.user.toObject ? req.user.toObject() : req.user)
+    user: cleanUserLess(req.user.toObject ? req.user.toObject() : req.user)
   })
 }
 

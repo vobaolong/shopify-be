@@ -7,7 +7,7 @@ import { ROUTES } from '../constants/route.constant'
 // Middlewares
 import { isAuth } from '../middlewares/auth.middleware'
 import { getUserById } from '../controllers/user.controller'
-import { getStoreById } from '../controllers/store.controller'
+import { getStoreById } from '../controllers/store'
 import {
   getStoreFollowerCount,
   followStore,

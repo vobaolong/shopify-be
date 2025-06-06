@@ -13,7 +13,7 @@ import {
   verifyPassword
 } from '../middlewares/auth.middleware'
 import { getUserById, getUserProfile } from '../controllers/user.controller'
-import { getStoreById, getStoreProfile } from '../controllers/store.controller'
+import { getStoreById, getStoreProfile } from '../controllers/store'
 import {
   requestTransaction,
   updateEWallet,
