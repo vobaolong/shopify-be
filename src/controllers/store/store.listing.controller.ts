@@ -83,7 +83,6 @@ export const getStores = async (
     if (page > pageCount) {
       skip = (pageCount - 1) * limit
     }
-
     if (count <= 0) {
       res.status(200).json({
         success: 'Load list stores successfully',
@@ -106,6 +105,7 @@ export const getStores = async (
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')
+      .populate('address')
       .exec()
 
     stores.forEach((store) => {
@@ -222,7 +222,6 @@ export const getStoresByUser = async (
       })
       return
     }
-
     const stores = await Store.find(filterArgs)
       .select('-e_wallet')
       .sort({
@@ -235,6 +234,7 @@ export const getStoresByUser = async (
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')
+      .populate('address')
       .exec()
 
     stores.forEach((store) => {
@@ -317,8 +317,7 @@ export const getStoresForAdmin = async (req: StoreRequest, res: Response) => {
       if (createdAtFrom) filterArgs.createdAt.$gte = new Date(createdAtFrom)
       if (createdAtTo) filterArgs.createdAt.$lte = new Date(createdAtTo)
     }
-    const sortOrder = order === 'desc' ? -1 : 1
-    // 4. Query data
+    const sortOrder = order === 'desc' ? -1 : 1 // 4. Query data
     const stores = await Store.find(filterArgs)
       .select('-e_wallet')
       .sort({ [sortBy]: sortOrder, [sortMoreBy]: sortOrder, _id: 1 })
@@ -327,6 +326,7 @@ export const getStoresForAdmin = async (req: StoreRequest, res: Response) => {
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')
+      .populate('address')
       .exec()
 
     // 5. Clean data

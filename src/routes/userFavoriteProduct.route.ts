@@ -1,20 +1,16 @@
-import express, { Request, Response, NextFunction } from 'express'
+import express from 'express'
 const router = express.Router()
-
-// Import route constants
 import { ROUTES } from '../constants/route.constant'
-
-// IMPORT CONTROLLERS
 import { isAuth } from '../middlewares/auth.middleware'
-import { getUserById } from '../controllers/user.controller'
-import { getProductById } from '../controllers/product.controller'
+import { getUserById } from '../controllers/user'
+import { getProductById } from '../controllers/product'
 import {
   getFavoriteCount,
   favoriteProduct,
   unFavoriteProduct,
   checkFavoriteProduct,
   listFavoriteProductsByUser
-} from '../controllers/userFavoriteProduct.controller'
+} from '../controllers/userFavoriteProduct'
 
 // ---------- GET ROUTES -----------
 router.get(ROUTES.USER_FAVORITE_PRODUCT.FAVORITE_COUNT, getFavoriteCount)

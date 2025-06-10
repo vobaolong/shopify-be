@@ -4,8 +4,7 @@ const router = express.Router()
 import { ROUTES } from '../constants/route.constant'
 // Middlewares
 import { isAuth, isAdmin } from '../middlewares/auth.middleware'
-import { getUserById } from '../controllers/user.controller'
-import { checkListCategoriesChild } from '../controllers/category.controller'
+import { getUserById } from '../controllers/user'
 import {
   getBrandById,
   getBrand,
@@ -17,11 +16,10 @@ import {
   listBrands,
   getBrandCategories,
   checkBrandNameExist
-} from '../controllers/brand.controller'
+} from '../controllers/brand'
 
 // Middleware groups
 const adminAuth = [isAuth, isAdmin]
-const brandValidator = [checkListCategoriesChild, checkBrand]
 
 // ----------- GET ROUTES -----------
 router.get(ROUTES.BRAND.GET_BY_ID, ...adminAuth, getBrand)
@@ -30,10 +28,10 @@ router.get(ROUTES.BRAND.LIST_FOR_ADMIN, ...adminAuth, listBrands)
 router.get(ROUTES.BRAND.CHECK_NAME, checkBrandNameExist)
 
 // ----------- POST ROUTES -----------
-router.post(ROUTES.BRAND.CREATE, ...adminAuth, ...brandValidator, createBrand)
+router.post(ROUTES.BRAND.CREATE, ...adminAuth, checkBrand, createBrand)
 
 // ----------- PUT ROUTES -----------
-router.put(ROUTES.BRAND.UPDATE, ...adminAuth, ...brandValidator, updateBrand)
+router.put(ROUTES.BRAND.UPDATE, ...adminAuth, checkBrand, updateBrand)
 
 // ----------- DELETE ROUTES -----------
 router.delete(ROUTES.BRAND.DELETE, ...adminAuth, removeBrand)

@@ -4,11 +4,7 @@ import express from 'express'
 import { ROUTES } from '../constants/route.constant'
 
 // Controllers
-import {
-  getReports,
-  createReport,
-  deleteReport
-} from '../controllers/report.controller'
+import { getReports, createReport, deleteReport } from '../controllers/report'
 
 const router = express.Router()
 

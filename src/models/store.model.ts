@@ -41,11 +41,10 @@ const storeSchema = new Schema<IStore>(
     },
     slug: {
       type: String,
-      unique: true
+      unique: true,
     },
     address: {
       type: String,
-      trim: true,
       required: true
     },
     bio: {

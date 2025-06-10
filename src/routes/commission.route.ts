@@ -7,7 +7,7 @@ import { validateHandler } from '../helpers/validateHandler'
 
 // Import controllers
 import { isAuth, isAdmin } from '../middlewares/auth.middleware'
-import { getUserById } from '../controllers/user.controller'
+import { getUserById } from '../controllers/user'
 import { ROUTES } from '../constants/route.constant'
 import {
   getCommissions,
@@ -16,7 +16,7 @@ import {
   updateCommission,
   removeCommission,
   restoreCommission
-} from '../controllers/commission.controller'
+} from '../controllers/commission'
 
 // Middleware groups
 const adminAuth = [isAuth, isAdmin]

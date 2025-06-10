@@ -5,12 +5,10 @@ const router = express.Router()
 import { ROUTES } from '../constants/route.constant'
 
 // Middlewares
-import { isAuth, isAdmin } from '../middlewares/auth.middleware'
-import { getUserById } from '../controllers/user.controller'
-import { checkListCategoriesChild } from '../controllers/category.controller'
+import { getUserById } from '../controllers/user'
 import {
   getVariantById,
-  getVariant,
+  readVariant,
   checkVariant,
   createVariant,
   updateVariant,
@@ -18,52 +16,25 @@ import {
   restoreVariant,
   getVariants,
   getActiveVariants
-} from '../controllers/variant.controller'
-import {
-  removeAllValues,
-  restoreAllValues
-} from '../controllers/variantValue.controller'
+} from '../controllers/variant'
 import { adminAuth } from './user.route'
 
-// Middleware groups
-const variantValidator = [checkListCategoriesChild, checkVariant]
-
 // ----------- GET ROUTES -----------
-router.get(ROUTES.VARIANT.BY_ID, ...adminAuth, getVariant)
+router.get(ROUTES.VARIANT.BY_ID, ...adminAuth, readVariant)
 router.get(ROUTES.VARIANT.ACTIVE, getActiveVariants)
 router.get(ROUTES.VARIANT.LIST, ...adminAuth, getVariants)
 
 // ----------- POST ROUTES -----------
-router.post(
-  ROUTES.VARIANT.CREATE,
-  ...adminAuth,
-  ...variantValidator,
-  createVariant
-)
+router.post(ROUTES.VARIANT.CREATE, ...adminAuth, checkVariant, createVariant)
 
 // ----------- PUT ROUTES -----------
-router.put(
-  ROUTES.VARIANT.UPDATE,
-  ...adminAuth,
-  ...variantValidator,
-  updateVariant
-)
+router.put(ROUTES.VARIANT.UPDATE, ...adminAuth, checkVariant, updateVariant)
 
 // ----------- DELETE ROUTES -----------
-router.delete(
-  ROUTES.VARIANT.DELETE,
-  ...adminAuth,
-  removeVariant,
-  removeAllValues
-)
+router.delete(ROUTES.VARIANT.DELETE, ...adminAuth, removeVariant)
 
 // ----------- RESTORE ROUTES -----------
-router.get(
-  ROUTES.VARIANT.RESTORE,
-  ...adminAuth,
-  restoreVariant,
-  restoreAllValues
-)
+router.get(ROUTES.VARIANT.RESTORE, ...adminAuth, restoreVariant)
 
 // ----------- PARAMS -----------
 router.param('variantId', getVariantById)

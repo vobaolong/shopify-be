@@ -38,7 +38,7 @@ export const ROUTES = {
 
     PRODUCTS_ACTIVE: '/products/active',
     PRODUCTS_BY_STORE: '/store/:storeId/products/active',
-    PRODUCTS_BY_STORE_FOR_MANAGER: '/store/:storeId/manager/:userId/products',
+    PRODUCTS_BY_STORE_FOR_MANAGER: '/store/:storeId/products',
     PRODUCTS_FOR_ADMIN: '/admin/products',
 
     CREATE: '/store/:storeId/user/:userId/product',
@@ -59,14 +59,6 @@ export const ROUTES = {
     LIST_FAVORITE_PRODUCTS: '/favorite/products/:userId',
     CHECK_FAVORITE_PRODUCT: '/check/favorite/products/:productId/:userId'
   },
-  // Address routes
-  ADDRESS: {
-    BASE: '/address',
-    GET_ADDRESS: '/address/:address',
-    GET_PROVINCES: '/provinces'
-  },
-
-  // Brand routes
   BRAND: {
     GET_BY_ID: '/brand/:brandId',
     ACTIVE: '/brands/active',
@@ -78,7 +70,6 @@ export const ROUTES = {
     RESTORE: '/admin/brand/:brandId/restore',
     CHECK_NAME: '/admin/brand/check-name'
   },
-  // Cart routes
   CART: {
     COUNT: '/user/:userId/cart/count',
     LIST: '/user/:userId/cart',
@@ -87,7 +78,6 @@ export const ROUTES = {
     UPDATE: '/user/:userId/cart/item/:cartItemId',
     REMOVE: '/user/:userId/cart/item/:cartItemId'
   },
-  // Category routes
   CATEGORY: {
     BASE: '/category',
     GET_BY_ID: '/category/:categoryId',
@@ -99,7 +89,6 @@ export const ROUTES = {
     DELETE: '/category/:categoryId',
     RESTORE: '/category/:categoryId/restore'
   },
-  // Commission routes
   COMMISSION: {
     BASE: '/commission',
     LIST: '/admin/commissions',
@@ -108,13 +97,12 @@ export const ROUTES = {
     DELETE: '/commission/:commissionId',
     RESTORE: '/commission/:commissionId/restore',
     ACTIVE_LIST: '/commission/active'
-  }, // Notification routes
+  },
   NOTIFICATION: {
     BASE: '/notification',
     GET: '/notification/:userId',
     UPDATE_READ: '/notification/:userId/read',
     DELETE: '/notification/:userId',
-
     SEND: {
       BAN_STORE: '/notification/send/ban-store/:userId/:storeId',
       CREATE_STORE: '/notification/send/create-store/:userId/:storeId',
@@ -126,31 +114,26 @@ export const ROUTES = {
       REPORT_PRODUCT: '/notification/send/report-product/:userId'
     }
   },
-  // Order routes
   ORDER: {
     BASE: '/order',
     COUNT: '/order/count',
-
     USER: {
       LIST: '/order/user/:userId',
       DETAIL: '/order/user/:orderId/:userId',
       ITEMS: '/order/user/:userId/:orderId/items',
       UPDATE: '/order/user/:userId/:orderId/update'
     },
-
     STORE: {
       LIST: '/store/:storeId/orders',
       DETAIL: '/store/:storeId/orders/:orderId',
       ITEMS: '/store/:storeId/orders/:orderId/items',
       UPDATE: '/store/:storeId/orders/:orderId/update'
     },
-
     ADMIN: {
       LIST: '/admin/orders',
       DETAIL: '/admin/order/:orderId',
       ITEMS: '/admin/order/:orderId/items'
     },
-
     RETURN: {
       REQUEST: '/order/return/request/:userId/:orderId',
       BY_STORE: '/order/return/store/:storeId/:userId',
@@ -159,14 +142,12 @@ export const ROUTES = {
 
     CREATE: '/order/create/:cartId/:userId'
   },
-  // Report routes
   REPORT: {
     BASE: '/report',
     LIST: '/admin/reports',
     CREATE: '/report',
     DELETE: '/admin/report/:id'
   },
-  // Review routes
   REVIEW: {
     BASE: '/review',
     LIST: '/reviews',
@@ -176,22 +157,21 @@ export const ROUTES = {
     DELETE: '/review/:reviewId/:userId',
     ADMIN_DELETE: '/admin/review/:reviewId'
   },
-  // Store routes
   STORE: {
     BASE: '/store',
     GET_STORE: '/store/:storeId',
-    PROFILE: '/store/profile/:storeId/:userId',
+    PROFILE: '/store/profile/:storeId',
     LIST_STORES: '/stores',
     STORES_BY_USER: '/user/stores/:userId',
     STORES_FOR_ADMIN: '/admin/stores',
-    CREATE: '/store-create/:userId',
-    UPDATE: '/store/:storeId/:userId',
+    CREATE: '/store/:userId',
+    UPDATE: '/store/:storeId',
     ACTIVE: '/admin/store-active/:storeId',
     COMMISSION: '/store/commission/:storeId',
-    COMMISSION_UPDATE: '/store/commission-update/:storeId/:userId',
-    OPEN: '/store/open/:storeId/:userId',
-    AVATAR: '/store/avatar/:storeId/:userId',
-    COVER: '/store/cover/:storeId/:userId',
+    COMMISSION_UPDATE: '/store/commission-update/:storeId',
+    OPEN: '/store/open/:storeId',
+    AVATAR: '/store/avatar/:storeId',
+    COVER: '/store/cover/:storeId',
     FEATURED_IMAGES: '/store/featured-images/:storeId',
     ADD_FEATURED_IMAGE: '/store/featured-image/:storeId/:userId',
     UPDATE_FEATURED_IMAGE: '/store/featured-image/:storeId/:userId',
@@ -201,7 +181,6 @@ export const ROUTES = {
     REMOVE_STAFF: '/store/staff-remove/:storeId/:userId',
     CANCEL_STAFF: '/store/staff-cancel/:storeId/:userId'
   },
-  // Store Level routes
   STORE_LEVEL: {
     BASE: '/store-level',
     GET_LEVEL: '/store/level/:storeId',
@@ -212,7 +191,6 @@ export const ROUTES = {
     DELETE: '/admin/store-level/:storeLevelId',
     RESTORE: '/admin/store-level/restore/:storeLevelId'
   },
-  // User Level routes
   USER_LEVEL: {
     BASE: '/user-level',
     GET_LEVEL: '/user/level/:userId',
@@ -223,7 +201,6 @@ export const ROUTES = {
     DELETE: '/admin/user-level/:userLevelId',
     RESTORE: '/admin/user-level/restore/:userLevelId'
   },
-  // Transaction routes
   TRANSACTION: {
     BASE: '/transaction',
     BY_USER: '/user/transactions/:userId',
@@ -232,7 +209,6 @@ export const ROUTES = {
     CREATE_BY_USER: '/user/transaction/:userId',
     CREATE_BY_STORE: '/store/transaction/:storeId/:userId'
   },
-  // Upload routes
   UPLOAD: {
     BASE: '/upload',
     IMAGE: '/upload/image',
@@ -241,7 +217,6 @@ export const ROUTES = {
     DELETE: '/upload/:publicId',
     DELETE_MULTIPLE: '/upload/multiple'
   },
-  // User Follow Store routes
   USER_FOLLOW_STORE: {
     BASE: '/follow',
     FOLLOWER_COUNT: '/store/follower-count/:storeId',
@@ -250,28 +225,35 @@ export const ROUTES = {
     FOLLOWING_STORES: '/following/stores/:userId',
     CHECK_FOLLOWING_STORE: '/check/following/stores/:storeId/:userId'
   },
-
-  // Variant routes
   VARIANT: {
     BASE: '/variant',
-    BY_ID: '/variant-by-id/:variantId/:userId',
-    ACTIVE: '/variants-active',
-    LIST: '/variants/:userId',
-    CREATE: '/variant-create/:userId',
-    UPDATE: '/variant-update/:variantId/:userId',
-    DELETE: '/variant-delete/:variantId/:userId',
-    RESTORE: '/variant-restore/:variantId/:userId'
+    BY_ID: '/admin/variant/:variantId',
+    ACTIVE: '/variants/active',
+    LIST: '/admin/variants',
+    CREATE: '/admin/variant',
+    UPDATE: '/admin/variant/:variantId',
+    DELETE: '/admin/variant/:variantId',
+    RESTORE: '/admin/variant/:variantId/restore'
   },
-  // Variant Value routes
   VARIANT_VALUE: {
     BASE: '/variants/:variantId/values',
-
-    ACTIVE: '/variants/:variantId/values/active',
-    LIST: '/variants/:variantId/user/:userId/values',
-
-    CREATE: '/users/:userId/variant-values',
-    UPDATE: '/users/:userId/variant-values/:variantValueId',
-    DELETE: '/users/:userId/variant-values/:variantValueId',
-    RESTORE: '/users/:userId/variant-values/:variantValueId/restore'
+    ACTIVE: '/active/values/by/variant/:variantId',
+    LIST: '/values/by/variant/:variantId',
+    CREATE: '/value',
+    UPDATE: '/value/:variantValueId',
+    DELETE: '/value/:variantValueId',
+    RESTORE: '/value/restore/:variantValueId'
+  },
+  ADDRESS: {
+    BASE: '/address',
+    GET_ADDRESS: '/address/:address',
+    GET_ADDRESS_BY_ID: '/address/id/:id',
+    GET_ADDRESSES: '/addresses',
+    CREATE_ADDRESS: '/address',
+    UPDATE_ADDRESS: '/address/:id',
+    DELETE_ADDRESS: '/address/:id',
+    GET_PROVINCES: '/provinces',
+    GET_DISTRICTS: '/provinces/:provinceId/districts',
+    GET_WARDS: '/districts/:districtId/wards'
   }
 }

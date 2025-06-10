@@ -6,13 +6,10 @@ import { ROUTES } from '../constants/route.constant'
 
 // Middlewares
 import { isAuth, isAdmin, isManager } from '../middlewares/auth.middleware'
-import { getUserById } from '../controllers/user.controller'
+import { getUserById } from '../controllers/user'
 import { getStoreById } from '../controllers/store'
-import { getCartById } from '../controllers/cart.controller'
-import {
-  updateEWallet,
-  createTransaction
-} from '../controllers/transaction.controller'
+import { getCartById } from '../controllers/cart'
+import { updateEWallet, createTransaction } from '../controllers/transaction'
 import {
   getOrderById,
   createOrder,
@@ -33,7 +30,7 @@ import {
   createReturnRequest,
   returnOrder,
   getReturnOrders
-} from '../controllers/order.controller'
+} from '../controllers/order'
 import { managerAuth } from './store.route'
 import { adminAuth } from './user.route'
 

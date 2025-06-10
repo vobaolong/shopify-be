@@ -16,8 +16,8 @@ import {
   getActiveCategories,
   getCategories,
   getCategoriesByStore
-} from '../controllers/category.controller'
-import { getProductCategoriesByStore } from '../controllers/product.controller'
+} from '../controllers/category'
+import { getProductCategoriesByStore } from '../controllers/product'
 import { uploadCategorySingle } from '../middlewares/uploadCloudinary'
 
 // Middleware groups

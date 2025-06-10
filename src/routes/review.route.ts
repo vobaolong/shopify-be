@@ -5,7 +5,7 @@ import { ROUTES } from '../constants/route.constant'
 
 // Middlewares
 import { isAuth, isAdmin } from '../middlewares/auth.middleware'
-import { getUserById } from '../controllers/user.controller'
+import { getUserById } from '../controllers/user'
 import {
   getReviewById,
   createReview,
@@ -15,7 +15,7 @@ import {
   getReviews,
   checkReview,
   deleteReviewByAdmin
-} from '../controllers/review.controller'
+} from '../controllers/review'
 
 const router = express.Router()
 

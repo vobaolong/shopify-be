@@ -8,7 +8,7 @@ import { ROUTES } from '../constants/route.constant'
 import levelValidator from '../validators/level.validator'
 import { validateHandler } from '../helpers/validateHandler'
 import { isAuth, isAdmin } from '../middlewares/auth.middleware'
-import { getUserById } from '../controllers/user.controller'
+import { getUserById } from '../controllers/user'
 import {
   getUserLevelById,
   getUserLevel,
@@ -16,10 +16,8 @@ import {
   updateUserLevel,
   removeUserLevel,
   restoreUserLevel,
-  getUserLevels,
-  getActiveUserLevels,
-  getAllUserLevelsDebug
-} from '../controllers/userLevel.controller'
+  getUserLevels
+} from '../controllers/userLevel'
 
 // Middleware groups
 const adminAuth = [isAuth, isAdmin]
@@ -27,9 +25,7 @@ const levelValidatorGroup = [levelValidator.level(), validateHandler]
 
 // ----------- GET ROUTES -----------
 router.get(ROUTES.USER_LEVEL.GET_LEVEL, getUserLevel)
-router.get(ROUTES.USER_LEVEL.ACTIVE_LEVELS, getActiveUserLevels)
 router.get(ROUTES.USER_LEVEL.LEVELS, ...adminAuth, getUserLevels)
-router.get('/admin/user-levels/debug', ...adminAuth, getAllUserLevelsDebug)
 
 // ----------- POST ROUTES -----------
 router.post(

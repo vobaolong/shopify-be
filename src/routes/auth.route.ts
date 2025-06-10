@@ -20,10 +20,10 @@ import {
   sendOTPEmail,
   verifyOTP,
   checkEmailExists
-} from '../controllers/auth.controller'
+} from '../controllers/auth'
 import { isAuth } from '../middlewares/auth.middleware'
-import { getUserById } from '../controllers/user.controller'
-import { sendChangePasswordEmail } from '../controllers/email.controller'
+import { getUserById } from '../controllers/user'
+import { sendChangePasswordEmail } from '../controllers/email'
 import { User } from '../models/index.model'
 
 // Middleware groups

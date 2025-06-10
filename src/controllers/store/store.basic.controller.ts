@@ -17,7 +17,7 @@ export const getStoreById: RequestParamHandler = async (
   id: string
 ) => {
   try {
-    const store = await Store.findById(id).exec()
+    const store = await Store.findById(id).populate('address').exec()
     if (!store) {
       res.status(404).json({
         error: 'Store not found'
@@ -40,6 +40,7 @@ export const getStore: RequestHandler = async (
 ) => {
   try {
     const store = await Store.findOne({ _id: req.store._id })
+      .populate('address')
       .populate('commissionId', '_id name fee')
       .exec()
 
@@ -68,6 +69,7 @@ export const getStoreProfile: RequestHandler = async (
 ) => {
   try {
     const store = await Store.findOne({ _id: req.store._id })
+      .populate('address')
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')
@@ -80,7 +82,6 @@ export const getStoreProfile: RequestHandler = async (
       return
     }
 
-    // Cast to IUser before using cleanUser
     store.ownerId = safeCleanUser(store.ownerId)
     store.staffIds.forEach((staff, index) => {
       store.staffIds[index] = safeCleanUser(staff)
@@ -103,9 +104,17 @@ export const createStore: RequestHandler = async (
   res: Response
 ) => {
   try {
-    const { name, bio, address, commissionId, addressDetail } = req.fields || {}
-    const avatar = req.filepaths ? req.filepaths[0] : undefined
-    const cover = req.filepaths ? req.filepaths[1] : undefined
+    const { name, bio, address, commissionId, addressDetail } = req.body
+
+    // Handle files from .fields() middleware
+    let avatar: string | undefined
+    let cover: string | undefined
+
+    if (req.files && typeof req.files === 'object') {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] }
+      avatar = files.avatar?.[0]?.path
+      cover = files.cover?.[0]?.path
+    }
 
     if (!name || !bio || !address || !commissionId || !avatar || !cover) {
       res.status(400).json({
@@ -206,12 +215,12 @@ export const updateStore: RequestHandler = async (
       const savedAddress = await newAddress.save()
       addressId = savedAddress._id
     }
-
     const store = await Store.findOneAndUpdate(
       { _id: req.store._id },
       { $set: { name, bio, address: addressId } },
       { new: true }
     )
+      .populate('address')
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')
@@ -253,6 +262,7 @@ export const activeStore: RequestHandler = async (
       { $set: { isActive } },
       { new: true }
     )
+      .populate('address')
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')
@@ -286,6 +296,7 @@ export const getCommission: RequestHandler = async (
 ) => {
   try {
     const store = await Store.findOne({ _id: req.store._id })
+      .populate('address')
       .populate('commissionId')
       .exec()
 
@@ -360,6 +371,7 @@ export const openStore: RequestHandler = async (
       { $set: { isOpen } },
       { new: true }
     )
+      .populate('address')
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')

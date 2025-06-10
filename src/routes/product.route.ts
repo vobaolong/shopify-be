@@ -3,9 +3,9 @@ const router = express.Router()
 
 // Import route constants
 import { ROUTES } from '../constants/route.constant'
-import { getUserById } from '../controllers/user.controller'
+import { getUserById } from '../controllers/user'
 import { getStoreById } from '../controllers/store'
-import { checkCategoryChild } from '../controllers/category.controller'
+import { checkCategoryChild } from '../controllers/category'
 
 import {
   getProductById,
@@ -24,7 +24,7 @@ import {
   getStoreProductsForSeller,
   getProductsForAdmin,
   getProductForSeller
-} from '../controllers/product.controller'
+} from '../controllers/product'
 
 import {
   uploadProductSingle,

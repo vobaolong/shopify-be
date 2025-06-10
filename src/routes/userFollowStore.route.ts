@@ -6,7 +6,7 @@ import { ROUTES } from '../constants/route.constant'
 
 // Middlewares
 import { isAuth } from '../middlewares/auth.middleware'
-import { getUserById } from '../controllers/user.controller'
+import { getUserById } from '../controllers/user'
 import { getStoreById } from '../controllers/store'
 import {
   getStoreFollowerCount,
@@ -14,7 +14,7 @@ import {
   unfollowStore,
   getFollowedStores,
   checkFollowingStore
-} from '../controllers/userFollowStore.controller'
+} from '../controllers/userFollowStore'
 
 // ----------- USER FOLLOW STORE ROUTES -----------
 router.get(ROUTES.USER_FOLLOW_STORE.FOLLOWER_COUNT, getStoreFollowerCount)

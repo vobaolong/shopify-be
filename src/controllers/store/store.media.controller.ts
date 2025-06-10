@@ -16,6 +16,7 @@ export const updateAvatar = async (
       { $set: { avatar: req.filepaths ? req.filepaths[0] : '' } },
       { new: true }
     )
+      .populate('address')
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')
@@ -55,6 +56,7 @@ export const updateCover = async (
       { $set: { cover: req.filepaths ? req.filepaths[0] : '' } },
       { new: true }
     )
+      .populate('address')
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')
@@ -109,12 +111,12 @@ export const addFeatureImage = async (
       })
       return
     }
-
     const store = await Store.findOneAndUpdate(
       { _id: req.store._id },
       { $push: { featured_images: req.filepaths ? req.filepaths[0] : '' } },
       { new: true }
     )
+      .populate('address')
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')
@@ -158,7 +160,6 @@ export const updateFeatureImage = async (
       })
       return
     }
-
     const oldpath = featured_images[index]
     featured_images[index] = req.filepaths ? req.filepaths[0] : ''
 
@@ -167,6 +168,7 @@ export const updateFeatureImage = async (
       { $set: { featured_images } },
       { new: true }
     )
+      .populate('address')
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')
@@ -216,6 +218,7 @@ export const removeFeaturedImage = async (
       { $set: { featured_images } },
       { new: true }
     )
+      .populate('address')
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')

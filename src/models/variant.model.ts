@@ -7,7 +7,7 @@ interface IVariant extends Document {
   createdAt?: Date
   updatedAt?: Date
 }
-const variantSchema = new Schema<IVariant>(
+const variantSchema: Schema<IVariant> = new Schema(
   {
     name: {
       type: String,

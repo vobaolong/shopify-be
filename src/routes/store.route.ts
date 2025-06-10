@@ -13,11 +13,11 @@ import {
   isManager,
   isOwner
 } from '../middlewares/auth.middleware'
-import { getUserById } from '../controllers/user.controller'
+import { getUserById } from '../controllers/user'
 import {
   uploadMultipleImagesController,
   uploadSingleImage
-} from '../controllers/upload.controller'
+} from '../controllers/upload'
 import {
   getStoreById,
   getStore,
@@ -43,12 +43,13 @@ import {
   getStoresByUser,
   getStoresForAdmin
 } from '../controllers/store'
-import { activeAllProduct } from '../controllers/product.controller'
+import { activeAllProduct } from '../controllers/product'
 import {
   uploadAvatarSingle,
   uploadCoverSingle,
   uploadProductMultiple,
-  uploadCloudinarySingle
+  uploadCloudinarySingle,
+  uploadStoreCreateFiles
 } from '../middlewares/uploadCloudinary'
 import { adminAuth } from './user.route'
 
@@ -90,7 +91,7 @@ router.get(ROUTES.STORE.FEATURED_IMAGES, getListFeatureImages)
 router.get(ROUTES.STORE.STAFF, ...managerAuth, getStaffs)
 
 // ----------- POST ROUTES -----------
-router.post(ROUTES.STORE.CREATE, isAuth, uploadCloudinarySingle, createStore)
+router.post(ROUTES.STORE.CREATE, isAuth, uploadStoreCreateFiles, createStore)
 router.post(
   ROUTES.STORE.ADD_FEATURED_IMAGE,
   ...managerAuth,

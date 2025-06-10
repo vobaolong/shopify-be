@@ -11,6 +11,7 @@ export const getStaffs = async (
 ): Promise<void> => {
   try {
     const store = await Store.findOne({ _id: req.store._id })
+      .populate('address')
       .select('staffIds')
       .populate(
         'staffIds',
@@ -84,12 +85,12 @@ export const addStaff = async (
         newStaffIds.push(staffId)
       }
     }
-
     const store = await Store.findOneAndUpdate(
       { _id: req.store._id },
       { $set: { staffIds: newStaffIds } },
       { new: true }
     )
+      .populate('address')
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')
@@ -141,6 +142,7 @@ export const cancelStaff = async (
       { $set: { staffIds } },
       { new: true }
     )
+      .populate('address')
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')
@@ -192,6 +194,7 @@ export const removeStaff = async (
       { $set: { staffIds } },
       { new: true }
     )
+      .populate('address')
       .populate('ownerId')
       .populate('staffIds')
       .populate('commissionId', '_id name fee')

@@ -9,7 +9,7 @@ import {
   getNotifications,
   updateRead,
   deleteNotifications
-} from '../controllers/notification.controller'
+} from '../controllers/notification'
 
 import {
   sendBanStoreEmail,
@@ -20,7 +20,7 @@ import {
   sendDeliveryEmailEmail,
   sendReportStoreEmail,
   sendReportProductEmail
-} from '../controllers/email.controller'
+} from '../controllers/email'
 
 // ----------- GET ROUTES -----------
 router.get(ROUTES.NOTIFICATION.GET, getNotifications)

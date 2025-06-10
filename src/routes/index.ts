@@ -1,26 +1,17 @@
 import express from 'express'
 import fs from 'fs'
 import path from 'path'
-import { fileURLToPath } from 'url'
-import { dirname } from 'path'
-import { pathToFileURL } from 'url'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
 
 const router = express.Router()
-const routesPath = __dirname
 
 try {
-  const files = fs.readdirSync(routesPath)
-  const importPromises = files
+  const files = fs.readdirSync(__dirname)
+  files
     .filter((file) => file !== 'index.ts' && file.endsWith('.route.ts'))
-    .map(async (file) => {
+    .forEach((file) => {
       try {
-        const filePath = path.join(routesPath, file)
-        const fileUrl = pathToFileURL(filePath).href
-        const route = (await import(fileUrl)).default
-
+        const filePath = path.join(__dirname, file)
+        const route = require(filePath).default
         if (route && typeof route.stack !== 'undefined') {
           router.use('/api/v1', route)
           console.log(`Loaded route: ${file}`)
@@ -31,14 +22,7 @@ try {
         console.error(`Error importing route file ${file}:`, importError)
       }
     })
-
-  Promise.all(importPromises)
-    .then(() => {
-      console.log('All routes loaded successfully')
-    })
-    .catch((error) => {
-      console.error('Error loading routes:', error)
-    })
+  console.log('All routes loaded successfully')
 } catch (error) {
   console.error('Error reading routes directory:', error)
 }

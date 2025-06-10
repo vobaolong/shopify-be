@@ -33,13 +33,6 @@ const emailValidator = () =>
     .matches(EMAIL_REGEX)
     .withMessage('Must provide a valid email address')
 
-const phoneValidator = () =>
-  check('phone')
-    .notEmpty()
-    .withMessage('Phone number is required')
-    .matches(PHONE_REGEX)
-    .withMessage('Must be a valid Vietnamese phone number')
-
 const identifierValidator = (): ValidationChain[] => [
   check('email')
     .optional()
@@ -61,6 +54,20 @@ const identifierValidator = (): ValidationChain[] => [
       )
     return true
   })
+]
+
+// For signup - user must provide userName, name, email, phone, and password
+const signupValidator = (): ValidationChain[] => [
+  check('email')
+    .notEmpty()
+    .withMessage('Email is required')
+    .matches(EMAIL_REGEX)
+    .withMessage('Must provide a valid email address'),
+  check('phone')
+    .notEmpty()
+    .withMessage('Phone number is required')
+    .matches(PHONE_REGEX)
+    .withMessage('Must be a valid Vietnamese phone number')
 ]
 
 const strongPasswordValidator = (): ValidationChain =>
@@ -91,7 +98,7 @@ export const signup = (): ValidationChain[] => [
   nameValidator('name'),
   // nameValidator('gender'),
   // nameValidator('dateOfBirth'),
-  ...identifierValidator(),
+  ...signupValidator(),
   strongPasswordValidator()
 ]
 

@@ -8,7 +8,7 @@ import { ROUTES } from '../constants/route.constant'
 import levelValidator from '../validators/level.validator'
 import { validateHandler } from '../helpers/validateHandler'
 import { isAuth, isAdmin } from '../middlewares/auth.middleware'
-import { getUserById } from '../controllers/user.controller'
+import { getUserById } from '../controllers/user'
 import { getStoreById } from '../controllers/store'
 import {
   storeLevelById,
@@ -19,7 +19,7 @@ import {
   updateStoreLevel,
   removeStoreLevel,
   restoreStoreLevel
-} from '../controllers/storeLevel.controller'
+} from '../controllers/storeLevel'
 import { adminAuth } from './user.route'
 
 // Middleware groups

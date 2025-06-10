@@ -5,21 +5,15 @@ const router = express.Router()
 import { ROUTES } from '../constants/route.constant'
 
 // Middlewares
-import {
-  isAuth,
-  isAdmin,
-  isManager,
-  isOwner,
-  verifyPassword
-} from '../middlewares/auth.middleware'
-import { getUserById, getUserProfile } from '../controllers/user.controller'
+import { isAuth, verifyPassword } from '../middlewares/auth.middleware'
+import { getUserById, getUserProfile } from '../controllers/user'
 import { getStoreById, getStoreProfile } from '../controllers/store'
 import {
   requestTransaction,
   updateEWallet,
   createTransaction,
   getTransactions
-} from '../controllers/transaction.controller'
+} from '../controllers/transaction'
 import { adminAuth } from './user.route'
 import { managerAuth, ownerAuth } from './store.route'
 

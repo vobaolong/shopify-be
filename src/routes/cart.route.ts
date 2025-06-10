@@ -6,7 +6,7 @@ import { ROUTES } from '../constants/route.constant'
 
 // Middlewares
 import { isAuth } from '../middlewares/auth.middleware'
-import { getUserById } from '../controllers/user.controller'
+import { getUserById } from '../controllers/user'
 import {
   getCartById,
   getCartItemById,
@@ -18,7 +18,7 @@ import {
   removeCartItem,
   removeCart,
   countCartItems
-} from '../controllers/cart.controller'
+} from '../controllers/cart'
 
 // Middleware groups
 const auth = [isAuth]
