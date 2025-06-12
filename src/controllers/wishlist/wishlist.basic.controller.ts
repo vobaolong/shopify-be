@@ -1,13 +1,13 @@
 import { RequestHandler } from 'express'
-import { UserFavoriteProduct, Product } from '../../models/index.model'
+import { Wishlist, Product } from '../../models/index.model'
 import { errorHandler, MongoError } from '../../helpers/errorHandler'
-import { UserFavoriteProductRequest } from './userFavoriteProduct.types'
+import { UserFavoriteProductRequest } from './wishlist.types'
 
-export const favoriteProduct: RequestHandler = async (req, res) => {
+export const wishlist: RequestHandler = async (req, res) => {
   try {
     const userId = req.user!._id
     const productId = req.product!._id
-    const favorite = await UserFavoriteProduct.findOneAndUpdate(
+    const favorite = await Wishlist.findOneAndUpdate(
       { userId, productId },
       { isDeleted: false },
       { upsert: true, new: true }
@@ -42,11 +42,11 @@ export const favoriteProduct: RequestHandler = async (req, res) => {
   }
 }
 
-export const unFavoriteProduct: RequestHandler = async (req, res) => {
+export const unWishlist: RequestHandler = async (req, res) => {
   try {
     const userId = req.user!._id
     const productId = req.product!._id
-    const favorite = await UserFavoriteProduct.findOneAndUpdate(
+    const favorite = await Wishlist.findOneAndUpdate(
       { userId, productId },
       { isDeleted: true },
       { upsert: true, new: true }
@@ -79,11 +79,11 @@ export const unFavoriteProduct: RequestHandler = async (req, res) => {
   }
 }
 
-export const checkFavoriteProduct: RequestHandler = async (req, res) => {
+export const checkWishlist: RequestHandler = async (req, res) => {
   try {
     const userId = req.user!._id
     const productId = req.product!._id
-    const favorite = await UserFavoriteProduct.findOne({
+    const favorite = await Wishlist.findOne({
       userId,
       productId,
       isDeleted: false
@@ -97,10 +97,10 @@ export const checkFavoriteProduct: RequestHandler = async (req, res) => {
   }
 }
 
-export const getFavoriteCount: RequestHandler = async (req, res) => {
+export const getWishlistCount: RequestHandler = async (req, res) => {
   try {
     const productId = req.product!._id
-    const count = await UserFavoriteProduct.countDocuments({
+    const count = await Wishlist.countDocuments({
       productId,
       isDeleted: false
     })

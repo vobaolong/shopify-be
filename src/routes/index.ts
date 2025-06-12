@@ -14,9 +14,11 @@ try {
         const route = require(filePath).default
         if (route && typeof route.stack !== 'undefined') {
           router.use('/api/v1', route)
-          console.log(`Loaded route: ${file}`)
+          console.log(`✅ Loaded route: ${file}`)
         } else {
-          console.error(`Failed to load route: ${file} - Invalid router export`)
+          console.error(
+            `❌ Failed to load route: ${file} - Invalid router export`
+          )
         }
       } catch (importError) {
         console.error(`Error importing route file ${file}:`, importError)

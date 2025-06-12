@@ -1,12 +1,8 @@
 import { RequestHandler } from 'express'
-import { UserFavoriteProduct, Product } from '../../models/index.model'
-import { errorHandler, MongoError } from '../../helpers/errorHandler'
-import {
-  UserFavoriteProductRequest,
-  FilterType
-} from './userFavoriteProduct.types'
+import { Wishlist, Product } from '../../models/index.model'
+import { FilterType } from './wishlist.types'
 
-export const listFavoriteProductsByUser: RequestHandler = async (req, res) => {
+export const listWishlist: RequestHandler = async (req, res) => {
   try {
     const userId = req.user!._id
     const limit =
@@ -25,7 +21,7 @@ export const listFavoriteProductsByUser: RequestHandler = async (req, res) => {
       limit,
       pageCurrent: page
     }
-    const favorites = await UserFavoriteProduct.find({
+    const favorites = await Wishlist.find({
       userId,
       isDeleted: false
     })
@@ -46,6 +42,7 @@ export const listFavoriteProductsByUser: RequestHandler = async (req, res) => {
         size,
         products: []
       })
+      return
     }
     const products = await Product.find({
       _id: { $in: productIds },
@@ -73,7 +70,8 @@ export const listFavoriteProductsByUser: RequestHandler = async (req, res) => {
       size,
       products
     })
+    return
   } catch (error) {
-    res.status(500).json({ error: errorHandler(error as MongoError) })
+    res.status(500).json({ error: 'Something went wrong' })
   }
 }

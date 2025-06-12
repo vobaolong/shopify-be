@@ -211,7 +211,7 @@ export const getActiveVariants: RequestHandler = async (req, res) => {
   try {
     const variants = await Variant.find({ isDeleted: false })
       .sort({ name: 1, _id: 1 })
-      .populate('categoryId', '_id name isDeleted')
+      .populate('categoryIds', '_id name isDeleted')
     res.status(200).json({
       success: 'Load list active variants successfully',
       variants

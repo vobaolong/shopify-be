@@ -12,7 +12,7 @@ import Transaction from './transaction.model'
 import Commission from './commission.model'
 import Notification from './notification.model'
 import Report from './report.model'
-import UserFavoriteProduct from './userFavoriteProduct.model'
+import Wishlist from './wishlist.model'
 import UserFollowStore from './userFollowStore.model'
 import Brand from './brand.model'
 import RefreshToken from './refreshToken.model'
@@ -41,7 +41,7 @@ export {
   StoreLevel,
   Transaction,
   User,
-  UserFavoriteProduct,
+  Wishlist,
   UserFollowStore,
   UserLevel,
   Variant,

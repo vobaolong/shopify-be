@@ -51,13 +51,13 @@ export const ROUTES = {
     IMAGES_UPDATE: '/store/:storeId/user/:userId/product/:productId/images',
     IMAGES_REMOVE: '/store/:storeId/user/:userId/product/:productId/images'
   },
-  // User Favorite Product routes
-  USER_FAVORITE_PRODUCT: {
-    FAVORITE_COUNT: '/product/favorite-count/:productId',
-    FAVORITE_PRODUCT: '/favorite/product/:productId/:userId',
-    UNFAVORITE_PRODUCT: '/unfavorite/product/:productId/:userId',
-    LIST_FAVORITE_PRODUCTS: '/favorite/products/:userId',
-    CHECK_FAVORITE_PRODUCT: '/check/favorite/products/:productId/:userId'
+  // User Wishlist routes
+  WISHLIST: {
+    COUNT: '/user/wishlist/count/:productId',
+    WISHLIST: '/wishlist/product/:productId/:userId',
+    UN_WISHLIST: '/unwishlist/product/:productId/:userId',
+    LIST: '/wishlist/products/:userId',
+    CHECK_WISHLIST: '/check/wishlist/products/:userId/:productId'
   },
   BRAND: {
     GET_BY_ID: '/brand/:brandId',

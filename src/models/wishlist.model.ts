@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose'
 
-interface IUserFavoriteProduct extends Document {
+interface IWishlist extends Document {
   userId: mongoose.Types.ObjectId
   productId: mongoose.Types.ObjectId
   isDeleted: boolean
@@ -8,7 +8,7 @@ interface IUserFavoriteProduct extends Document {
   updatedAt?: Date
 }
 
-const userFavoriteProductSchema = new Schema<IUserFavoriteProduct>(
+const wishlistSchema = new Schema<IWishlist>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -25,11 +25,8 @@ const userFavoriteProductSchema = new Schema<IUserFavoriteProduct>(
   { timestamps: true }
 )
 
-userFavoriteProductSchema.index({ userId: 1, productId: 1 }, { unique: true })
+wishlistSchema.index({ userId: 1, productId: 1 }, { unique: true })
 
-const UserFavoriteProduct = mongoose.model<IUserFavoriteProduct>(
-  'UserFavoriteProduct',
-  userFavoriteProductSchema
-)
-export default UserFavoriteProduct
-export type { IUserFavoriteProduct }
+const Wishlist = mongoose.model<IWishlist>('Wishlist', wishlistSchema)
+export default Wishlist
+export type { IWishlist }
