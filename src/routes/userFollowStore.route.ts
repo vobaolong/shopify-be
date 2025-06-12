@@ -17,12 +17,12 @@ import {
 } from '../controllers/userFollowStore'
 
 // ----------- USER FOLLOW STORE ROUTES -----------
-router.get(ROUTES.USER_FOLLOW_STORE.FOLLOWER_COUNT, getStoreFollowerCount)
-router.post(ROUTES.USER_FOLLOW_STORE.FOLLOW_STORE, isAuth, followStore)
-router.delete(ROUTES.USER_FOLLOW_STORE.UNFOLLOW_STORE, isAuth, unfollowStore)
-router.get(ROUTES.USER_FOLLOW_STORE.FOLLOWING_STORES, isAuth, getFollowedStores)
+router.get(ROUTES.FOLLOW_STORE.FOLLOWER_COUNT, getStoreFollowerCount)
+router.post(ROUTES.FOLLOW_STORE.FOLLOW_STORE, isAuth, followStore)
+router.delete(ROUTES.FOLLOW_STORE.UNFOLLOW_STORE, isAuth, unfollowStore)
+router.get(ROUTES.FOLLOW_STORE.FOLLOWING_STORES, isAuth, getFollowedStores)
 router.get(
-  ROUTES.USER_FOLLOW_STORE.CHECK_FOLLOWING_STORE,
+  ROUTES.FOLLOW_STORE.CHECK_FOLLOWING_STORE,
   isAuth,
   checkFollowingStore
 )

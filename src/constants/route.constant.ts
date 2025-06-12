@@ -53,11 +53,11 @@ export const ROUTES = {
   },
   // User Wishlist routes
   WISHLIST: {
-    COUNT: '/user/wishlist/count/:productId',
-    WISHLIST: '/wishlist/product/:productId/:userId',
-    UN_WISHLIST: '/unwishlist/product/:productId/:userId',
+    COUNT: '/wishlist/count/:userId',
+    WISHLIST: '/wishlist/add/:userId/:productId',
+    UN_WISHLIST: '/wishlist/remove/:userId/:productId',
     LIST: '/wishlist/products/:userId',
-    CHECK_WISHLIST: '/check/wishlist/products/:userId/:productId'
+    CHECK_WISHLIST: '/wishlist/check/:userId/:productId'
   },
   BRAND: {
     GET_BY_ID: '/brand/:brandId',
@@ -217,7 +217,7 @@ export const ROUTES = {
     DELETE: '/upload/:publicId',
     DELETE_MULTIPLE: '/upload/multiple'
   },
-  USER_FOLLOW_STORE: {
+  FOLLOW_STORE: {
     BASE: '/follow',
     FOLLOWER_COUNT: '/store/follower-count/:storeId',
     FOLLOW_STORE: '/follow/store/:storeId/:userId',
