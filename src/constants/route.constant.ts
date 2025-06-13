@@ -53,7 +53,7 @@ export const ROUTES = {
   },
   // User Wishlist routes
   WISHLIST: {
-    COUNT: '/wishlist/count/:userId',
+    COUNT: '/wishlist/count/:productId',
     WISHLIST: '/wishlist/add/:userId/:productId',
     UN_WISHLIST: '/wishlist/remove/:userId/:productId',
     LIST: '/wishlist/products/:userId',

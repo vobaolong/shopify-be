@@ -1,7 +1,6 @@
 import { RequestHandler } from 'express'
 import { Wishlist, Product } from '../../models/index.model'
 import { errorHandler, MongoError } from '../../helpers/errorHandler'
-import { UserFavoriteProductRequest } from './wishlist.types'
 
 export const wishlist: RequestHandler = async (req, res) => {
   try {
@@ -53,6 +52,7 @@ export const unWishlist: RequestHandler = async (req, res) => {
     )
     if (!favorite) {
       res.status(400).json({ error: 'Favorite does not exist' })
+      return
     }
     const product = await Product.findOne({ _id: productId })
       .populate({
@@ -69,6 +69,7 @@ export const unWishlist: RequestHandler = async (req, res) => {
       .populate('storeId', '_id name avatar isActive isOpen')
     if (!product) {
       res.status(404).json({ error: 'Product not found' })
+      return
     }
     res.status(200).json({
       success: 'Product unfavorite',
@@ -90,6 +91,7 @@ export const checkWishlist: RequestHandler = async (req, res) => {
     })
     if (!favorite) {
       res.status(200).json({ error: 'Favorite product not found' })
+      return
     }
     res.status(200).json({ success: 'Favorite product' })
   } catch (error) {
