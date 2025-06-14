@@ -192,7 +192,6 @@ export const updateAvatar: RequestHandler = async (
       { $set: { avatar: avatarUrl } },
       { new: true }
     )
-
     if (!user) {
       res.status(404).json({ error: 'User not found' })
       return

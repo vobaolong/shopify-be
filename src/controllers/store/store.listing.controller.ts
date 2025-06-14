@@ -7,7 +7,16 @@ import {
   safeCleanUserLess
 } from './store.types'
 
-// Store listing and search operations
+const addDateRangeFilter = (filterArgs: any, req: StoreRequest) => {
+  const createdAtFrom = req.query.createdAtFrom as string | undefined
+  const createdAtTo = req.query.createdAtTo as string | undefined
+  if (createdAtFrom || createdAtTo) {
+    filterArgs.createdAt = {}
+    if (createdAtFrom) filterArgs.createdAt.$gte = new Date(createdAtFrom)
+    if (createdAtTo) filterArgs.createdAt.$lte = new Date(createdAtTo)
+  }
+}
+
 export const getStoreCommissions = async (
   req: StoreRequest,
   res: Response,
@@ -74,6 +83,9 @@ export const getStores = async (
       isActive: true,
       commissionId: { $in: commissionId }
     }
+
+    // Add date range filter
+    addDateRangeFilter(filterArgs, req)
 
     const count = await Store.countDocuments(filterArgs)
     const size = count
@@ -204,6 +216,9 @@ export const getStoresByUser = async (
       commissionId: { $in: commissionId }
     }
 
+    // Add date range filter
+    addDateRangeFilter(filterArgs, req)
+
     const count = await Store.countDocuments(filterArgs)
     const size = count
     const pageCount = Math.ceil(size / limit)
@@ -269,8 +284,6 @@ export const getStoresForAdmin = async (req: StoreRequest, res: Response) => {
       commissionId
     } = req.query
 
-    const createdAtFrom = req.query.createdAtFrom as string | undefined
-    const createdAtTo = req.query.createdAtTo as string | undefined
     const isActiveArr =
       isActive === 'true'
         ? [true]
@@ -278,7 +291,6 @@ export const getStoresForAdmin = async (req: StoreRequest, res: Response) => {
         ? [false]
         : [true, false]
 
-    // 2. Build filter
     const filterArgs: any = {
       $or: [
         { name: { $regex: search, $options: 'i' } },
@@ -298,7 +310,8 @@ export const getStoresForAdmin = async (req: StoreRequest, res: Response) => {
       }
     }
 
-    // 3. Count & pagination
+    addDateRangeFilter(filterArgs, req)
+
     const total = await Store.countDocuments(filterArgs)
     const pageCount = Math.ceil(total / +limit) || 1
     const skip = +limit * (Math.min(+page, pageCount) - 1)
@@ -311,11 +324,6 @@ export const getStoresForAdmin = async (req: StoreRequest, res: Response) => {
         stores: []
       })
       return
-    }
-    if (createdAtFrom || createdAtTo) {
-      filterArgs.createdAt = {}
-      if (createdAtFrom) filterArgs.createdAt.$gte = new Date(createdAtFrom)
-      if (createdAtTo) filterArgs.createdAt.$lte = new Date(createdAtTo)
     }
     const sortOrder = order === 'desc' ? -1 : 1 // 4. Query data
     const stores = await Store.find(filterArgs)

@@ -2,22 +2,9 @@ import express from 'express'
 const router = express.Router()
 import storeValidator from '../validators/store.validator'
 import { validateHandler } from '../helpers/validateHandler'
-
-// Import route constants
 import { ROUTES } from '../constants/route.constant'
-
-// Middlewares
-import {
-  isAuth,
-  isAdmin,
-  isManager,
-  isOwner
-} from '../middlewares/auth.middleware'
+import { isAuth, isManager, isOwner } from '../middlewares/auth.middleware'
 import { getUserById } from '../controllers/user'
-import {
-  uploadMultipleImagesController,
-  uploadSingleImage
-} from '../controllers/upload'
 import {
   getStoreById,
   getStore,
@@ -48,12 +35,10 @@ import {
   uploadAvatarSingle,
   uploadCoverSingle,
   uploadProductMultiple,
-  uploadCloudinarySingle,
   uploadStoreCreateFiles
 } from '../middlewares/uploadCloudinary'
 import { adminAuth } from './user.route'
 
-// Middleware groups
 export const managerAuth = [isAuth, isManager]
 export const ownerAuth = [isAuth, isOwner]
 const storeValidatorGroup = [storeValidator.updateStore(), validateHandler]
@@ -66,8 +51,6 @@ const activeStoreValidatorGroup = [
   storeValidator.activeStore(),
   validateHandler
 ]
-const avatarUploadGroup = [uploadAvatarSingle]
-const coverUploadGroup = [uploadCoverSingle]
 const featuredImagesUploadGroup = [uploadProductMultiple]
 
 // ----------- GET ROUTES -----------
@@ -129,10 +112,10 @@ router.put(
 router.put(
   ROUTES.STORE.AVATAR,
   ...managerAuth,
-  ...avatarUploadGroup,
+  uploadAvatarSingle,
   updateAvatar
 )
-router.put(ROUTES.STORE.COVER, ...managerAuth, ...coverUploadGroup, updateCover)
+router.put(ROUTES.STORE.COVER, ...managerAuth, uploadCoverSingle, updateCover)
 router.put(
   ROUTES.STORE.UPDATE_FEATURED_IMAGE,
   ...managerAuth,

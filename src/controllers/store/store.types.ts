@@ -27,6 +27,8 @@ export interface StoreRequest extends Request {
     isActive?: string
     commissionId?: string
     index?: string
+    createdAtFrom?: string
+    createdAtTo?: string
     [key: string]: any
   }
   fields?: {

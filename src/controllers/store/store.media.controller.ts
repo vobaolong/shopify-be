@@ -2,37 +2,62 @@ import { Store } from '../../models/index.model'
 import { errorHandler, MongoError } from '../../helpers/errorHandler'
 import { Response } from 'express'
 import { StoreRequest, safeCleanUser } from './store.types'
+import { deleteImage } from '../../helpers/cloudinary'
 
-// Media management operations (avatar, cover, featured images)
 export const updateAvatar = async (
   req: StoreRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const oldpath = req.store.avatar
-
+    if (!req.store?._id) {
+      res.status(400).json({
+        error: 'Store ID is required'
+      })
+      return
+    }
+    if (!req.file) {
+      res.status(400).json({ error: 'No file uploaded' })
+      return
+    }
+    const oldAvatar = req.store.avatar || ''
+    let oldPublicId = null
+    if (oldAvatar && oldAvatar.includes('cloudinary.com')) {
+      const matches = oldAvatar.match(/\/upload\/v\d+\/([^/]+)\.\w+$/)
+      if (matches && matches[1]) {
+        oldPublicId = matches[1]
+      }
+    }
+    const avatarUrl = req.file.path
     const store = await Store.findOneAndUpdate(
       { _id: req.store._id },
-      { $set: { avatar: req.filepaths ? req.filepaths[0] : '' } },
+      { $set: { avatar: avatarUrl } },
       { new: true }
     )
-      .populate('address')
-      .populate('ownerId')
-      .populate('staffIds')
-      .populate('commissionId', '_id name fee')
+      .populate('avatar')
       .exec()
-
     if (!store) {
-      res.status(500).json({
+      res.status(404).json({
         error: 'Store not found'
       })
       return
     }
-    // Cast to IUser before using cleanUser
-    store.ownerId = safeCleanUser(store.ownerId)
-    store.staffIds.forEach((staff, index) => {
-      store.staffIds[index] = safeCleanUser(staff)
-    })
+    if (
+      oldPublicId &&
+      oldPublicId !== 'default' &&
+      !oldAvatar.includes('/uploads/default.webp')
+    ) {
+      try {
+        await deleteImage(oldPublicId)
+      } catch (error) {
+        console.error('Error deleting old avatar image:', error)
+      }
+    }
+    if (store.ownerId) {
+      store.ownerId = safeCleanUser(store.ownerId)
+    }
+    if (store.staffIds?.length) {
+      store.staffIds = store.staffIds.map((staff) => safeCleanUser(staff))
+    }
     res.status(200).json({
       success: 'Update avatar successfully',
       store
@@ -49,11 +74,28 @@ export const updateCover = async (
   res: Response
 ): Promise<void> => {
   try {
-    const oldpath = req.store.cover
-
+    if (!req.store?._id) {
+      res.status(400).json({
+        error: 'Store ID is required'
+      })
+      return
+    }
+    if (!req.file) {
+      res.status(400).json({ error: 'No file uploaded' })
+      return
+    }
+    const oldCover = req.store.cover || ''
+    let oldPublicId = null
+    if (oldCover && oldCover.includes('cloudinary.com')) {
+      const matches = oldCover.match(/\/upload\/v\d+\/([^/]+)\.\w+$/)
+      if (matches && matches[1]) {
+        oldPublicId = matches[1]
+      }
+    }
+    const coverUrl = req.file.path
     const store = await Store.findOneAndUpdate(
       { _id: req.store._id },
-      { $set: { cover: req.filepaths ? req.filepaths[0] : '' } },
+      { $set: { cover: coverUrl } },
       { new: true }
     )
       .populate('address')
@@ -63,17 +105,31 @@ export const updateCover = async (
       .exec()
 
     if (!store) {
-      res.status(500).json({
+      res.status(404).json({
         error: 'Store not found'
       })
       return
     }
 
-    // Cast to IUser before using cleanUser
-    store.ownerId = safeCleanUser(store.ownerId)
-    store.staffIds.forEach((staff, index) => {
-      store.staffIds[index] = safeCleanUser(staff)
-    })
+    if (
+      oldPublicId &&
+      oldPublicId !== 'default' &&
+      !oldCover.includes('/uploads/default.webp')
+    ) {
+      try {
+        await deleteImage(oldPublicId)
+      } catch (error) {
+        console.error('Error deleting old cover image:', error)
+      }
+    }
+
+    if (store.ownerId) {
+      store.ownerId = safeCleanUser(store.ownerId)
+    }
+
+    if (store.staffIds?.length) {
+      store.staffIds = store.staffIds.map((staff) => safeCleanUser(staff))
+    }
 
     res.status(200).json({
       success: 'Update cover successfully',
@@ -102,6 +158,17 @@ export const addFeatureImage = async (
   res: Response
 ): Promise<void> => {
   try {
+    if (!req.store?._id) {
+      res.status(400).json({
+        error: 'Store ID is required'
+      })
+      return
+    }
+    if (!req.file) {
+      res.status(400).json({ error: 'No file uploaded' })
+      return
+    }
+
     const featured_images = req.store.featured_images
 
     const index = featured_images.length
@@ -111,9 +178,12 @@ export const addFeatureImage = async (
       })
       return
     }
+
+    const imageUrl = req.file.path
+
     const store = await Store.findOneAndUpdate(
       { _id: req.store._id },
-      { $push: { featured_images: req.filepaths ? req.filepaths[0] : '' } },
+      { $push: { featured_images: imageUrl } },
       { new: true }
     )
       .populate('address')
@@ -151,6 +221,17 @@ export const updateFeatureImage = async (
   res: Response
 ): Promise<void> => {
   try {
+    if (!req.store?._id) {
+      res.status(400).json({
+        error: 'Store ID is required'
+      })
+      return
+    }
+    if (!req.file) {
+      res.status(400).json({ error: 'No file uploaded' })
+      return
+    }
+
     const index = req.query.index ? parseInt(req.query.index as string) : 0
     const featured_images = [...req.store.featured_images]
 
@@ -160,8 +241,20 @@ export const updateFeatureImage = async (
       })
       return
     }
-    const oldpath = featured_images[index]
-    featured_images[index] = req.filepaths ? req.filepaths[0] : ''
+
+    // Lưu thông tin ảnh cũ để xóa sau
+    const oldPath = featured_images[index]
+    let oldPublicId = null
+    if (oldPath && oldPath.includes('cloudinary.com')) {
+      const matches = oldPath.match(/\/upload\/v\d+\/([^/]+)\.\w+$/)
+      if (matches && matches[1]) {
+        oldPublicId = matches[1]
+      }
+    }
+
+    // Lấy đường dẫn mới từ req.file.path
+    const imageUrl = req.file.path
+    featured_images[index] = imageUrl
 
     const store = await Store.findOneAndUpdate(
       { _id: req.store._id },
@@ -180,11 +273,26 @@ export const updateFeatureImage = async (
       })
       return
     }
+    if (store.ownerId) {
+      store.ownerId = safeCleanUser(store.ownerId)
+    }
 
-    store.ownerId = safeCleanUser(store.ownerId)
-    store.staffIds.forEach((staff, index) => {
-      store.staffIds[index] = safeCleanUser(staff)
-    })
+    if (store.staffIds?.length) {
+      store.staffIds = store.staffIds.map((staff) => safeCleanUser(staff))
+    }
+
+    // Xóa ảnh cũ nếu có
+    if (
+      oldPublicId &&
+      oldPublicId !== 'default' &&
+      !oldPath.includes('/uploads/default.webp')
+    ) {
+      try {
+        await deleteImage(oldPublicId)
+      } catch (error) {
+        console.error('Error deleting old featured image:', error)
+      }
+    }
 
     res.status(200).json({
       success: 'Update featured image successfully',

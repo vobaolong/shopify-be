@@ -3,6 +3,17 @@ import { User } from '../../models/index.model'
 import { cleanUser, cleanUserLess } from '../../helpers/userHandler'
 import { UserRequest, FilterType } from './user.types'
 
+// Helper function to add date range filter
+const addDateRangeFilter = (filterArgs: any, req: UserRequest) => {
+  const createdAtFrom = req.query.createdAtFrom as string | undefined
+  const createdAtTo = req.query.createdAtTo as string | undefined
+  if (createdAtFrom || createdAtTo) {
+    filterArgs.createdAt = {}
+    if (createdAtFrom) filterArgs.createdAt.$gte = new Date(createdAtFrom)
+    if (createdAtTo) filterArgs.createdAt.$lte = new Date(createdAtTo)
+  }
+}
+
 export const listUser: RequestHandler = async (
   req: UserRequest,
   res: Response
@@ -55,6 +66,9 @@ export const listUser: RequestHandler = async (
         { phone: { $regex: search, $options: 'i' } }
       ]
     }
+
+    // Add date range filter
+    addDateRangeFilter(filterArgs, req)
 
     const count = await User.countDocuments(filterArgs)
     const size = count
@@ -110,8 +124,6 @@ export const listUserForAdmin: RequestHandler = async (
       req.query.page && parseInt(req.query.page) > 0
         ? parseInt(req.query.page)
         : 1
-    const createdAtFrom = req.query.createdAtFrom as string | undefined
-    const createdAtTo = req.query.createdAtTo as string | undefined
     const searchField = req.query.searchField as string | undefined
     const isEmailActive =
       typeof req.query.isEmailActive !== 'undefined'
@@ -142,11 +154,7 @@ export const listUserForAdmin: RequestHandler = async (
       filterArgs.isEmailActive = isEmailActive
     }
 
-    if (createdAtFrom || createdAtTo) {
-      filterArgs.createdAt = {}
-      if (createdAtFrom) filterArgs.createdAt.$gte = new Date(createdAtFrom)
-      if (createdAtTo) filterArgs.createdAt.$lte = new Date(createdAtTo)
-    }
+    addDateRangeFilter(filterArgs, req)
 
     const count = await User.countDocuments(filterArgs)
     const size = count

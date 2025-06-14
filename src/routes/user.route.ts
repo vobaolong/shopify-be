@@ -1,10 +1,6 @@
 import express from 'express'
 const router = express.Router()
-
-// Import route constants
 import { ROUTES } from '../constants/route.constant'
-
-// Middlewares
 import * as userValidator from '../validators/user.validator'
 import { validateHandler } from '../helpers/validateHandler'
 import { isAuth, isAdmin, verifyPassword } from '../middlewares/auth.middleware'
@@ -27,7 +23,6 @@ import {
   updatePassword
 } from '../controllers/user'
 
-// Middleware groups
 export const adminAuth = [isAuth, isAdmin]
 const profileValidator = [userValidator.updateProfile(), validateHandler]
 const addressValidator = [userValidator.userAddress(), validateHandler]

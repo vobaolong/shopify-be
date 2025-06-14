@@ -3,16 +3,13 @@ import cloudinary from '../config/cloudinary'
 import { CloudinaryStorage } from 'multer-storage-cloudinary'
 import slugify from 'slugify'
 
-// Kích thước tối đa cho file upload (10MB)
 const MAX_FILE_SIZE = 10 * 1024 * 1024
 
-// Hàm tạo tên file từ slug và timestamp
 const createFilename = (nameOrPrefix: string, timestamp = Date.now()) => {
   const slug = slugify(nameOrPrefix, { lower: true, strict: true })
   return `${slug}_${timestamp}`
 }
 
-// Storage cơ bản cho Cloudinary (không đổi tên)
 const baseStorage = new CloudinaryStorage({
   cloudinary,
   params: () => ({
@@ -22,7 +19,6 @@ const baseStorage = new CloudinaryStorage({
   })
 })
 
-// Storage cho category - sử dụng tên từ field name
 const categoryStorage = new CloudinaryStorage({
   cloudinary,
   params: (req, file) => {
@@ -38,7 +34,6 @@ const categoryStorage = new CloudinaryStorage({
   }
 })
 
-// Storage cho product - sử dụng tên từ field name
 const productStorage = new CloudinaryStorage({
   cloudinary,
   params: (req, file) => {
@@ -54,7 +49,6 @@ const productStorage = new CloudinaryStorage({
   }
 })
 
-// Storage cho avatar - sử dụng userId hoặc storeId
 const avatarStorage = new CloudinaryStorage({
   cloudinary,
   params: (req, file) => {
@@ -72,14 +66,11 @@ const avatarStorage = new CloudinaryStorage({
   }
 })
 
-// Storage cho cover/banner - sử dụng userId hoặc storeId
 const coverStorage = new CloudinaryStorage({
   cloudinary,
   params: (req, file) => {
-    // Lấy ID từ userId hoặc storeId trong params
     const id = req.params?.userId || req.params?.storeId || 'user'
     const filename = createFilename(`cover_${id}`)
-
     return {
       folder: 'shopify/covers',
       public_id: filename,
@@ -89,7 +80,6 @@ const coverStorage = new CloudinaryStorage({
   }
 })
 
-// Các middleware upload cho từng loại
 const uploadCloudinarySingle = multer({
   storage: baseStorage,
   limits: { fileSize: MAX_FILE_SIZE }
@@ -125,7 +115,6 @@ const uploadCoverSingle = multer({
   limits: { fileSize: MAX_FILE_SIZE }
 }).single('image')
 
-// Store creation - cần nhận cả avatar và cover
 const uploadStoreCreateFiles = multer({
   storage: baseStorage,
   limits: { fileSize: MAX_FILE_SIZE }

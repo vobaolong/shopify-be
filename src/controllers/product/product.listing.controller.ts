@@ -2,6 +2,17 @@ import { Response, RequestHandler } from 'express'
 import ProductModel from '../../models/product.model'
 import { ProductRequest, FilterType } from './product.types'
 
+// Helper function to add date range filter
+const addDateRangeFilter = (filterArgs: any, req: ProductRequest) => {
+  const createdAtFrom = req.query.createdAtFrom as string | undefined
+  const createdAtTo = req.query.createdAtTo as string | undefined
+  if (createdAtFrom || createdAtTo) {
+    filterArgs.createdAt = {}
+    if (createdAtFrom) filterArgs.createdAt.$gte = new Date(createdAtFrom)
+    if (createdAtTo) filterArgs.createdAt.$lte = new Date(createdAtTo)
+  }
+}
+
 // Product listing and querying operations
 export const getProductCategories: RequestHandler = (
   req: ProductRequest,
@@ -93,7 +104,6 @@ export const getProducts: RequestHandler = (
     limit,
     pageCurrent: page
   }
-
   const filterArgs: any = {
     $or: [
       {
@@ -108,6 +118,9 @@ export const getProducts: RequestHandler = (
     isSelling: true
   }
 
+  // Add date range filter
+  addDateRangeFilter(filterArgs, req)
+
   if (rating !== -1) filterArgs.rating = { $gte: rating }
   if (minPrice !== -1) filterArgs.salePrice = { $gte: minPrice }
   if (maxPrice !== -1) {
@@ -117,6 +130,9 @@ export const getProducts: RequestHandler = (
       filterArgs.salePrice = { $lte: maxPrice }
     }
   }
+
+  // Add date range filter if applicable
+  addDateRangeFilter(filterArgs, req)
 
   ProductModel.countDocuments(filterArgs)
     .exec()
@@ -266,7 +282,6 @@ export const getProductsByStore: RequestHandler = (
     pageCurrent: page,
     storeId: req.store?._id
   }
-
   const filterArgs: any = {
     $or: [
       {
@@ -283,6 +298,9 @@ export const getProductsByStore: RequestHandler = (
     storeId: req.store?._id
   }
 
+  // Add date range filter
+  addDateRangeFilter(filterArgs, req)
+
   if (rating !== -1) filterArgs.rating = { $gte: rating }
   if (minPrice !== -1) filterArgs.salePrice = { $gte: minPrice }
   if (maxPrice !== -1) {
@@ -292,6 +310,9 @@ export const getProductsByStore: RequestHandler = (
       filterArgs.salePrice = { $lte: maxPrice }
     }
   }
+
+  // Add date range filter if applicable
+  addDateRangeFilter(filterArgs, req)
 
   ProductModel.countDocuments(filterArgs)
     .exec()
@@ -405,7 +426,6 @@ export const getStoreProductsForSeller: RequestHandler = (
     storeId: req.store._id,
     quantity: quantity !== -1 ? quantity : 'all'
   }
-
   const filterArgs: any = {
     $or: [
       {
@@ -419,6 +439,9 @@ export const getStoreProductsForSeller: RequestHandler = (
     isActive: { $in: isActive },
     storeId: req.store._id
   }
+
+  // Add date range filter
+  addDateRangeFilter(filterArgs, req)
 
   if (quantity === 0) filterArgs.quantity = quantity
 
@@ -525,11 +548,13 @@ export const getProductsForAdmin: RequestHandler = (
     limit,
     pageCurrent: page
   }
-
   const filterArgs: any = {
     name: { $regex: search, $options: 'i' },
     isActive: { $in: isActive }
   }
+
+  // Add date range filter
+  addDateRangeFilter(filterArgs, req)
 
   ProductModel.countDocuments(filterArgs)
     .exec()

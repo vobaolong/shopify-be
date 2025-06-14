@@ -27,6 +27,8 @@ export interface ProductRequest extends Request {
     maxPrice?: string
     quantity?: string
     provinces?: string[]
+    createdAtFrom?: string
+    createdAtTo?: string
     [key: string]: any
   }
 }
