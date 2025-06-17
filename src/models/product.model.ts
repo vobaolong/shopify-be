@@ -66,7 +66,7 @@ const productSchema = new Schema<IProduct>(
     },
     isActive: {
       type: Boolean,
-      required: true
+      default: true
     },
     isSelling: {
       type: Boolean,

@@ -41,8 +41,8 @@ export const ROUTES = {
     PRODUCTS_BY_STORE_FOR_MANAGER: '/store/:storeId/products',
     PRODUCTS_FOR_ADMIN: '/admin/products',
 
-    CREATE: '/store/:storeId/user/:userId/product',
-    UPDATE: '/store/:storeId/user/:userId/product/:productId',
+    CREATE: '/product/:storeId/:userId',
+    UPDATE: '/product/:productId/:storeId/:userId',
     // Selling status
     SELLING: '/store/:storeId/user/:userId/product/:productId/selling',
     ACTIVE: '/admin/active-product/:productId',

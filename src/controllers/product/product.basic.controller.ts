@@ -1,5 +1,5 @@
 import { Response, RequestHandler, RequestParamHandler } from 'express'
-import ProductModel, { IProduct } from '../../models/product.model'
+import ProductModel from '../../models/product.model'
 import { errorHandler, MongoError } from '../../helpers/errorHandler'
 import { ProductRequest } from './product.types'
 
@@ -129,9 +129,10 @@ export const createProduct: RequestHandler = (
     categoryId,
     brandId,
     variantValueIds
-  } = req.fields || {}
+  } = req.body
 
-  const listImages = req.filepaths
+  const files = Array.isArray(req.files) ? req.files : []
+  const listImages = files.map((f: any) => f.path)
 
   let variantValueIdsArray: string[] = []
   if (variantValueIds) {
@@ -185,7 +186,7 @@ export const updateProduct: RequestHandler = (
     categoryId,
     brandId,
     variantValueIds
-  } = req.fields || {}
+  } = req.body
 
   let variantValueIdsArray: string[] = []
   if (variantValueIds) {

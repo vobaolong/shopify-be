@@ -58,7 +58,7 @@ router.get(ROUTES.PRODUCT.PRODUCTS_FOR_ADMIN, ...adminAuth, getProductsForAdmin)
 router.post(
   ROUTES.PRODUCT.CREATE,
   ...managerAuth,
-  uploadProductSingle,
+  uploadProductMultiple,
   checkCategoryChild,
   createProduct
 )
