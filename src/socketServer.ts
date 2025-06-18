@@ -20,7 +20,6 @@ export const initSocketServer = (server: any) => {
   io.on('connection', (socket) => {
     console.log(`⚡: ${socket.id} user just connected!`)
 
-    // Xử lý user connect
     socket.on('addNewUser', (userId) => {
       !activeUsers.some((user) => user.userId === userId) &&
         activeUsers.push({
@@ -31,7 +30,6 @@ export const initSocketServer = (server: any) => {
       io.emit('getUsers', activeUsers)
     })
 
-    // Xử lý trường hợp gửi và nhận thông báo
     socket.on('sendNotification', (data) => {
       const user = activeUsers.find((user) => user.userId === data.receiverId)
       if (user) {
@@ -39,7 +37,6 @@ export const initSocketServer = (server: any) => {
       }
     })
 
-    // Xử lý private notification
     socket.on('sendPrivateNotification', (data) => {
       const users = activeUsers.filter((user) =>
         data.receiverIds.includes(user.userId)
@@ -52,7 +49,6 @@ export const initSocketServer = (server: any) => {
       }
     })
 
-    // Xử lý user disconnect
     socket.on('disconnect', () => {
       activeUsers = activeUsers.filter((user) => user.socketId !== socket.id)
       console.log('User disconnected', activeUsers)

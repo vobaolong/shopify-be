@@ -4,8 +4,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.ts",
-    "dev": "nodemon --watch src --ext ts --exec \"npx tsx src/index.ts\""
+    "build": "tsc",
+    "start": "tsx src/index.ts",
+    "dev": "nodemon --watch src --ext ts --exec \"npm start\"",
+    "prod": "node dist/index.js",
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +18,7 @@
   "dependencies": {
     "axios": "^1.9.0",
     "cloudinary": "^2.6.1",
+    "compression": "^1.8.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -35,6 +40,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@types/compression": "^1.8.1",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.18",
     "@types/crypto-js": "^4.2.2",

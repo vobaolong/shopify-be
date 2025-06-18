@@ -8,7 +8,7 @@ export const ROUTES = {
     SIGNOUT: '/auth/signout',
     REFRESH_TOKEN: '/auth/refresh-token',
     FORGOT_PASSWORD: '/auth/forgot-password',
-    CHANGE_PASSWORD: '/auth/change-password/:forgot-password-code',
+    CHANGE_PASSWORD: '/auth/change-password/:forgotPasswordCode',
     SEND_OTP: '/auth/send-otp',
     VERIFY_OTP: '/auth/verify-otp',
     CHECK_EMAIL: '/auth/check-email'
