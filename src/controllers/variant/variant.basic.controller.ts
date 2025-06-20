@@ -25,7 +25,7 @@ export const getVariantById: RequestParamHandler = async (
 export const readVariant: RequestHandler = async (req: VariantRequest, res) => {
   try {
     const variant = await Variant.findOne({ _id: req.variant._id }).populate(
-      'categoryId',
+      'categoryIds',
       '_id name isDeleted'
     )
     if (!variant) {
@@ -47,7 +47,6 @@ export const createVariant: RequestHandler = async (
 ) => {
   try {
     const { name, categoryIds } = req.body
-
     if (
       !name ||
       !categoryIds ||
@@ -91,11 +90,10 @@ export const updateVariant: RequestHandler = async (
 
     if (!name && !categoryIds) {
       res.status(400).json({
-        error: 'At least one field (name or categoryId) is required for update'
+        error: 'At least one field (name or categoryIds) is required for update'
       })
       return
     }
-
     const updateData: any = {}
     if (name) updateData.name = name
     if (categoryIds) updateData.categoryIds = categoryIds
@@ -104,7 +102,7 @@ export const updateVariant: RequestHandler = async (
       { _id: req.variant._id },
       { $set: updateData },
       { new: true }
-    ).populate('categoryId', '_id name isDeleted')
+    ).populate('categoryIds', '_id name isDeleted')
 
     if (!variant) {
       res.status(400).json({

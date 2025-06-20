@@ -51,15 +51,15 @@ process.on('unhandledRejection', (reason, promise) => {
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'))
 }
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Too many requests, please try again later.' }
-})
+// const apiLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000,
+//   max: 100,
+//   standardHeaders: true,
+//   legacyHeaders: false,
+//   message: { error: 'Too many requests, please try again later.' }
+// })
 
-app.use('/api', apiLimiter)
+// app.use('/api', apiLimiter)
 
 app.use(express.json({ limit: '10mb' }))
 app.use(cookieParser())

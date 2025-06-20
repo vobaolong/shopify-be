@@ -30,7 +30,6 @@ export const ROUTES = {
     COVER_UPDATE: '/user/cover/:userId'
   },
 
-  // Product routes
   PRODUCT: {
     BASE: '/product',
     GET_PRODUCT: '/product/:productId',
@@ -43,15 +42,12 @@ export const ROUTES = {
 
     CREATE: '/product/:storeId/:userId',
     UPDATE: '/product/:productId/:storeId/:userId',
-    // Selling status
     SELLING: '/store/:storeId/user/:userId/product/:productId/selling',
     ACTIVE: '/admin/active-product/:productId',
-    // Image routes
     IMAGES_ADD: '/store/:storeId/user/:userId/product/:productId/images',
     IMAGES_UPDATE: '/store/:storeId/user/:userId/product/:productId/images',
     IMAGES_REMOVE: '/store/:storeId/user/:userId/product/:productId/images'
   },
-  // User Wishlist routes
   WISHLIST: {
     COUNT: '/wishlist/count/:productId',
     WISHLIST: '/wishlist/add/:userId/:productId',
@@ -169,7 +165,7 @@ export const ROUTES = {
     ACTIVE: '/admin/store-active/:storeId',
     COMMISSION: '/store/commission/:storeId',
     COMMISSION_UPDATE: '/store/commission-update/:storeId',
-    OPEN: '/store/open/:storeId',
+    OPEN: '/store/:storeId/:userId',
     AVATAR: '/store/avatar/:storeId',
     COVER: '/store/cover/:storeId',
     FEATURED_IMAGES: '/store/featured-images/:storeId',
@@ -237,8 +233,8 @@ export const ROUTES = {
   },
   VARIANT_VALUE: {
     BASE: '/variants/:variantId/values',
-    ACTIVE: '/active/values/by/variant/:variantId',
-    LIST: '/values/by/variant/:variantId',
+    ACTIVE: '/variants/:variantId/values/active',
+    DETAIL: '/variants/:variantId/values',
     CREATE: '/value',
     UPDATE: '/value/:variantValueId',
     DELETE: '/value/:variantValueId',

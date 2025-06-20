@@ -59,16 +59,15 @@ export const getVariantValues: RequestHandler = async (req, res) => {
     if (page > pageCount) {
       skip = (pageCount - 1) * limit
     }
-
     const variantValues = await VariantValue.find(filterArgs)
       .sort({ [sortBy]: order === 'asc' ? 1 : -1, _id: 1 })
       .skip(skip)
       .limit(limit)
       .populate({
         path: 'variantId',
-        select: '_id name isDeleted',
+        select: '_id name isDeleted categoryIds',
         populate: {
-          path: 'categoryId',
+          path: 'categoryIds',
           select: '_id name isDeleted'
         }
       })
@@ -99,14 +98,13 @@ export const getAllVariantValues: RequestHandler = async (req, res) => {
     if (req.query.variantId) {
       filterArgs.variantId = req.query.variantId.toString()
     }
-
     const variantValues = await VariantValue.find(filterArgs)
       .sort({ name: 1, _id: 1 })
       .populate({
         path: 'variantId',
-        select: '_id name isDeleted',
+        select: '_id name isDeleted categoryIds',
         populate: {
-          path: 'categoryId',
+          path: 'categoryIds',
           select: '_id name isDeleted'
         }
       })

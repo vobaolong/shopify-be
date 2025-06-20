@@ -31,9 +31,9 @@ export const readVariantValue: RequestHandler = async (
       _id: req.variantValue._id
     }).populate({
       path: 'variantId',
-      select: '_id name isDeleted',
+      select: '_id name isDeleted categoryIds',
       populate: {
-        path: 'categoryId',
+        path: 'categoryIds',
         select: '_id name isDeleted'
       }
     })
@@ -104,7 +104,6 @@ export const updateVariantValue: RequestHandler = async (
       })
       return
     }
-
     const updateData: any = {}
     if (name) updateData.name = name
     if (value !== undefined) updateData.value = value
@@ -116,9 +115,9 @@ export const updateVariantValue: RequestHandler = async (
       { new: true }
     ).populate({
       path: 'variantId',
-      select: '_id name isDeleted',
+      select: '_id name isDeleted categoryIds',
       populate: {
-        path: 'categoryId',
+        path: 'categoryIds',
         select: '_id name isDeleted'
       }
     })

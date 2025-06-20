@@ -7,6 +7,7 @@ export const getVariants: RequestHandler = async (req, res) => {
   try {
     const search = req.query.search?.toString() || ''
     const regex = '.*' + search + '.*'
+    const status = req.query.status?.toString() || 'all'
 
     const sortBy = req.query.sortBy?.toString() || 'name'
     const order =
@@ -34,8 +35,13 @@ export const getVariants: RequestHandler = async (req, res) => {
     }
 
     const filterArgs: Record<string, any> = {
-      name: { $regex: regex, $options: 'i' },
-      isDeleted: false
+      name: { $regex: regex, $options: 'i' }
+    }
+
+    if (status === 'active') {
+      filterArgs.isDeleted = false
+    } else if (status === 'deleted') {
+      filterArgs.isDeleted = true
     }
 
     if (req.query.categoryId) {
@@ -57,14 +63,14 @@ export const getVariants: RequestHandler = async (req, res) => {
       })
       return
     }
-
     const variants = await Variant.find(filterArgs)
       .sort({ [sortBy]: order === 'asc' ? 1 : -1, _id: 1 })
       .populate({
         path: 'categoryIds',
+        select: '_id name isDeleted categoryId',
         populate: {
           path: 'categoryId',
-          populate: { path: 'categoryId' }
+          select: '_id name isDeleted'
         }
       })
       .skip(skip)

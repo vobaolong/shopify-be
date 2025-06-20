@@ -172,12 +172,15 @@ export const updateCategory: RequestHandler = async (
 ) => {
   try {
     let { image } = req.body
-    if (req.filepaths && req.filepaths.length > 0) {
+    if (req.file) {
+      image = req.file.path
+    } else if (req.filepaths && req.filepaths.length > 0) {
       image = req.filepaths[0]
     }
     const newCategory = { ...req.body }
-    if (image) newCategory.image = image
-
+    if (image) {
+      newCategory.image = image
+    }
     const category = await Category.findOneAndUpdate(
       { _id: req.category?._id },
       { $set: newCategory },
@@ -186,7 +189,6 @@ export const updateCategory: RequestHandler = async (
       path: 'categoryId',
       populate: { path: 'categoryId' }
     })
-
     if (!category) {
       res.status(404).json({
         error: 'Category not found'
@@ -194,7 +196,6 @@ export const updateCategory: RequestHandler = async (
       return
     }
 
-    // Delete old image if there's a new one
     if (
       req.filepaths &&
       req.filepaths.length > 0 &&
@@ -203,7 +204,6 @@ export const updateCategory: RequestHandler = async (
     ) {
       await deleteImage(req.category.image)
     }
-
     res.status(200).json({
       success: 'Update category successfully',
       category:

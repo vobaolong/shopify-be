@@ -1,7 +1,7 @@
 import express from 'express'
 const router = express.Router()
 import { ROUTES } from '../constants/route.constant'
-import { isAuth, isAdmin } from '../middlewares/auth.middleware'
+import { isAuth } from '../middlewares/auth.middleware'
 import { getUserById } from '../controllers/user'
 import { getVariantById } from '../controllers/variant'
 import {
@@ -10,12 +10,15 @@ import {
   updateVariantValue,
   removeVariantValue,
   restoreVariantValue,
-  getVariantValues
+  getVariantValues,
+  getAllVariantValues
 } from '../controllers/variantValue'
 import { adminAuth } from './user.route'
+import { managerAuth } from './store.route'
 
 // ----------- GET ROUTES -----------
-router.get(ROUTES.VARIANT_VALUE.LIST, ...adminAuth, getVariantValues)
+router.get(ROUTES.VARIANT_VALUE.DETAIL, ...adminAuth, getVariantValues)
+router.get(ROUTES.VARIANT_VALUE.ACTIVE, isAuth, getAllVariantValues)
 
 // ----------- POST ROUTES -----------
 router.post(ROUTES.VARIANT_VALUE.CREATE, isAuth, createVariantValue)
